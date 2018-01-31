@@ -1,0 +1,37 @@
+{
+  "name": "@littleq/element-lite",
+  "version": "0.0.1",
+  "description": "A take on using lit-html and polymer's properties-mixin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjmonsi/element-lite.git"
+  },
+  "keywords": [
+    "webcomponents"
+  ],
+  "author": "TJ Monserrat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjmonsi/element-lite/issues"
+  },
+  "homepage": "https://github.com/tjmonsi/element-lite#readme",
+  "dependencies": {
+    "@polymer/polymer": "^3.0.0-pre.7",
+    "@webcomponents/shadycss": "^1.1.1",
+    "@webcomponents/webcomponentsjs": "^1.1.0",
+    "lit-html": "^0.8.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.16.0",
+    "eslint-config-semistandard": "^11.0.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-html": "^3.2.2",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1"
+  }
+}
