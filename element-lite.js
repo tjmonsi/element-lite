@@ -28,10 +28,7 @@ export const ElementLite = dedupingMixin(base => {
 
     _flushProperties () {
       super._flushProperties();
-
-      const result = this.render(this._data);
-      if (result) render(result, this.shadowRoot);
-
+      render(this.render(this) || html``, this.shadowRoot);
       if (this._nextRenderedResolver) {
         this._nextRenderedResolver();
         this._nextRenderedResolver = null;
@@ -42,7 +39,7 @@ export const ElementLite = dedupingMixin(base => {
     /**
      * Return a template result to render using lit-html.
      */
-    render () {}
+    render () { return html`` }
 
     invalidate () { this._invalidateProperties(); }
 
