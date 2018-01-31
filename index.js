@@ -3,7 +3,6 @@ import { dedupingMixin } from '../../@polymer/polymer/lib/utils/mixin.js';
 import { render } from '../../lit-html/lib/lit-extended.js';
 
 export { html } from '../../lit-html/lit-html.js';
-
 export const ElementLite = dedupingMixin(base => {
   /**
    * @polymer
@@ -11,7 +10,7 @@ export const ElementLite = dedupingMixin(base => {
    * @unrestricted
    * @implements {Polymer_ElementMixin}
    */
-  class ElementMixin extends base {
+  class ElementMixin extends PropertiesMixin(base) {
     ready () {
       this.attachShadow({ mode: 'open' });
       super.ready();
