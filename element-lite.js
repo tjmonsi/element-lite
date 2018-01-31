@@ -11,6 +11,13 @@ export const ElementLite = dedupingMixin(base => {
    * @implements {Polymer_ElementMixin}
    */
   class ElementMixin extends PropertiesMixin(base) {
+
+    constructor () {
+      super();
+      Object.entries(this.constructor._properties)
+        .forEach(item => item[1].value !== undefined ? this[item[0]] = item[1].value : '');
+    }
+
     ready () {
       this.attachShadow({ mode: 'open' });
       super.ready();
