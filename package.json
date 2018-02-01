@@ -1,6 +1,6 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A take on using lit-html and polymer's properties-mixin",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,14 @@
     {
       "path": "element-lite.js",
       "limit": "7KB"
+    },
+    {
+      "path": "element-lite-static-shadow.js",
+      "limit": "5KB"
+    },
+    {
+      "path": "element-lite-base.js",
+      "limit": "5KB"
     }
   ],
   "dependencies": {

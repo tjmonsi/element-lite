@@ -1,4 +1,4 @@
-import { PropertiesMixin } from '../../@polymer/polymer/lib/mixins/properties-mixin.js';
+import { ElementLiteBase } from './element-lite-base.js';
 import { dedupingMixin } from '../../@polymer/polymer/lib/utils/mixin.js';
 import { render } from '../../lit-html/lib/lit-extended.js';
 import { html } from '../../lit-html/lit-html.js';
@@ -11,16 +11,7 @@ export const ElementLite = dedupingMixin(base => {
    * @unrestricted
    * @implements {Polymer_ElementMixin}
    */
-  class ElementMixin extends PropertiesMixin(base) {
-
-    constructor () {
-      super();
-
-      // sets default value of property based on "value" attribute on static properties
-      Object.entries(this.constructor._properties)
-        .forEach(item => item[1].value !== undefined ? (this[item[0]] = item[1].value) : '');
-    }
-
+  class ElementMixin extends ElementLiteBase(base) {
     ready () {
       // attaches shadow
       this.attachShadow({ mode: 'open' });
@@ -62,11 +53,6 @@ export const ElementLite = dedupingMixin(base => {
      * Return a template result to render using lit-html.
      */
     render () { return html``; }
-
-    /**
-     * Can call this to manually re-render the shadowRoot
-     */
-    invalidate () { this._invalidateProperties(); }
 
     // TODO: Have to ask the PolymerLabs guys what these does
     get nextRendered () {

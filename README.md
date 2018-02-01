@@ -128,6 +128,44 @@ setTimeout(() => {
 
 ```
 
+## Element-lite-base
+
+If you need only the power to track changes in properties and use the additional parts like providing default
+and (in the future) call functions based on observed variables, without the need of shadow DOM,
+use `element-lite-base`
+
+```js
+// main-base.js
+import { ElementLiteBase } from 'node_modules/@littleq/element-lite/element-lite-base.js'
+
+class Component extends ElementLiteBase(HTMLElement) {
+  ...
+}
+
+customElement.define('web-component-base', Component);
+```
+
+
+## Element-lite-static-shadow
+
+If you need the power of element-lite-base but doesn't need to re-render the shadow DOM based on property changes,
+use `element-lite-static-shadow`
+
+```js
+// main-static.js
+import { ElementLiteStaticShadow } from 'node_modules/@littleq/element-lite/element-lite-static-shadow.js'
+
+class Component extends ElementLiteStaticShadow(HTMLElement) {
+  render () {
+    return `Hello World!`
+  }
+}
+
+customElement.define('web-component-static', Component);
+```
+
+## Size
+
 Out of the box, without minifying and compressing the code, element-lite and its dependencies are under 56KB.
 This file is about 2.7KB
 
@@ -139,10 +177,20 @@ npm run size
 > @littleq/element-lite@0.0.2 size /home/tjmonsi/Projects/own-projects/element-lite
 > size-limit
 
-Package size: 4.09 KB
+  element-lite.js
+  Package size: 4.1 KB
+  Size limit:   7 KB
+
+  element-lite-static-shadow.js
+  Package size: 1.84 KB
+  Size limit:   5 KB
+
+  element-lite-base.js
+  Package size: 1.74 KB
+  Size limit:   5 KB
+
   With all dependencies, minified and gzipped
 ```
-
 
 ## Known Issues
 
