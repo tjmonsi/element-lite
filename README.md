@@ -146,7 +146,8 @@ Package size: 4.09 KB
 
 ## Known Issues
 
-1. Not yet tested for Production
-2. Not yet tested using Webpack on older browsers
-3. No ability to do static get observers or something equivalent
-4. Haven't tested a proper loop and if-then-else in
+1. Not yet tested for Production #2
+2. Not yet tested using Webpack on older browsers #2
+3. No ability to do static get observers or something equivalent #3
+4. Haven't tested a proper loop and if-then-else in #2
+5. Doesn't track changes on attribute level of an object property #1
