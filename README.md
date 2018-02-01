@@ -6,7 +6,6 @@ simple library.
 
 This is a work in progress but I will use it on my own projects once I have made it stable (and created simple tests for it)
 
-------
 
 ## How to install:
 
@@ -15,7 +14,6 @@ To install, just do this:
 npm i --save @littleq/element-lite
 ```
 
-------
 
 ## Out of the box, what can I do?
 
@@ -52,7 +50,6 @@ And if you are using Webpack and you have bundled it in ES5 for older browsers, 
 <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js">
 ```
 
--------
 
 ## Example usage
 
@@ -148,7 +145,6 @@ Package size: 4.09 KB
 
 
 ## Known Issues
---------
 
 1. Not yet tested for Production
 2. Not yet tested using Webpack on older browsers
