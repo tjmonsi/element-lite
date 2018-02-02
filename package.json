@@ -1,6 +1,6 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A take on using lit-html and polymer's properties-mixin",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,7 @@
     "@polymer/polymer": "^3.0.0-pre.7",
     "@webcomponents/shadycss": "^1.1.1",
     "@webcomponents/webcomponentsjs": "^1.1.0",
-    "lit-html": "^0.8.0"
+    "lit-html": "^0.9.0"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.1",

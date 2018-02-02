@@ -1,3 +1,6 @@
+# v0.0.4 (2018-02-02)
+- Updated lit-html with basic support on shadyCSS
+
 # v0.0.3 (2018-02-01)
 
 - Separated the element-lite into the element-lite and element-lite-base

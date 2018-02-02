@@ -18,19 +18,6 @@ export const ElementLite = dedupingMixin(base => {
       super.ready();
     }
 
-    connectedCallback () {
-      super.connectedCallback();
-
-      // checks if there is a ShadyCSS polyfill and then uses that
-      // polyfill to render CSS for this element;
-      if (window.ShadyCSS) {
-        const template = document.createElement('template');
-        render(this.render(), template.content);
-        window.ShadyCSS.prepareTemplate(template, this.constructor.is);
-        window.ShadyCSS.styleElement(this);
-      }
-    }
-
     /*
      * This is called when the attributes/properties has been changed.
      * This function in particular re-renders parts of the shadowRoot

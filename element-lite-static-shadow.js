@@ -16,13 +16,6 @@ export const ElementLiteStaticShadow = dedupingMixin(base => {
 
       // renders the shadowRoot statically
       this.shadowRoot = this.render();
-
-      // checks if there is a ShadyCSS polyfill and then uses that
-      // polyfill to render CSS for this element;
-      if (window.ShadyCSS) {
-        window.ShadyCSS.prepareTemplate(this.shadowRoot, this.constructor.is);
-        window.ShadyCSS.styleElement(this);
-      }
     }
 
     /**
