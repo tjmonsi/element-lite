@@ -3,6 +3,17 @@ module.exports = {
   "parser": "babel-eslint",
   "plugins": [
     "standard",
-    "promise"
-  ]
+    "promise",
+    "mocha",
+    "chai-friendly"
+  ],
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-unused-expressions": 0,
+    "chai-friendly/no-unused-expressions": 2
+  }
 };
