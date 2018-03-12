@@ -1,0 +1,18 @@
+{
+  "suites": ["test/runner.html"],
+  "verbose": true,
+  "plugins": {
+    "local": {
+      "browserOptions": {
+        "chrome": [
+          "headless",
+          "disable-gpu",
+          "no-sandbox"
+        ],
+        "firefox": [
+          "-headless"
+        ]
+      }
+    }
+  }
+}

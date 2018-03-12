@@ -1,4 +1,6 @@
-import { ElementLiteBase } from '../element-lite-base.js';
+/// <reference path="../../typings/global.d.ts"/>
+
+import { ElementLiteBase } from '../../element-lite-base.js';
 
 /**
  * @extends {ElementLiteBase}

@@ -1,3 +1,5 @@
+/// <reference path="typings/global.d.ts"/>
+
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { root, getProp, setProp, isPath } from './lib/path.js';
 import { saveAccessorValue } from './lib/save-accessor-value.js';
@@ -173,14 +175,13 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      */
     _definePropertyAccessor (property, readOnly) {
-      /** @type {ElementLiteBase} */
-      const self = this;
-      saveAccessorValue(self, property);
-      Object.defineProperty(self, property, {
-        get: function () { return self._getProperty(property); },
+      saveAccessorValue(this, property);
+      Object.defineProperty(this, property, {
+        // @ts-ignore
+        get () { return this._getProperty(property); },
         set: readOnly
           ? function () { console.error(`Cannot set on a read-only property: ${property}`); }
-          : function (value) { self._setProperty(property, value); }
+          : function (value) { this._setProperty(property, value); }
       });
     }
 
@@ -189,7 +190,7 @@ export const ElementLiteBase = dedupingMixin(base => {
       this.__dataEnabled = false;
       this.__dataReady = false;
       this.__dataInvalid = false;
-      this.__data = {};
+      this.__data = Object.assign({}, this.__data);
       this.__dataPending = null;
       this.__dataOld = null;
       this.__dataInstanceProps = null;
@@ -232,10 +233,13 @@ export const ElementLiteBase = dedupingMixin(base => {
           delete this[p];
         }
       }
+
       // set default value
       for (let p = 0, l = keys.length; p < l; p++) {
         const prop = keys[p];
-        if (props[prop].value) this.__data[prop] = props[prop].value;
+        if (props[prop].value) {
+          this.__data[prop] = props[prop].value;
+        }
       }
 
       if (this.__dataProto) {
@@ -394,6 +398,7 @@ export const ElementLiteBase = dedupingMixin(base => {
     _invalidateProperties () {
       if (!this.__dataInvalid && this.__dataReady) {
         this.__dataInvalid = true;
+
         Promise.resolve().then(() => {
           if (this.__dataInvalid) {
             this.__dataInvalid = false;
@@ -458,8 +463,8 @@ export const ElementLiteBase = dedupingMixin(base => {
     _propertiesChanged (currentProps, changedProps, oldProps) { // eslint-disable-line no-unused-vars
       const fns = {};
       let keys = Object.keys(changedProps);
-
       this.__dataHasPaths = false;
+
       for (let i = 0, l = keys.length; i < l; i++) {
         const key = keys[i];
         const prop = root(key);
@@ -742,7 +747,9 @@ export const ElementLiteBase = dedupingMixin(base => {
       * @return {void}
       */
     connectedCallback () {
-      if (super.connectedCallback) super.connectedCallback();
+      if (super.connectedCallback) {
+        super.connectedCallback();
+      }
       this._enableProperties();
     }
 
