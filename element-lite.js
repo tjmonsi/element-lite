@@ -9,9 +9,21 @@ export const ElementLite = dedupingMixin(base => {
    * @extends {ElementLiteBase}
   */
   class ElementLite extends ElementLiteBase(/** @type {HTMLElement} */(base)) {
+    static get noShadow () {
+      return false;
+    }
+
     ready () {
       if (!this.constructor.noShadow) this.attachShadow({ mode: 'open' });
       super.ready();
+      this._setShadow();
+    }
+
+    _setShadow () {
+      const result = this.render(this);
+      if (result) {
+        render(this.render(this) || html``, this.shadowRoot || this);
+      }
     }
 
     /*
@@ -22,11 +34,7 @@ export const ElementLite = dedupingMixin(base => {
     _propertiesChanged (currentProps, changedProps, oldProps) {
       this.__isChanging = true;
       super._propertiesChanged(currentProps, changedProps, oldProps);
-      const result = this.render(this);
-
-      if (result) {
-        render(this.render(this) || html``, this.shadowRoot || this);
-      }
+      this._setShadow();
 
       if (this.__resolveRenderComplete) {
         window.requestAnimationFrame(() => {

@@ -1,10 +1,10 @@
 # element-lite
-A take on using lit-html and polymer's property mixin
+A take on using lit-html and using methods coming from Polymer.
 
 This is based on https://github.com/PolymerLabs/lit-element and added my own take on creating my own
 simple library.
 
-This is a work in progress but I will use it on my own projects once I have made it stable (and created simple tests for it)
+This is a work in progress but I will use it on my own projects. You can freely use it on your own projects.
 
 
 ## How to install:
@@ -50,6 +50,153 @@ And if you are using Webpack and you have bundled it in ES5 for older browsers, 
 <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js">
 ```
 
+## What else can it do?
+
+You can put a default value on a property.
+
+```js
+class Component extends ElementLite(HTMLElement) {
+  static get properties () {
+    return {
+      prop1: {
+        type: String,
+        value: 'default value'
+      }
+    }
+  }
+}
+```
+
+You can put auto reflect it on the attribute
+
+```js
+class Component extends ElementLite(HTMLElement) {
+  static get properties () {
+    return {
+      prop1: {
+        type: String,
+        reflectToAttribute: true
+      }
+    }
+  }
+}
+```
+
+You can set the property to be read only (only settable by _setProperty method)
+
+```js
+class Component extends ElementLite(HTMLElement) {
+  static get properties () {
+    return {
+      prop1: {
+        type: String,
+        readOnly: true
+      }
+    }
+  }
+}
+```
+
+You can call a method when the property changes...
+
+```js
+class Component extends ElementLite(HTMLElement) {
+  static get properties () {
+    return {
+      prop1: {
+        type: String,
+        observer: '_prop1Changed'
+      }
+    }
+  }
+
+  _prop1Changed (newValue, oldValue) {
+    // method goes here
+  }
+}
+```
+
+You can call a method when a set of property changes...
+
+```js
+class Component extends ElementLite(HTMLElement) {
+  static get properties () {
+    return {
+      prop1: {
+        type: String
+      },
+      prop2: {
+        type: Object
+      }
+    }
+  }
+
+  static get observers () {
+    return [
+      '_propChanges(prop1, prop2.attr1)'
+    ];
+  }
+
+  _propChanges (prop1, attr1) {
+    // method goes here
+  }
+}
+
+// ...
+
+el.prop1 = 'a'
+el.set('prop2.attr1', 'b')
+// _propChanges('new', 'b')
+
+```
+
+It has helper methods for array mutations...
+
+```js
+class Component extends ElementLite(HTMLElement) {
+  static get properties () {
+    return {
+      prop1: {
+        type: Array,
+        value: [],
+        observer: '_arrayChanged'
+      }
+    }
+  }
+
+  _arrayChanged (newArray, oldArray) {
+    // method goes here
+  }
+}
+
+// ...
+
+el.prop1 = ['a', 'b', 'c'];
+
+// ...
+
+el.push('prop1', 'd') // el.prop1 = ['a', 'b', 'c', 'd']
+
+// ...
+
+el.pop('prop1') // el.prop1 = ['a', 'b', 'c']
+
+// ...
+
+el.unshift('prop1', 'z') // el.prop1 = ['z', 'a', 'b', 'c']
+
+// ...
+
+el.shift('prop1') // el.prop1 = ['a', 'b', 'c']
+
+// ...
+
+el.splice('prop1', 1, 0, '1', '2') // el.prop1 = ['a', '1', '2', 'b', 'c']
+
+// ...
+
+el.splice('prop1', 1, 1) // el.prop1 = ['a', '2', 'b', 'c']
+```
 
 ## Example usage
 
@@ -166,10 +313,7 @@ customElement.define('web-component-static', Component);
 
 ## Size
 
-Out of the box, without minifying and compressing the code, element-lite and its dependencies are under 56KB.
-This file is about 2.7KB
-
-Based on size-limit (have to add lit-html folders and @polymer folders 2 directories above to solve resolution problems)
+Based on size-limit
 
 ```
 npm run size
@@ -177,17 +321,21 @@ npm run size
 > @littleq/element-lite@0.0.2 size /home/tjmonsi/Projects/own-projects/element-lite
 > size-limit
 
-  element-lite.js
-  Package size: 4.1 KB
-  Size limit:   7 KB
-
-  element-lite-static-shadow.js
-  Package size: 1.84 KB
-  Size limit:   5 KB
+  element-lite-lit-only.js
+  Package size: 2.49 KB
+  Size limit:   2.5 KB
 
   element-lite-base.js
-  Package size: 1.74 KB
-  Size limit:   5 KB
+  Package size: 2.91 KB
+  Size limit:   3 KB
+
+  element-lite-static-shadow.js
+  Package size: 2.98 KB
+  Size limit:   3 KB
+
+  element-lite.js
+  Package size: 5.23 KB
+  Size limit:   5.5 KB
 
   With all dependencies, minified and gzipped
 ```
@@ -196,6 +344,4 @@ npm run size
 
 1. Not yet tested for Production #2
 2. Not yet tested using Webpack on older browsers #2
-3. No ability to do static get observers or something equivalent #3
 4. Haven't tested a proper loop and if-then-else in #2
-5. Doesn't track changes on attribute level of an object property #1
