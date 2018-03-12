@@ -1,16 +1,14 @@
 {
   "suites": ["test/runner.html"],
-  "verbose": true,
+  "verbose": false,
+  "quiet": true,
+  "persistent": true,
   "plugins": {
     "local": {
+      "browsers": ["chrome"],
       "browserOptions": {
         "chrome": [
-          "headless",
-          "disable-gpu",
-          "no-sandbox"
-        ],
-        "firefox": [
-          "-headless"
+
         ]
       }
     }

@@ -479,7 +479,7 @@ export const ElementLiteBase = dedupingMixin(base => {
 
         if (this.__dataObserver[prop]) {
           const fn = this[this.__dataObserver[prop]];
-          const args = [this.__data[prop], this.__dataOld && this.__dataOld[prop]];
+          const args = [this.__data[prop], oldProps && oldProps[prop]];
 
           if (fn) {
             fns[this.__dataObserver[prop]] = { fn: fn.bind(this), args };

@@ -5,6 +5,7 @@ module.exports = {
     "standard",
     "promise",
     "mocha",
+    "html",
     "chai-friendly"
   ],
   "env": {

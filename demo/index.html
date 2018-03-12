@@ -2,3 +2,13 @@
 <test-element>
   Test
 </test-element>
+
+<script type="module">
+  const el = document.querySelector('test-element');
+  el.test = 'test';
+
+  setTimeout(() => {
+    console.log(el.output);
+    el.test = 'test2'
+  })
+</script>

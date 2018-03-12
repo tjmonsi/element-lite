@@ -24,7 +24,8 @@ class TestElement extends ElementLiteBase(window.HTMLElement) {
     };
   }
 
-  _testChanged (test) {
+  _testChanged (test, oldTest) {
+    console.log(oldTest);
     this.output = test;
   }
 }
