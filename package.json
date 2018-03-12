@@ -27,7 +27,7 @@
   "size-limit": [
     {
       "path": "element-lite-lit-only.js",
-      "limit": "2.5KB"
+      "limit": "3KB"
     },
     {
       "path": "element-lite-base.js",
