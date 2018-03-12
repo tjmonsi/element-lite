@@ -7,7 +7,8 @@
     "size": "./node_modules/.bin/size-limit",
     "semistandard": "./node_modules/.bin/semistandard",
     "wct": "./node_modules/.bin/wct --npm",
-    "test": "npm run semistandard && npm run size && npm run karma"
+    "wct-prod": "./node_modules/.bin/wct --npm --configFile wct-prod.conf.json",
+    "test": "npm run semistandard && npm run size && npm run wct-prod"
   },
   "repository": {
     "type": "git",
