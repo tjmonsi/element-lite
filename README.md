@@ -1,4 +1,6 @@
 # element-lite
+[![Build Status](https://travis-ci.org/tjmonsi/element-lite.svg?branch=master)](https://travis-ci.org/tjmonsi/element-lite)
+
 A take on using lit-html and using methods coming from Polymer.
 
 This is based on https://github.com/PolymerLabs/lit-element and added my own take on creating my own
