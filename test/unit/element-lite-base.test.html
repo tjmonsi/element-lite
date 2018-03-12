@@ -10,7 +10,6 @@
     <test-element id="test" prop1="a" prop2="b"></test-element>
 
     <script type="module">
-
       import { ElementLiteBase } from '../../element-lite-base.js';
 
       /**
@@ -50,6 +49,17 @@
             prop7: {
               type: Array,
               observer: '_prop7Changed'
+            },
+
+            prop8: {
+              type: String,
+              value: 'j',
+              readOnly: true
+            },
+
+            prop9: {
+              type: String,
+              reflectToAttribute: true
             }
           };
         }
@@ -333,13 +343,280 @@
         });
 
         /**
-         * Checking if observer method is called on array mutations
+         * Called _propertiesChanged is called on array mutations
          */
 
         test('array push mutations work and _propertiesChanged are called', done => {
           const el = document.createElement('test-element');
           document.body.appendChild(el);
           el.prop7 = ['a', 'b', 'c']
+          setTimeout(() => {
+            expect(el._propertiesChanged.calledOnce).to.be.true;
+
+            expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+
+            expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+
+            el.push('prop7', 'd');
+            setTimeout(() => {
+              expect(el.prop7.length).to.equal(4);
+              expect(el.prop7[0]).to.equal('a');
+              expect(el.prop7[1]).to.equal('b');
+              expect(el.prop7[2]).to.equal('c');
+              expect(el.prop7[3]).to.equal('d');
+
+              expect(el._propertiesChanged.calledTwice).to.be.true;
+
+              expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(4);
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[3]).to.equal('d');
+
+              expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+              done();
+            });
+          });
+        });
+
+        test('array pop mutations work and _propertiesChanged are called', done => {
+          const el = document.createElement('test-element');
+          document.body.appendChild(el);
+          el.prop7 = ['a', 'b', 'c']
+          setTimeout(() => {
+            expect(el._propertiesChanged.calledOnce).to.be.true;
+
+            expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+
+            expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+
+            el.pop('prop7');
+            setTimeout(() => {
+              expect(el.prop7.length).to.equal(2);
+              expect(el.prop7[0]).to.equal('a');
+              expect(el.prop7[1]).to.equal('b');
+
+              expect(el._propertiesChanged.calledTwice).to.be.true;
+
+              expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(2);
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+
+              expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+              done();
+            });
+          });
+        });
+
+        test('array unshift mutations work and _propertiesChanged are called', done => {
+          const el = document.createElement('test-element');
+          document.body.appendChild(el);
+          el.prop7 = ['a', 'b', 'c']
+          setTimeout(() => {
+            expect(el._propertiesChanged.calledOnce).to.be.true;
+
+            expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+
+            expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+
+            el.unshift('prop7', 'd');
+            setTimeout(() => {
+              expect(el.prop7.length).to.equal(4);
+              expect(el.prop7[1]).to.equal('a');
+              expect(el.prop7[2]).to.equal('b');
+              expect(el.prop7[3]).to.equal('c');
+              expect(el.prop7[0]).to.equal('d');
+
+              expect(el._propertiesChanged.calledTwice).to.be.true;
+
+              expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(4);
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[3]).to.equal('c');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('d');
+
+              expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+              done();
+            });
+          });
+        });
+
+        test('array shift mutations work and _propertiesChanged are called', done => {
+          const el = document.createElement('test-element');
+          document.body.appendChild(el);
+          el.prop7 = ['a', 'b', 'c']
+          setTimeout(() => {
+            expect(el._propertiesChanged.calledOnce).to.be.true;
+
+            expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+
+            expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+
+            el.shift('prop7');
+            setTimeout(() => {
+              expect(el.prop7.length).to.equal(2);
+              expect(el.prop7[0]).to.equal('b');
+              expect(el.prop7[1]).to.equal('c');
+
+              expect(el._propertiesChanged.calledTwice).to.be.true;
+
+              expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(2);
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('c');
+
+              expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+              done();
+            });
+          });
+        });
+
+        test('array splice (remove only) mutations work and _propertiesChanged are called', done => {
+          const el = document.createElement('test-element');
+          document.body.appendChild(el);
+          el.prop7 = ['a', 'b', 'c']
+          setTimeout(() => {
+            expect(el._propertiesChanged.calledOnce).to.be.true;
+
+            expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+
+            expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+
+            el.splice('prop7', 1, 1);
+            setTimeout(() => {
+              expect(el.prop7.length).to.equal(2);
+              expect(el.prop7[0]).to.equal('a');
+              expect(el.prop7[1]).to.equal('c');
+
+              expect(el._propertiesChanged.calledTwice).to.be.true;
+
+              expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(2);
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('c');
+
+              expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+              done();
+            });
+          });
+        });
+
+        test('array splice (with insert only) mutations work and _propertiesChanged are called', done => {
+          const el = document.createElement('test-element');
+          document.body.appendChild(el);
+          el.prop7 = ['a', 'b', 'c']
+          setTimeout(() => {
+            expect(el._propertiesChanged.calledOnce).to.be.true;
+
+            expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+
+            expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+
+            el.splice('prop7', 1, 0, 'd', 'e');
+            setTimeout(() => {
+              expect(el.prop7.length).to.equal(5);
+              expect(el.prop7[0]).to.equal('a');
+              expect(el.prop7[1]).to.equal('d');
+              expect(el.prop7[2]).to.equal('e');
+              expect(el.prop7[3]).to.equal('b');
+              expect(el.prop7[4]).to.equal('c');
+
+              expect(el._propertiesChanged.calledTwice).to.be.true;
+
+              expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(5);
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('d');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('e');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[3]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[4]).to.equal('c');
+
+              expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+              done();
+            });
+          });
+        });
+
+        test('array splice (with insert and remove) mutations work and _propertiesChanged are called', done => {
+          const el = document.createElement('test-element');
+          document.body.appendChild(el);
+          el.prop7 = ['a', 'b', 'c']
+          setTimeout(() => {
+            expect(el._propertiesChanged.calledOnce).to.be.true;
+
+            expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
+            expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+
+            expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+
+            el.splice('prop7', 1, 1, 'd', 'e');
+            setTimeout(() => {
+              expect(el.prop7.length).to.equal(4);
+              expect(el.prop7[0]).to.equal('a');
+              expect(el.prop7[1]).to.equal('d');
+              expect(el.prop7[2]).to.equal('e');
+              expect(el.prop7[3]).to.equal('c');
+
+              expect(el._propertiesChanged.calledTwice).to.be.true;
+
+              expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(4);
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('d');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('e');
+              expect(el._propertiesChanged.getCall(1).args[1].prop7[3]).to.equal('c');
+
+              expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
+              expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+              done();
+            });
+          });
+        });
+
+        /**
+         * Checking if observer method is called on array mutations
+         */
+
+        test('array push mutations work and observer called', done => {
+          const el = document.createElement('test-element');
+          document.body.appendChild(el);
+          el.prop7 = ['a', 'b', 'c'];
           setTimeout(() => {
             expect(el._prop7Changed.calledOnce).to.be.true;
 
@@ -350,21 +627,21 @@
 
             expect(el._prop7Changed.getCall(0).args[1]).to.equal(undefined);
 
-            el.push('prop7', 'd');
+            el.splice('prop7', 1, 1, 'd', 'e');
             setTimeout(() => {
               expect(el.prop7.length).to.equal(4);
               expect(el.prop7[0]).to.equal('a');
-              expect(el.prop7[1]).to.equal('b');
-              expect(el.prop7[2]).to.equal('c');
-              expect(el.prop7[3]).to.equal('d');
+              expect(el.prop7[1]).to.equal('d');
+              expect(el.prop7[2]).to.equal('e');
+              expect(el.prop7[3]).to.equal('c');
 
               expect(el._prop7Changed.calledTwice).to.be.true;
 
               expect(el._prop7Changed.getCall(1).args[0].length).to.equal(4);
               expect(el._prop7Changed.getCall(1).args[0][0]).to.equal('a');
-              expect(el._prop7Changed.getCall(1).args[0][1]).to.equal('b');
-              expect(el._prop7Changed.getCall(1).args[0][2]).to.equal('c');
-              expect(el._prop7Changed.getCall(1).args[0][3]).to.equal('d');
+              expect(el._prop7Changed.getCall(1).args[0][1]).to.equal('d');
+              expect(el._prop7Changed.getCall(1).args[0][2]).to.equal('e');
+              expect(el._prop7Changed.getCall(1).args[0][3]).to.equal('c');
 
               expect(el._prop7Changed.getCall(1).args[1].length).to.equal(3);
               expect(el._prop7Changed.getCall(1).args[1][0]).to.equal('a');
@@ -376,115 +653,31 @@
         });
 
         /**
-         * Checking if observer method is called on array mutations
+         * Check on readOnly attribute
          */
 
-        test('array pop mutations work and _propertiesChanged are called', done => {
+        test('readOnly should not be set and should throw an error', () => {
           const el = document.createElement('test-element');
           document.body.appendChild(el);
-          el.prop7 = ['a', 'b', 'c']
-          setTimeout(() => {
-            expect(el._prop7Changed.calledOnce).to.be.true;
-
-            expect(el._prop7Changed.getCall(0).args[0].length).to.equal(3);
-            expect(el._prop7Changed.getCall(0).args[0][0]).to.equal('a');
-            expect(el._prop7Changed.getCall(0).args[0][1]).to.equal('b');
-            expect(el._prop7Changed.getCall(0).args[0][2]).to.equal('c');
-
-            expect(el._prop7Changed.getCall(0).args[1]).to.equal(undefined);
-
-            el.pop('prop7');
-            setTimeout(() => {
-              expect(el.prop7.length).to.equal(2);
-              expect(el.prop7[0]).to.equal('a');
-              expect(el.prop7[1]).to.equal('b');
-
-              expect(el._prop7Changed.calledTwice).to.be.true;
-
-              expect(el._prop7Changed.getCall(1).args[0].length).to.equal(2);
-              expect(el._prop7Changed.getCall(1).args[0][0]).to.equal('a');
-              expect(el._prop7Changed.getCall(1).args[0][1]).to.equal('b');
-
-              expect(el._prop7Changed.getCall(1).args[1].length).to.equal(3);
-              expect(el._prop7Changed.getCall(1).args[1][0]).to.equal('a');
-              expect(el._prop7Changed.getCall(1).args[1][1]).to.equal('b');
-              expect(el._prop7Changed.getCall(1).args[1][2]).to.equal('c');
-              done();
-            });
-          });
+          expect(el.prop8).to.equal('j');
+          const bad = () => { el.prop8 = 'k'; }
+          expect(bad).to.throw();
+          document.body.removeChild(el);
         });
 
-        test('array unshift mutations work and _propertiesChanged are called', done => {
+        /**
+         * Check on reflectToAttribute attribute
+         */
+
+        test('reflectToAttribute should reflect to attribute', done => {
           const el = document.createElement('test-element');
           document.body.appendChild(el);
-          el.prop7 = ['a', 'b', 'c']
+          el.prop9 = 'k'
           setTimeout(() => {
-            expect(el._prop7Changed.calledOnce).to.be.true;
-
-            expect(el._prop7Changed.getCall(0).args[0].length).to.equal(3);
-            expect(el._prop7Changed.getCall(0).args[0][0]).to.equal('a');
-            expect(el._prop7Changed.getCall(0).args[0][1]).to.equal('b');
-            expect(el._prop7Changed.getCall(0).args[0][2]).to.equal('c');
-
-            expect(el._prop7Changed.getCall(0).args[1]).to.equal(undefined);
-
-            el.unshift('prop7', 'd');
-            setTimeout(() => {
-              expect(el.prop7.length).to.equal(4);
-              expect(el.prop7[1]).to.equal('a');
-              expect(el.prop7[2]).to.equal('b');
-              expect(el.prop7[3]).to.equal('c');
-              expect(el.prop7[0]).to.equal('d');
-
-              expect(el._prop7Changed.calledTwice).to.be.true;
-
-              expect(el._prop7Changed.getCall(1).args[0].length).to.equal(4);
-              expect(el._prop7Changed.getCall(1).args[0][1]).to.equal('a');
-              expect(el._prop7Changed.getCall(1).args[0][2]).to.equal('b');
-              expect(el._prop7Changed.getCall(1).args[0][3]).to.equal('c');
-              expect(el._prop7Changed.getCall(1).args[0][0]).to.equal('d');
-
-              expect(el._prop7Changed.getCall(1).args[1].length).to.equal(3);
-              expect(el._prop7Changed.getCall(1).args[1][0]).to.equal('a');
-              expect(el._prop7Changed.getCall(1).args[1][1]).to.equal('b');
-              expect(el._prop7Changed.getCall(1).args[1][2]).to.equal('c');
-              done();
-            });
-          });
-        });
-
-        test('array shift mutations work and _propertiesChanged are called', done => {
-          const el = document.createElement('test-element');
-          document.body.appendChild(el);
-          el.prop7 = ['a', 'b', 'c']
-          setTimeout(() => {
-            expect(el._prop7Changed.calledOnce).to.be.true;
-
-            expect(el._prop7Changed.getCall(0).args[0].length).to.equal(3);
-            expect(el._prop7Changed.getCall(0).args[0][0]).to.equal('a');
-            expect(el._prop7Changed.getCall(0).args[0][1]).to.equal('b');
-            expect(el._prop7Changed.getCall(0).args[0][2]).to.equal('c');
-
-            expect(el._prop7Changed.getCall(0).args[1]).to.equal(undefined);
-
-            el.shift('prop7');
-            setTimeout(() => {
-              expect(el.prop7.length).to.equal(2);
-              expect(el.prop7[0]).to.equal('b');
-              expect(el.prop7[1]).to.equal('c');
-
-              expect(el._prop7Changed.calledTwice).to.be.true;
-
-              expect(el._prop7Changed.getCall(1).args[0].length).to.equal(2);
-              expect(el._prop7Changed.getCall(1).args[0][0]).to.equal('b');
-              expect(el._prop7Changed.getCall(1).args[0][1]).to.equal('c');
-
-              expect(el._prop7Changed.getCall(1).args[1].length).to.equal(3);
-              expect(el._prop7Changed.getCall(1).args[1][0]).to.equal('a');
-              expect(el._prop7Changed.getCall(1).args[1][1]).to.equal('b');
-              expect(el._prop7Changed.getCall(1).args[1][2]).to.equal('c');
-              done();
-            });
+            expect(el.prop9).to.equal('k');
+            expect(el.getAttribute('prop9')).to.equal('k');
+            document.body.removeChild(el);
+            done();
           });
         });
       });

@@ -1,7 +1,7 @@
 import { ElementLiteBase } from '../element-lite-base.js';
 
 /**
- * @extends {ElementLiteBase}
+ * @extends {HTMLElement}
 */
 class TestElement extends ElementLiteBase(window.HTMLElement) {
   static get is () { return 'test-element'; }

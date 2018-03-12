@@ -1,7 +1,6 @@
 import { ElementLiteBase } from './element-lite-base.js';
 import { dedupingMixin } from './lib/deduping-mixin.js';
-import { render } from '../../lit-html/lib/lit-extended.js';
-import { html } from '../../lit-html/lit-html.js';
+import { render, html } from '../../lit-html/lib/lit-extended.js';
 
 export { html };
 export const ElementLite = dedupingMixin(base => {
@@ -11,7 +10,7 @@ export const ElementLite = dedupingMixin(base => {
   */
   class ElementLite extends ElementLiteBase(/** @type {HTMLElement} */(base)) {
     ready () {
-      this.attachShadow({ mode: 'open' });
+      if (!this.constructor.noShadow) this.attachShadow({ mode: 'open' });
       super.ready();
     }
 
@@ -25,8 +24,8 @@ export const ElementLite = dedupingMixin(base => {
       super._propertiesChanged(currentProps, changedProps, oldProps);
       const result = this.render(this);
 
-      if (result && this.shadowRoot) {
-        render(this.render(this) || html``, this.shadowRoot);
+      if (result) {
+        render(this.render(this) || html``, this.shadowRoot || this);
       }
 
       if (this.__resolveRenderComplete) {
@@ -38,7 +37,7 @@ export const ElementLite = dedupingMixin(base => {
       this.__isChanging = false;
     }
 
-    get renderComplete () {
+    get afterRender () {
       if (!this.__renderComplete) {
         this.__renderComplete = new Promise(resolve => {
           this.__resolveRenderComplete = () => {

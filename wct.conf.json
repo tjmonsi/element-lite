@@ -5,12 +5,7 @@
   "persistent": true,
   "plugins": {
     "local": {
-      "browsers": ["chrome"],
-      "browserOptions": {
-        "chrome": [
-
-        ]
-      }
+      "browsers": ["chrome"]
     }
   }
 }
