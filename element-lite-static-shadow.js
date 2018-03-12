@@ -1,14 +1,12 @@
 import { ElementLiteBase } from './element-lite-base.js';
-import { dedupingMixin } from '../../@polymer/polymer/lib/utils/mixin.js';
+import { dedupingMixin } from './lib/deduping-mixin.js';
 
 export const ElementLiteStaticShadow = dedupingMixin(base => {
   /**
-   * @polymer
-   * @mixinClass
-   * @unrestricted
-   * @implements {Polymer_ElementMixin}
-   */
-  class ElementMixin extends ElementLiteBase(base) {
+   * ElementLite is a set of methods
+   * @extends {ElementLiteBase}
+  */
+  class ElementLiteStaticShadow extends ElementLiteBase(base) {
     ready () {
       // attaches shadow
       this.attachShadow({ mode: 'open' });
@@ -24,5 +22,5 @@ export const ElementLiteStaticShadow = dedupingMixin(base => {
     render () { return ``; }
   }
 
-  return ElementMixin;
+  return ElementLiteStaticShadow;
 });

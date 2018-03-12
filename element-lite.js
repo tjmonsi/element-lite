@@ -1,21 +1,29 @@
 import { ElementLiteBase } from './element-lite-base.js';
-import { dedupingMixin } from '../../@polymer/polymer/lib/utils/mixin.js';
-import { render } from '../../lit-html/lib/lit-extended.js';
-import { html } from '../../lit-html/lit-html.js';
+import { dedupingMixin } from './lib/deduping-mixin.js';
+import { render, html } from '../../lit-html/lib/lit-extended.js';
 
 export { html };
 export const ElementLite = dedupingMixin(base => {
   /**
-   * @polymer
-   * @mixinClass
-   * @unrestricted
-   * @implements {Polymer_ElementMixin}
-   */
-  class ElementMixin extends ElementLiteBase(base) {
+   * ElementLite is a set of methods
+   * @extends {ElementLiteBase}
+  */
+  class ElementLite extends ElementLiteBase(/** @type {HTMLElement} */(base)) {
+    static get noShadow () {
+      return false;
+    }
+
     ready () {
-      // attaches shadow
-      this.attachShadow({ mode: 'open' });
+      if (!this.constructor.noShadow) this.attachShadow({ mode: 'open' });
       super.ready();
+      this._setShadow();
+    }
+
+    _setShadow () {
+      const result = this.render(this);
+      if (result) {
+        render(this.render(this) || html``, this.shadowRoot || this);
+      }
     }
 
     /*
@@ -23,34 +31,55 @@ export const ElementLite = dedupingMixin(base => {
      * This function in particular re-renders parts of the shadowRoot
      * based on lit-html's render function.
      */
+    _propertiesChanged (currentProps, changedProps, oldProps) {
+      this.__isChanging = true;
+      super._propertiesChanged(currentProps, changedProps, oldProps);
+      this._setShadow();
 
-    _flushProperties () {
-      super._flushProperties();
-      render(this.render(this) || html``, this.shadowRoot);
-
-      // TODO: Have to ask the PolymerLabs guys what these does
-      if (this._nextRenderedResolver) {
-        this._nextRenderedResolver();
-        this._nextRenderedResolver = null;
-        this._nextRendered = null;
+      if (this.__resolveRenderComplete) {
+        window.requestAnimationFrame(() => {
+          this.__resolveRenderComplete();
+        });
       }
+
+      this.__isChanging = false;
+    }
+
+    get afterRender () {
+      if (!this.__renderComplete) {
+        this.__renderComplete = new Promise(resolve => {
+          this.__resolveRenderComplete = () => {
+            this.__resolveRenderComplete = this.__renderComplete = null;
+            resolve();
+          };
+        });
+        if (!this.__isInvalid && this.__resolveRenderComplete) {
+          this.__resolveRenderComplete();
+        }
+      }
+      return this.__renderComplete;
+    }
+
+    /**
+     * Override which provides tracking of invalidated state.
+    */
+    _invalidateProperties () {
+      this.__isInvalid = true;
+      super._invalidateProperties();
     }
 
     /**
      * Return a template result to render using lit-html.
      */
-    render () { return html``; }
+    render (self) { return html``; }
 
-    // TODO: Have to ask the PolymerLabs guys what these does
-    get nextRendered () {
-      if (!this._nextRendered) this._nextRendered = new Promise(resolve => (this._nextRenderedResolver = resolve));
-      return this._nextRendered;
+    /**
+     * Helper method to re-render the whole setup.
+     */
+    invalidate () {
+      this._invalidateProperties();
     }
-
-    // TODO: Have to add a simple and proper get static observer checker
-
-    // TODO: How do we add Polymer's Gestures on-tap? Do we need it?
   }
 
-  return ElementMixin;
+  return ElementLite;
 });
