@@ -31,11 +31,11 @@
     },
     {
       "path": "element-lite-base.js",
-      "limit": "3KB"
+      "limit": "3.5KB"
     },
     {
       "path": "element-lite-static-shadow.js",
-      "limit": "3KB"
+      "limit": "3.5KB"
     },
     {
       "path": "element-lite.js",
