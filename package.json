@@ -1,8 +1,8 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A take on using lit-html and polymer's properties-mixin",
-  "main": "index.js",
+  "main": "element-lite.js",
   "scripts": {
     "size": "./node_modules/.bin/size-limit",
     "semistandard": "./node_modules/.bin/semistandard",
