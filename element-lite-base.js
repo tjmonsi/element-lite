@@ -45,7 +45,9 @@ export const ElementLiteBase = dedupingMixin(base => {
   }
 
   /**
-   * ElementLite is a set of methods
+   * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
+   * that automates the creation of setter and getters given a list of properties and
+   * allows auto-calling of methods given observers. This is the base without the lit-html counterpart
    * @extends {HTMLElement}
   */
   class ElementLiteBase extends /** @type {HTMLElement} */(base) {
