@@ -1,4 +1,4 @@
-/// <reference path="typings/global.d.ts"/>
+/// <reference path="typings-project/global.d.ts"/>
 
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { root, getProp, setProp, isPath } from './lib/path.js';
@@ -221,7 +221,9 @@ export const ElementLiteBase = dedupingMixin(base => {
       const keys = props ? Object.keys(props) : [];
       if (!this.hasOwnProperty('__finalized')) {
         this.__finalized = true;
-        if (props) this.constructor.createProperties(props);
+        if (props) {
+          this.constructor.createProperties(props);
+        }
       }
       // Capture instance properties; these will be set into accessors
       // during first flush. Don't set them here, since we want
