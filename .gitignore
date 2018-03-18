@@ -58,3 +58,6 @@ typings/
 .env
 
 dist
+
+test/unit/cases-es5
+test/unit/scripts-es5
