@@ -11,6 +11,7 @@ before_install:
 - sh -e /etc/init.d/xvfb start
 before_script:
 - cp -r node_modules/lit-html ../../lit-html
+- cp -r node_modules/lit-html/lib ../../lit-html/lib
 script: npm test && npm run wct-sauce
 env:
   global:
