@@ -2,6 +2,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import buble from 'rollup-plugin-buble';
 import uglify from 'rollup-plugin-uglify';
+import fs from 'fs';
 const output = [];
 
 const files = [
@@ -11,17 +12,14 @@ const files = [
   'element-lite-static-shadow'
 ];
 
-const testFiles = [
-  'element-lite-base',
-  'element-lite-lit-only',
-  'element-lite'
-];
+const testScriptFiles = fs.readdirSync('test/unit/scripts');
+const testCaseFiles = fs.readdirSync('test/unit/cases');
 
-for (let testFile of testFiles) {
+for (let testFile of testScriptFiles) {
   output.push({
-    input: `test/unit/scripts/${testFile}.test.js`,
+    input: `test/unit/scripts/${testFile}`,
     output: {
-      file: `test/unit/scripts/${testFile}.browser.es5.test.js`,
+      file: `test/unit/scripts-es5/${testFile}`,
       format: 'umd',
       name: 'TestElements'
     },
@@ -29,7 +27,27 @@ for (let testFile of testFiles) {
       resolve(), // so Rollup can find `ms`
       commonjs(), // so Rollup can convert `ms` to an ES module
       buble({ // transpile ES2015+ to ES5
-        exclude: ['node_modules/**'],
+        transforms: {
+          templateString: false,
+          forOf: false
+        }
+      })
+    ]
+  });
+}
+
+for (let testFile of testCaseFiles) {
+  output.push({
+    input: `test/unit/cases/${testFile}`,
+    output: {
+      file: `test/unit/cases-es5/${testFile}`,
+      format: 'umd',
+      name: 'TestElements'
+    },
+    plugins: [
+      resolve(), // so Rollup can find `ms`
+      commonjs(), // so Rollup can convert `ms` to an ES module
+      buble({ // transpile ES2015+ to ES5
         transforms: {
           templateString: false,
           forOf: false

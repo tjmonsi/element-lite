@@ -12,54 +12,16 @@
 
     <test-element-two id="test"></test-element-two>
 
-    <script src="../../dist/element-lite-lit-only.umd.es5.js"></script>
-    <script src="./scripts/element-lite-lit-only.browser.es5.test.js"></script>
-
     <script>
       window.addEventListener('WebComponentsReady', function() {
-        var script = document.createElement('script');
         var component = document.createElement('script');
-        script.src = '../../dist/element-lite-lit-only.umd.es5.min.js';
-        component.src = './scripts/element-lite-lit-only.browser.es5.test.js';
-        document.head.appendChild(script);
+        component.src = './scripts-es5/element-lite-lit-only.test.js';
         document.head.appendChild(component);
 
         setTimeout(function() {
-          suite('ElementLiteLitOnly Mixin', function () {
-            test('should have not be a HTMLUnknownElement constructor', function () {
-              const el = document.querySelector('#test');
-              expect(el.constructor.is).to.equal('test-element-two');
-            });
-
-            test('shadow root elements should exist', function () {
-              const el = document.querySelector('#test');
-              const input = el.shadowRoot.querySelector('#input');
-              const button = el.shadowRoot.querySelector('#button');
-              expect(input).to.exist;
-              expect(button).to.exist;
-            });
-
-            test('button can be clicked', function (done) {
-              const el = document.createElement('test-element-two');
-              document.body.append(el);
-              const button = el.shadowRoot.querySelector('#button');
-              expect(button).to.exist;
-              MockInteractions.tap(button);
-              setTimeout(function () {
-                expect(el._boundedButtonClicked.calledOnce).to.be.true;
-                document.body.removeChild(el);
-                done();
-              });
-            });
-
-            test('button style is changed', function () {
-              const el = document.createElement('test-element-two');
-              document.body.append(el);
-              const button = el.shadowRoot.querySelector('#button');
-              expect(button).to.exist;
-              expect(button.getBoundingClientRect().width).to.equal(500);
-            });
-          });
+          var cases = document.createElement('script');
+          cases.src = './cases-es5/element-lite-lit-only.test.js';
+          document.head.appendChild(cases);
         }, 200);
       });
     </script>

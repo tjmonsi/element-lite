@@ -22,7 +22,9 @@
         "__dirname",
         "URL",
         "describe",
-        "it"
+        "it",
+        "expect",
+        "assert"
       ],
       "ignore": [
         "node_modules",
@@ -48,7 +50,10 @@
       "plugins": [
         "html"
       ],
-      "parser": "babel-eslint"
+      "parser": "babel-eslint",
+      "env": [
+        "mocha"
+      ]
     },
     "standard.validate": [
       "javascript",

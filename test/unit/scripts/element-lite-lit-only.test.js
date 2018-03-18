@@ -1,13 +1,12 @@
 // @ts-nocheck
 
-var ElementLiteLitOnly = window.ElementLite.ElementLiteLitOnly;
-var html = window.ElementLite.html;
+import { ElementLiteLitOnly, html } from '../../../element-lite-lit-only.js';
 var sinon = window.sinon;
 
 /**
  * @extends {ElementLiteLitOnly}
 */
-class TestElementTwo extends ElementLiteLitOnly(window.HTMLElement) {
+class TestElement extends ElementLiteLitOnly(window.HTMLElement) {
   static get is () { return 'test-element-two'; }
 
   constructor () {
@@ -33,4 +32,4 @@ class TestElementTwo extends ElementLiteLitOnly(window.HTMLElement) {
   }
 }
 
-window.customElements.define(TestElementTwo.is, TestElementTwo);
+window.customElements.define(TestElement.is, TestElement);
