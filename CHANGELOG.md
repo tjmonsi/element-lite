@@ -1,6 +1,8 @@
 # v0.1.3 (2018-18-03)
 - Added more tests and created bundled versions for distribution
 - Added CODE_OF_CONDUCT.md
+- updated to have Sauce labs tests
+- Updated README.md
 
 # v0.1.1 (2018-15-03)
 - Made a small fix on package.json on `main` to reflect main file

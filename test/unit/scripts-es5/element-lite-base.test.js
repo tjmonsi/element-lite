@@ -1,80 +1,223 @@
-/// <reference path="typings-project/global.d.ts"/>
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(factory());
+}(this, (function () { 'use strict';
 
-import { dedupingMixin } from './lib/deduping-mixin.js';
-import { root, getProp, setProp, isPath } from './lib/path.js';
-import { saveAccessorValue } from './lib/save-accessor-value.js';
-import { camelToDashCase } from './lib/case-map.js';
+// @ts-check
+
+// unique global id for deduping mixins.
+/** @type {number} */
+var dedupeId = 0;
 
 /**
- * Parts are copied from different mixin parts of https://github.com/Polymer/polymer/tree/__auto_generated_3.0_preview
- *
- * Here are the list of parts that are copied or modified
- * - Copied:
- *   - Private Functions
- *     - normalizeProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L14
- *     - ownProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L58
- *   - Class Methods
- *     - Static methods
- *       - createProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L25
- *     - Protected Methods
- *       - _initializeProtoProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L133
- *       - _initializeInstanceProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1177
- *       - _setProperty - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L202
- *       - _getProperty - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L214
- *       - _setPendingProperty - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1419
- *       - _flushProperties
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L300
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1502
- *       - _shouldPropertiesChange - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L323
- *       - _shouldPropertyChange - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L360
- *       - _attributeToProperty - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L400
- *       - _propertyToAttribute - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L419
- *       - _valueToNodeAttribute - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L440
- *       - _serializeValue
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L460
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L162
- *       - _deserializeValue
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L481
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L196
- *       - _setPendingPropertyOrPath - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1319
- *     - HTMLElement Methods
- *       - attributeChangedCallback - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L379
- *       - observedAttributes - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L85
- *     - Public methods
- *       - ready - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L149
- *       - set - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1805
- *
- *
- *
- * - Modified
- *   - Class Methods
- *     - Protected Methods
- *       - _createPropertyAccessor - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L73
- *       - _addPropertyToAttributeMap - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L91
- *       - _definePropertyAccessor - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L107
- *       - _initializeProperties
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L163
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L160
- *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L112
- *       - _invalidateProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L257
- *     - Public Methods
- *       - push - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1831
- *       - pop - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1855
- *       - splice - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1883
- *       - shift - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1935
- *       - unshift - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1960
- *       - get - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1780
- *   - Class Constructor - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L122
- *
- * - Created
- *   - Class Methods
- *     - Protected Methods
- *       - _initializeObservers
- *       - _propertiesChanged
- *
+ * @type {Function}
+ * @param {!MixinFunction} [mixin]
+ * @return {Function}
  */
+var dedupingMixin = function (mixin) {
+  var mixinApplications = mixin.__mixinApplications;
+  if (!mixinApplications) {
+    mixinApplications = new WeakMap();
+    mixin.__mixinApplications = mixinApplications;
+  }
+  // maintain a unique id for each mixin
+  var mixinDedupeId = dedupeId++;
 
-export const ElementLiteBase = dedupingMixin(base => {
+  /**
+ * @type {Function}
+ * @param {!MixinFunction} base
+ * @return {MixinFunction}
+ */
+  function dedupingMixin (base) {
+    /** @type {(Object | undefined)} */
+    var baseSet = base.__mixinSet;
+    if (baseSet && baseSet[mixinDedupeId]) {
+      return base;
+    }
+
+    var map = mixinApplications;
+
+    /** @type {MixinFunction} */
+    var extended = map.get(base);
+    if (!extended) {
+      // @ts-ignore
+      extended = mixin(base);
+      map.set(base, extended);
+    }
+    // copy inherited mixin set from the extended class, or the base class
+    // NOTE: we avoid use of Set here because some browser (IE11)
+    // cannot extend a base Set via the constructor.
+
+    /** @type {(Object | undefined)} */
+    var mixinSet = Object.create(extended.__mixinSet || baseSet || null);
+    mixinSet[mixinDedupeId] = true;
+
+    /** @type {!MixinFunction} */
+    extended.__mixinSet = mixinSet;
+    return extended;
+  }
+
+  return dedupingMixin;
+};
+
+// @ts-check
+
+/**
+ * @param {string[]} path
+ * @return {string} normalized path
+ */
+var normalizeArray = function (path) {
+  /** @type {string[]} */
+  var parts = [];
+  for (var i = 0; i < path.length; i++) {
+    /** @type {string[]} */
+    var args = path[i].toString().split('.');
+    for (var j = 0; j < args.length; j++) { parts.push(args[j]); }
+  }
+
+  return parts.join('.');
+};
+
+/**
+ * @param {string} path
+ * @return {boolean} if it is a path
+ */
+var isPath = function (path) { return path.indexOf('.') >= 0; };
+
+/**
+ * @param {string} path
+ * @return {string} path's root
+ */
+var root = function (path) { return path.indexOf('.') === -1 ? path : path.slice(0, path.indexOf('.')); };
+
+/**
+ * @param {string | string[]} path
+ * @return {string} normalize path
+ */
+var normalize = function (path) { return Array.isArray(path) ? normalizeArray(path) : path; };
+
+/**
+ * @param {string | string[]} path
+ * @return {string[]} split path into array
+ */
+var split = function (path) { return Array.isArray(path) ? normalize(path).split('.') : path.toString().split('.'); };
+
+/**
+ * @param {object} obj
+ * @param {string|array} path
+ * @param {?object} info
+ * @return {any} the data given a path
+ */
+var getProp = function (obj, path, info) {
+  var prop = obj;
+  var parts = split(path);
+  // Loop over path parts[0..n-1] and dereference
+  for (var i = 0; i < parts.length; i++) {
+    if (!prop) { return; }
+    var part = parts[i];
+    prop = prop[part];
+  }
+  if (info) { info.path = parts.join('.'); }
+  return prop;
+};
+
+/**
+ * @param {object} obj
+ * @param {string} path
+ * @param {any} value
+ * @return {string} path
+ */
+var setProp = function (obj, path, value) {
+  var prop = obj;
+  var parts = split(path);
+  var last = parts[parts.length - 1];
+  if (parts.length > 1) {
+    // Loop over path parts[0..n-2] and dereference
+    for (var i = 0; i < parts.length - 1; i++) {
+      var part = parts[i];
+      prop = prop[part];
+      if (!prop) { return; }
+    }
+    // Set value to object at end of path
+    prop[last] = value;
+  } else {
+    // Simple property set
+    prop[path] = value;
+  }
+  return parts.join('.');
+};
+
+// Save map of native properties; this forms a blacklist or properties
+// that won't have their values "saved" by `saveAccessorValue`, since
+// reading from an HTMLElement accessor from the context of a prototype throws
+var nativeProperties = {};
+var proto = window.HTMLElement.prototype;
+
+while (proto) {
+  var props = Object.getOwnPropertyNames(proto);
+  for (var i = 0; i < props.length; i++) { nativeProperties[props[i]] = true; }
+  proto = Object.getPrototypeOf(proto);
+}
+
+/**
+  * Copied from Polymer/polymer/lib/mixins/property-accessors.js
+  *
+  * Used to save the value of a property that will be overridden with
+  * an accessor. If the `model` is a prototype, the values will be saved
+  * in `__dataProto`, and it's up to the user (or downstream mixin) to
+  * decide how/when to set these values back into the accessors.
+  * If `model` is already an instance (it has a `__data` property), then
+  * the value will be set as a pending property, meaning the user should
+  * call `_invalidateProperties` or `_flushProperties` to take effect
+  *
+  * @param {Object} model Prototype or instance
+  * @param {string} property Name of property
+  * @return {void}
+  */
+function saveAccessorValue (model, property) {
+// Don't read/store value for any native properties since they could throw
+  if (!nativeProperties[property]) {
+    var value = model[property];
+    if (value !== undefined) {
+      if (model.__data) {
+        // Adding accessor to instance; update the property
+        // It is the user's responsibility to call _flushProperties
+        model._setPendingProperty(property, value);
+      } else {
+        // Adding accessor to proto; save proto's value for instance-time use
+        if (!model.__dataProto) {
+          model.__dataProto = {};
+        } else if (!model.hasOwnProperty('__dataProto')) {
+          model.__dataProto = Object.create(model.__dataProto);
+        }
+        model.__dataProto[property] = value;
+      }
+    }
+  }
+}
+
+var caseMap = {};
+// const DASH_TO_CAMEL = /-[a-z]/g;
+var CAMEL_TO_DASH = /([A-Z])/g;
+
+// export function dashToCamelCase (dash) {
+//   return caseMap[dash] || (
+//     caseMap[dash] = dash.indexOf('-') < 0 ? dash : dash.replace(DASH_TO_CAMEL,
+//       (m) => m[1].toUpperCase()
+//     )
+//   );
+// }
+
+function camelToDashCase (camel) {
+  return caseMap[camel] || (
+    caseMap[camel] = camel.replace(CAMEL_TO_DASH, '-$1').toLowerCase()
+  );
+}
+
+/// <reference path="typings-project/global.d.ts"/>
+
+var ElementLiteBase = dedupingMixin(function (base) {
   /**
    * Creates a copy of `props` with each property normalized such that
    * upgraded it is an object with at least a type property { type: Type}.
@@ -85,9 +228,9 @@ export const ElementLiteBase = dedupingMixin(base => {
    * @private
    */
   function normalizeProperties (props) {
-    const output = {};
-    for (let p in props) {
-      const o = props[p];
+    var output = {};
+    for (var p in props) {
+      var o = props[p];
       output[p] = (typeof o === 'function') ? {type: o} : o;
     }
     return output;
@@ -119,66 +262,9 @@ export const ElementLiteBase = dedupingMixin(base => {
    * allows auto-calling of methods given observers. This is the base without the lit-html counterpart
    * @extends {HTMLElement}
   */
-  class ElementLiteBase extends /** @type {HTMLElement} */(base) {
-    /**
-      * Returns a memoized version of all properties, including those inherited
-      * from super classes. Properties not in object format are converted to
-      * at least {type}.
-      *
-      * @return {Object} Object containing properties for this class
-      * @protected
-      */
-    static get _properties () {
-      if (!this.hasOwnProperty('__properties')) {
-        this.__properties = Object.assign({}, ownProperties(this));
-      }
-      return this.__properties;
-    }
-
-    /**
-     * Creates property accessors for the given property names.
-     *
-     * @param {!Object} props Object whose keys are names of accessors.
-     * @return {void}
-     * @protected
-     */
-    static createProperties (props) {
-      const proto = this.prototype;
-
-      for (let prop in props) {
-        const { readOnly, reflectToAttribute, notify, observer } = props[prop];
-        // don't stomp an existing accessor
-        if (!(prop in proto)) {
-          proto._createPropertyAccessor(prop, readOnly, reflectToAttribute, notify, observer);
-        }
-      }
-    }
-
-    /**
-      * Implements standard custom elements getter to observes the attributes
-      * listed in `properties`.
-      * @suppress {missingProperties} Interfaces in closure do not inherit statics, but classes do
-      */
-    static get observedAttributes () {
-      const props = this._properties;
-      return props ? Object.keys(props).map(p => camelToDashCase(p)) : [];
-    }
-
-    /**
-      * Overrides `PropertiesChanged` method to return type specified in the
-      * static `properties` object for the given property.
-      * @param {string} name Name of property
-      * @return {*} Type to which to deserialize attribute
-      *
-      * @protected
-      */
-    static typeForProperty (name) {
-      const info = this._properties[name];
-      return info && info.type;
-    }
-
-    constructor () {
-      super();
+  var ElementLiteBase = (function (superclass) {
+    function ElementLiteBase () {
+      superclass.call(this);
       this.__dataEnabled = false;
       this.__dataReady = false;
       this.__dataInvalid = false;
@@ -198,6 +284,12 @@ export const ElementLiteBase = dedupingMixin(base => {
       this._initializeObservers();
     }
 
+    if ( superclass ) ElementLiteBase.__proto__ = superclass;
+    ElementLiteBase.prototype = Object.create( superclass && superclass.prototype );
+    ElementLiteBase.prototype.constructor = ElementLiteBase;
+
+    var staticAccessors = { _properties: { configurable: true },observedAttributes: { configurable: true } };
+
     /**
       * Called when the element is added to a document.
       * Calls `_enableProperties` to turn on property system from
@@ -205,12 +297,65 @@ export const ElementLiteBase = dedupingMixin(base => {
       * @suppress {missingProperties} Super may or may not implement the callback
       * @return {void}
       */
-    connectedCallback () {
-      if (super.connectedCallback) {
-        super.connectedCallback();
+    staticAccessors._properties.get = function () {
+      if (!this.hasOwnProperty('__properties')) {
+        this.__properties = Object.assign({}, ownProperties(this));
+      }
+      return this.__properties;
+    };
+
+    /**
+     * Creates property accessors for the given property names.
+     *
+     * @param {!Object} props Object whose keys are names of accessors.
+     * @return {void}
+     * @protected
+     */
+    ElementLiteBase.createProperties = function createProperties (props) {
+      var proto = this.prototype;
+
+      for (var prop in props) {
+        var ref = props[prop];
+        var readOnly = ref.readOnly;
+        var reflectToAttribute = ref.reflectToAttribute;
+        var notify = ref.notify;
+        var observer = ref.observer;
+        // don't stomp an existing accessor
+        if (!(prop in proto)) {
+          proto._createPropertyAccessor(prop, readOnly, reflectToAttribute, notify, observer);
+        }
+      }
+    };
+
+    /**
+      * Implements standard custom elements getter to observes the attributes
+      * listed in `properties`.
+      * @suppress {missingProperties} Interfaces in closure do not inherit statics, but classes do
+      */
+    staticAccessors.observedAttributes.get = function () {
+      var props = this._properties;
+      return props ? Object.keys(props).map(function (p) { return camelToDashCase(p); }) : [];
+    };
+
+    /**
+      * Overrides `PropertiesChanged` method to return type specified in the
+      * static `properties` object for the given property.
+      * @param {string} name Name of property
+      * @return {*} Type to which to deserialize attribute
+      *
+      * @protected
+      */
+    ElementLiteBase.typeForProperty = function typeForProperty (name) {
+      var info = this._properties[name];
+      return info && info.type;
+    };
+
+    ElementLiteBase.prototype.connectedCallback = function connectedCallback () {
+      if (superclass.prototype.connectedCallback) {
+        superclass.prototype.connectedCallback.call(this);
       }
       this._enableProperties();
-    }
+    };
 
     /**
      * Call to enable property accessor processing. Before this method is
@@ -223,7 +368,7 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _enableProperties () {
+    ElementLiteBase.prototype._enableProperties = function _enableProperties () {
       if (!this.__dataEnabled) {
         this.__dataEnabled = true;
         // put here setting of attributes
@@ -233,7 +378,7 @@ export const ElementLiteBase = dedupingMixin(base => {
         }
         this.ready();
       }
-    }
+    };
 
     /**
      * Creates a setter/getter pair for the named property with its own
@@ -262,7 +407,7 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _createPropertyAccessor (property, readOnly, reflectToAttribute, notify, observer) {
+    ElementLiteBase.prototype._createPropertyAccessor = function _createPropertyAccessor (property, readOnly, reflectToAttribute, notify, observer) {
       this._addPropertyToAttributeMap(property);
 
       if (!this.hasOwnProperty('__dataHasAccessor')) {
@@ -305,7 +450,7 @@ export const ElementLiteBase = dedupingMixin(base => {
       if (observer && typeof observer === 'string') {
         this.__dataObserver[property] = observer;
       }
-    }
+    };
 
     /**
      * Adds the given `property` to a map matching attribute names
@@ -314,8 +459,8 @@ export const ElementLiteBase = dedupingMixin(base => {
      *
      * @param {string} property Name of the property
      */
-    _addPropertyToAttributeMap (property) {
-      const attr = camelToDashCase(property);
+    ElementLiteBase.prototype._addPropertyToAttributeMap = function _addPropertyToAttributeMap (property) {
+      var attr = camelToDashCase(property);
 
       if (!this.hasOwnProperty('__dataAttributes')) {
         this.__dataAttributes = Object.assign({}, this.__dataAttributes);
@@ -332,7 +477,7 @@ export const ElementLiteBase = dedupingMixin(base => {
       if (!this.__dataAttributeProperties[property]) {
         this.__dataAttributeProperties[property] = attr;
       }
-    }
+    };
 
     /**
      * Defines a property accessor for the given property.
@@ -341,16 +486,16 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @param {boolean=} readOnly When true, no setter is created
      * @return {void}
      */
-    _definePropertyAccessor (property, readOnly) {
+    ElementLiteBase.prototype._definePropertyAccessor = function _definePropertyAccessor (property, readOnly) {
       saveAccessorValue(this, property);
       Object.defineProperty(this, property, {
         // @ts-ignore
-        get () { return this._getProperty(property); },
+        get: function get () { return this._getProperty(property); },
         set: readOnly
           ? function () { console.error(`Cannot set on a read-only property: ${property}`); }
           : function (value) { this._setProperty(property, value); }
       });
-    }
+    };
 
     /**
      * Initializes the local storage for property accessors.
@@ -359,9 +504,11 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @protected
      * @suppress {invalidCasts}
      */
-    _initializeProperties () {
-      const props = ownProperties(this.constructor);
-      const keys = props ? Object.keys(props) : [];
+    ElementLiteBase.prototype._initializeProperties = function _initializeProperties () {
+      var this$1 = this;
+
+      var props = ownProperties(this.constructor);
+      var keys = props ? Object.keys(props) : [];
       if (!this.hasOwnProperty('__finalized')) {
         this.__finalized = true;
         if (props) {
@@ -371,19 +518,19 @@ export const ElementLiteBase = dedupingMixin(base => {
       // Capture instance properties; these will be set into accessors
       // during first flush. Don't set them here, since we want
       // these to overwrite defaults/constructor assignments
-      for (let p in this.__dataHasAccessor) {
-        if (this.hasOwnProperty(p)) {
-          this.__dataInstanceProps = this.__dataInstanceProps || {};
-          this.__dataInstanceProps[p] = this[p];
-          delete this[p];
+      for (var p in this$1.__dataHasAccessor) {
+        if (this$1.hasOwnProperty(p)) {
+          this$1.__dataInstanceProps = this$1.__dataInstanceProps || {};
+          this$1.__dataInstanceProps[p] = this$1[p];
+          delete this$1[p];
         }
       }
 
       // set default value
-      for (let p = 0, l = keys.length; p < l; p++) {
-        const prop = keys[p];
+      for (var p$1 = 0, l = keys.length; p$1 < l; p$1++) {
+        var prop = keys[p$1];
         if (props[prop].value) {
-          this.__data[prop] = props[prop].value;
+          this$1.__data[prop] = props[prop].value;
         }
       }
 
@@ -391,7 +538,7 @@ export const ElementLiteBase = dedupingMixin(base => {
         this._initializeProtoProperties(this.__dataProto);
         this.__dataProto = null;
       }
-    }
+    };
 
     /**
      * Called at ready time with bag of instance properties that overwrote
@@ -402,16 +549,18 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _initializeInstanceProperties (props) {
-      let readOnly = this.__readOnly;
-      for (let prop in props) {
+    ElementLiteBase.prototype._initializeInstanceProperties = function _initializeInstanceProperties (props) {
+      var this$1 = this;
+
+      var readOnly = this.__readOnly;
+      for (var prop in props) {
         if (!readOnly || !readOnly[prop]) {
-          this.__dataPending = this.__dataPending || {};
-          this.__dataOld = this.__dataOld || {};
-          this.__data[prop] = this.__dataPending[prop] = props[prop];
+          this$1.__dataPending = this$1.__dataPending || {};
+          this$1.__dataOld = this$1.__dataOld || {};
+          this$1.__data[prop] = this$1.__dataPending[prop] = props[prop];
         }
       }
-    }
+    };
 
     /**
      * Called at instance time with bag of properties that were overwritten
@@ -425,11 +574,13 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _initializeProtoProperties (props) {
-      for (let p in props) {
-        this._setProperty(p, props[p]);
+    ElementLiteBase.prototype._initializeProtoProperties = function _initializeProtoProperties (props) {
+      var this$1 = this;
+
+      for (var p in props) {
+        this$1._setProperty(p, props[p]);
       }
-    }
+    };
 
     /**
      * Initializes the observers to call methods when property values have changed
@@ -439,41 +590,45 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @suppress {invalidCasts}
      */
 
-    _initializeObservers () {
-      const observers = this.constructor.observers;
+    ElementLiteBase.prototype._initializeObservers = function _initializeObservers () {
+      var this$1 = this;
+
+      var observers = this.constructor.observers;
 
       if (!this.hasOwnProperty('__dataMethodObserver')) {
         this.__dataMethodObserver = Object.assign({}, this.__dataMethodObserver);
       }
 
       if (observers && observers.length) {
-        for (let i = 0, l = observers.length; i < l; i++) {
-          const fnArgs = observers[i].split('(');
-          const fn = fnArgs[0].trim();
-          const args = fnArgs[1].trim().replace(/\)$/g, '').split(',').map(arg => arg.trim());
+        var loop = function ( i, l ) {
+          var fnArgs = observers[i].split('(');
+          var fn = fnArgs[0].trim();
+          var args = fnArgs[1].trim().replace(/\)$/g, '').split(',').map(function (arg) { return arg.trim(); });
 
-          for (let p = 0, m = args.length; p < m; p++) {
-            const rootPath = root(args[p]);
+          for (var p = 0, m = args.length; p < m; p++) {
+            var rootPath = root(args[p]);
 
-            if (!this.__dataMethodObserver[args[p]]) {
-              this.__dataMethodObserver[args[p]] = { methods: [], root: root(args[p]) };
+            if (!this$1.__dataMethodObserver[args[p]]) {
+              this$1.__dataMethodObserver[args[p]] = { methods: [], root: root(args[p]) };
             }
 
-            if (this.__dataMethodObserver[args[p]].methods.findIndex(item => item.fn === fn) < 0) {
-              this.__dataMethodObserver[args[p]].methods.push({ fn, args });
+            if (this$1.__dataMethodObserver[args[p]].methods.findIndex(function (item) { return item.fn === fn; }) < 0) {
+              this$1.__dataMethodObserver[args[p]].methods.push({ fn: fn, args: args });
             }
 
-            if (!this.__dataMethodObserver[rootPath]) {
-              this.__dataMethodObserver[rootPath] = { methods: [], root: root(rootPath) };
+            if (!this$1.__dataMethodObserver[rootPath]) {
+              this$1.__dataMethodObserver[rootPath] = { methods: [], root: root(rootPath) };
             }
 
-            if (this.__dataMethodObserver[rootPath].methods.findIndex(item => item.fn === fn) < 0) {
-              this.__dataMethodObserver[rootPath].methods.push({ fn, args });
+            if (this$1.__dataMethodObserver[rootPath].methods.findIndex(function (item) { return item.fn === fn; }) < 0) {
+              this$1.__dataMethodObserver[rootPath].methods.push({ fn: fn, args: args });
             }
           }
-        }
+        };
+
+        for (var i = 0, l = observers.length; i < l; i++) loop( i, l );
       }
-    }
+    };
 
     /**
      * Updates the local storage for a property (via `_setPendingProperty`)
@@ -484,11 +639,11 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _setProperty (property, value) {
+    ElementLiteBase.prototype._setProperty = function _setProperty (property, value) {
       if (this._setPendingProperty(property, value)) {
         this._invalidateProperties();
       }
-    }
+    };
 
     /**
      * Returns the value for the given property.
@@ -497,9 +652,9 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {*} Value for the given property
      * @protected
      */
-    _getProperty (property) {
+    ElementLiteBase.prototype._getProperty = function _getProperty (property) {
       return this.__data[property];
-    }
+    };
 
     /**
      * Sets a pending property or path.  If the root property of the path in
@@ -529,7 +684,7 @@ export const ElementLiteBase = dedupingMixin(base => {
      *   the pending changes bag.
      * @protected
      */
-    _setPendingPropertyOrPath (path, value, shouldNotify, isPathNotification) {
+    ElementLiteBase.prototype._setPendingPropertyOrPath = function _setPendingPropertyOrPath (path, value, shouldNotify, isPathNotification) {
       if (isPathNotification || root(Array.isArray(path) ? path[0] : path) !== path) {
         // Dirty check changes being set to a path against the actual object,
         // since this is the entry point for paths into the system; from here
@@ -540,19 +695,19 @@ export const ElementLiteBase = dedupingMixin(base => {
         // already dirty checked at the point of entry and the underlying
         // object has already been updated
         if (!isPathNotification) {
-          let old = getProp(this, path, null);
+          var old = getProp(this, path, null);
           path = setProp(this, path, value);
           // Use property-accessor's simpler dirty check
-          if (!path || !this._shouldPropertyChange(path, value, old)) return false;
+          if (!path || !this._shouldPropertyChange(path, value, old)) { return false; }
         }
         this.__dataHasPaths = true;
         return this._setPendingProperty(path, value, shouldNotify);
       } else {
-        if (this.__dataHasAccessor && this.__dataHasAccessor[path]) return this._setPendingProperty(path, value, shouldNotify);
-        else this[path] = value;
+        if (this.__dataHasAccessor && this.__dataHasAccessor[path]) { return this._setPendingProperty(path, value, shouldNotify); }
+        else { this[path] = value; }
       }
       return false;
-    }
+    };
 
     /**
      * Updates the local storage for a property, records the previous value,
@@ -566,9 +721,9 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {boolean} Returns true if the property changed
      * @protected
      */
-    _setPendingProperty (property, value, shouldNotify) {
-      let path = this.__dataHasPaths && isPath(property);
-      let prevProps = path ? this.__dataTemp : this.__data;
+    ElementLiteBase.prototype._setPendingProperty = function _setPendingProperty (property, value, shouldNotify) {
+      var path = this.__dataHasPaths && isPath(property);
+      var prevProps = path ? this.__dataTemp : this.__data;
       if (this._shouldPropertyChange(property, value, prevProps[property])) {
         if (!this.__dataPending) {
           this.__dataPending = {};
@@ -590,7 +745,7 @@ export const ElementLiteBase = dedupingMixin(base => {
         return true;
       }
       return false;
-    }
+    };
 
     /**
      * Marks the properties as invalid, and enqueues an async
@@ -599,18 +754,20 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _invalidateProperties () {
+    ElementLiteBase.prototype._invalidateProperties = function _invalidateProperties () {
+      var this$1 = this;
+
       if (!this.__dataInvalid && this.__dataReady) {
         this.__dataInvalid = true;
 
-        Promise.resolve().then(() => {
-          if (this.__dataInvalid) {
-            this.__dataInvalid = false;
-            this._flushProperties();
+        Promise.resolve().then(function () {
+          if (this$1.__dataInvalid) {
+            this$1.__dataInvalid = false;
+            this$1._flushProperties();
           }
         });
       }
-    }
+    };
 
     /**
      * Calls the `_propertiesChanged` callback with the current set of
@@ -621,12 +778,12 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _flushProperties () {
+    ElementLiteBase.prototype._flushProperties = function _flushProperties () {
       this.__dataCounter++;
 
-      const props = this.__data;
-      const changedProps = this.__dataPending;
-      const old = this.__dataOld;
+      var props = this.__data;
+      var changedProps = this.__dataPending;
+      var old = this.__dataOld;
       if (this._shouldPropertiesChange(props, changedProps, old)) {
         this.__dataPending = null;
         this.__dataOld = {};
@@ -634,7 +791,7 @@ export const ElementLiteBase = dedupingMixin(base => {
       }
 
       this.__dataCounter--;
-    }
+    };
 
     /**
      * Called in `_flushProperties` to determine if `_propertiesChanged`
@@ -649,9 +806,9 @@ export const ElementLiteBase = dedupingMixin(base => {
      *   in `changedProps`
      * @return {boolean} true if changedProps is truthy
      */
-    _shouldPropertiesChange (currentProps, changedProps, oldProps) {
+    ElementLiteBase.prototype._shouldPropertiesChange = function _shouldPropertiesChange (currentProps, changedProps, oldProps) {
       return Boolean(changedProps);
-    }
+    };
 
     /**
      * Callback called when any properties with accessors created via
@@ -665,46 +822,51 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _propertiesChanged (currentProps, changedProps, oldProps) { // eslint-disable-line no-unused-vars
-      const fns = {};
-      let keys = Object.keys(changedProps);
+    ElementLiteBase.prototype._propertiesChanged = function _propertiesChanged (currentProps, changedProps, oldProps) {
+      var this$1 = this;
+ // eslint-disable-line no-unused-vars
+      var fns = {};
+      var keys = Object.keys(changedProps);
       this.__dataHasPaths = false;
 
-      for (let i = 0, l = keys.length; i < l; i++) {
-        const key = keys[i];
-        const prop = root(key);
+      for (var i = 0, l = keys.length; i < l; i++) {
+        var key = keys[i];
+        var prop = root(key);
 
-        if (this.__dataReflectToAttribute[prop]) {
-          this._propertyToAttribute(prop, this.__dataAttributeProperties[prop], this.__data[prop]);
+        if (this$1.__dataReflectToAttribute[prop]) {
+          this$1._propertyToAttribute(prop, this$1.__dataAttributeProperties[prop], this$1.__data[prop]);
         }
 
-        if (this.__dataNotify[root(prop)]) {
-          this.dispatchEvent(new window.CustomEvent(`${camelToDashCase(root(prop))}-changed`, { detail: this.__data[root(prop)] }));
+        if (this$1.__dataNotify[root(prop)]) {
+          this$1.dispatchEvent(new window.CustomEvent(`${camelToDashCase(root(prop))}-changed`, { detail: this$1.__data[root(prop)] }));
         }
 
-        if (this.__dataObserver[prop]) {
-          const fn = this[this.__dataObserver[prop]];
-          const args = [this.__data[prop], oldProps && oldProps[prop]];
+        if (this$1.__dataObserver[prop]) {
+          var fn = this$1[this$1.__dataObserver[prop]];
+          var args = [this$1.__data[prop], oldProps && oldProps[prop]];
 
           if (fn) {
-            fns[this.__dataObserver[prop]] = { fn: fn.bind(this), args };
+            fns[this$1.__dataObserver[prop]] = { fn: fn.bind(this$1), args: args };
           } else {
-            console.warn(`There's not observer named ${this.__dataObserver[prop]} for ${prop}`);
+            console.warn(`There's not observer named ${this$1.__dataObserver[prop]} for ${prop}`);
           }
         }
 
-        if (this.__dataMethodObserver[key]) {
-          const { methods } = this.__dataMethodObserver[key];
-          for (let p = 0, m = methods.length; p < m; p++) {
-            const { fn: fnName, args: argNames } = methods[p];
-            const fn = this[fnName];
-            const args = [];
-            for (let a = 0, n = argNames.length; a < n; a++) {
-              args.push(this.get(argNames[a]));
+        if (this$1.__dataMethodObserver[key]) {
+          var ref = this$1.__dataMethodObserver[key];
+          var methods = ref.methods;
+          for (var p = 0, m = methods.length; p < m; p++) {
+            var ref$1 = methods[p];
+            var fnName = ref$1.fn;
+            var argNames = ref$1.args;
+            var fn$1 = this$1[fnName];
+            var args$1 = [];
+            for (var a = 0, n = argNames.length; a < n; a++) {
+              args$1.push(this$1.get(argNames[a]));
             }
 
-            if (fn) {
-              fns[fnName] = { fn: fn.bind(this), args };
+            if (fn$1) {
+              fns[fnName] = { fn: fn$1.bind(this$1), args: args$1 };
             } else {
               console.warn(`There's not method named ${fnName}`);
             }
@@ -713,16 +875,18 @@ export const ElementLiteBase = dedupingMixin(base => {
       }
 
       keys = Object.keys(fns);
-      for (let i = 0, l = keys.length; i < l; i++) {
-        const { fn, args } = fns[keys[i]];
-        fn(...args);
+      for (var i$1 = 0, l$1 = keys.length; i$1 < l$1; i$1++) {
+        var ref$2 = fns[keys[i$1]];
+        var fn$2 = ref$2.fn;
+        var args$2 = ref$2.args;
+        fn$2.apply(void 0, args$2);
       }
 
       // Clear temporary cache at end of turn
       if (this.__dataCounter === 1) {
         this.__dataTemp = {};
       }
-    }
+    };
 
     /**
      * Method called to determine whether a property value should be
@@ -739,14 +903,14 @@ export const ElementLiteBase = dedupingMixin(base => {
      *   and enqueue a `_proeprtiesChanged` callback
      * @protected
      */
-    _shouldPropertyChange (property, value, old) {
+    ElementLiteBase.prototype._shouldPropertyChange = function _shouldPropertyChange (property, value, old) {
       return (
         // Strict equality check
         (old !== value &&
         // This ensures (old==NaN, value==NaN) always returns false
         (old === old || value === value)) // eslint-disable-line
       );
-    }
+    };
 
     /**
      * Implements native Custom Elements `attributeChangedCallback` to
@@ -758,15 +922,15 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @suppress {missingProperties} Super may or may not implement the callback
      */
-    attributeChangedCallback (name, old, value) {
+    ElementLiteBase.prototype.attributeChangedCallback = function attributeChangedCallback (name, old, value) {
       if (old !== value) {
         this._attributeToProperty(name, value);
       }
 
-      if (super.attributeChangedCallback) {
-        super.attributeChangedCallback(name, old, value);
+      if (superclass.prototype.attributeChangedCallback) {
+        superclass.prototype.attributeChangedCallback.call(this, name, old, value);
       }
-    }
+    };
 
     /**
      * Deserializes an attribute to its associated property.
@@ -779,13 +943,13 @@ export const ElementLiteBase = dedupingMixin(base => {
      * returned from `typeForProperty`
      * @return {void}
      */
-    _attributeToProperty (attribute, value) {
+    ElementLiteBase.prototype._attributeToProperty = function _attributeToProperty (attribute, value) {
       if (!this.__serializing) {
-        const map = this.__dataAttributes;
-        const property = (map && map[attribute]) || attribute;
+        var map = this.__dataAttributes;
+        var property = (map && map[attribute]) || attribute;
         this[property] = this._deserializeValue(value, this.constructor.typeForProperty(property));
       }
-    }
+    };
 
     /**
      * Serializes a property to its associated attribute.
@@ -795,12 +959,12 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @param {any=} value Property value to refect.
      * @return {void}
      */
-    _propertyToAttribute (property, attribute, value) {
+    ElementLiteBase.prototype._propertyToAttribute = function _propertyToAttribute (property, attribute, value) {
       this.__serializing = true;
       value = (arguments.length < 3) ? this[property] : value;
       this._valueToNodeAttribute(this, value, attribute || camelToDashCase(property));
       this.__serializing = false;
-    }
+    };
 
     /**
      * Sets a typed value to an HTML attribute on a node.
@@ -815,15 +979,15 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @param {string} attribute Attribute name to serialize to.
      * @return {void}
      */
-    _valueToNodeAttribute (node, value, attribute) {
-      const str = this._serializeValue(value);
+    ElementLiteBase.prototype._valueToNodeAttribute = function _valueToNodeAttribute (node, value, attribute) {
+      var str = this._serializeValue(value);
 
       if (str === undefined) {
         node.removeAttribute(attribute);
       } else {
         node.setAttribute(attribute, str);
       }
-    }
+    };
 
     /**
      * Converts a typed JavaScript value to a string.
@@ -836,7 +1000,7 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {string | undefined} String serialized from the provided
      * property  value.
      */
-    _serializeValue (value) {
+    ElementLiteBase.prototype._serializeValue = function _serializeValue (value) {
       /* eslint-disable no-fallthrough */
       switch (typeof value) {
         case 'boolean':
@@ -854,7 +1018,7 @@ export const ElementLiteBase = dedupingMixin(base => {
         default:
           return value != null ? value.toString() : undefined;
       }
-    }
+    };
 
     /**
      * Converts a string to a typed JavaScript value.
@@ -868,9 +1032,9 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @param {any=} type Type to deserialize the string to.
      * @return {*} Typed value deserialized from the provided string.
      */
-    _deserializeValue (value, type) {
+    ElementLiteBase.prototype._deserializeValue = function _deserializeValue (value, type) {
       /** @type {any} */
-      let outValue;
+      var outValue;
       switch (type) {
         case Object:
           try {
@@ -901,7 +1065,7 @@ export const ElementLiteBase = dedupingMixin(base => {
           return value;
       }
       return outValue;
-    }
+    };
 
     /**
      * Lifecycle callback called when properties are enabled via
@@ -917,10 +1081,10 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @public
      */
-    ready () {
+    ElementLiteBase.prototype.ready = function ready () {
       this.__dataReady = true;
       this._flushProperties();
-    }
+    };
 
     /**
        * Convenience method for setting a value to a path and notifying any
@@ -941,11 +1105,11 @@ export const ElementLiteBase = dedupingMixin(base => {
        * @return {void}
        * @public
       */
-    set (path, value) {
+    ElementLiteBase.prototype.set = function set (path, value) {
       if (path &&
         (!this.__readOnly || !this.__readOnly[root(path)]) &&
-        this._setPendingPropertyOrPath(path, value, true)) this._invalidateProperties();
-    }
+        this._setPendingPropertyOrPath(path, value, true)) { this._invalidateProperties(); }
+    };
 
     /**
      * Adds items onto the end of the array at the path specified.
@@ -961,14 +1125,17 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {number} New length of the array.
      * @public
      */
-    push (path, ...items) {
-      let info = {path: ''};
-      let array = getProp(this, path, info);
+    ElementLiteBase.prototype.push = function push (path) {
+      var items = [], len = arguments.length - 1;
+      while ( len-- > 0 ) items[ len ] = arguments[ len + 1 ];
+
+      var info = {path: ''};
+      var array = getProp(this, path, info);
       // use immutability for now
-      let ret = [ ...array, ...items ];
-      if (items.length) this.set(path, ret);
+      var ret = array.concat( items );
+      if (items.length) { this.set(path, ret); }
       return ret.length;
-    }
+    };
 
     /**
      * Removes an item from the end of array at the path specified.
@@ -983,17 +1150,17 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {*} Item that was removed.
      * @public
      */
-    pop (path) {
-      let info = {path: ''};
-      let array = getProp(this, path, info);
-      let hadLength = Boolean(array.length);
+    ElementLiteBase.prototype.pop = function pop (path) {
+      var info = {path: ''};
+      var array = getProp(this, path, info);
+      var hadLength = Boolean(array.length);
       // use immutability for now
       if (hadLength) {
-        let ret = array.slice(0, -1);
+        var ret = array.slice(0, -1);
         this.set(path, ret);
         return array.slice(-1);
       }
-    }
+    };
 
     /**
      * Starting from the start index specified, removes 0 or more items
@@ -1012,12 +1179,15 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {Array} Array of remaining items.
      * @public
      */
-    splice (path, start, deleteCount, ...items) {
-      let info = {path: ''};
-      let array = getProp(this, path, info);
+    ElementLiteBase.prototype.splice = function splice (path, start, deleteCount) {
+      var items = [], len = arguments.length - 3;
+      while ( len-- > 0 ) items[ len ] = arguments[ len + 3 ];
+
+      var info = {path: ''};
+      var array = getProp(this, path, info);
       // Normalize fancy native splice handling of crazy start values
-      if (start < 0) start = array.length - Math.floor(-start);
-      else if (start) start = Math.floor(start);
+      if (start < 0) { start = array.length - Math.floor(-start); }
+      else if (start) { start = Math.floor(start); }
       // array.splice does different things based on the number of arguments
       // you pass in. Therefore, array.splice(0) and array.splice(0, undefined)
       // do different things. In the former, the whole array is cleared. In the
@@ -1026,9 +1196,9 @@ export const ElementLiteBase = dedupingMixin(base => {
       // is actually passed in and then 2. determine how many arguments
       // we should pass on to the native array.splice
       //
-      let ret;
+      var ret;
       // Omit any additional arguments if they were not passed in
-      ret = [ ...array.slice(0, start), ...items, ...array.slice(start + deleteCount) ];
+      ret = array.slice(0, start).concat( items, array.slice(start + deleteCount) );
       // ret = arguments.length === 2 ? array.splice(start) : array.splice(start, deleteCount, ...items);
 
       // Either start was undefined and the others were defined, but in this
@@ -1046,7 +1216,7 @@ export const ElementLiteBase = dedupingMixin(base => {
         // notifySplice(this, array, info.path, start, items.length, ret);
       }
       return ret;
-    }
+    };
 
     /**
      * Removes an item from the beginning of array at the path specified.
@@ -1061,17 +1231,17 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {*} Item that was removed.
      * @public
      */
-    shift (path) {
-      let info = {path: ''};
-      let array = getProp(this, path, info);
-      let hadLength = Boolean(array.length);
+    ElementLiteBase.prototype.shift = function shift (path) {
+      var info = {path: ''};
+      var array = getProp(this, path, info);
+      var hadLength = Boolean(array.length);
       // use immutability for now
       if (hadLength) {
-        let ret = array.slice(1);
+        var ret = array.slice(1);
         this.set(path, ret);
         return array.slice(0, 1);
       }
-    }
+    };
 
     /**
      * Adds items onto the beginning of the array at the path specified.
@@ -1087,14 +1257,17 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {number} New length of the array.
      * @public
      */
-    unshift (path, ...items) {
-      let info = {path: ''};
-      let array = getProp(this, path, info);
+    ElementLiteBase.prototype.unshift = function unshift (path) {
+      var items = [], len = arguments.length - 1;
+      while ( len-- > 0 ) items[ len ] = arguments[ len + 1 ];
+
+      var info = {path: ''};
+      var array = getProp(this, path, info);
       // use immutability for now
-      let ret = [ ...items, ...array ];
-      if (items.length) this.set(path, ret);
+      var ret = items.concat( array );
+      if (items.length) { this.set(path, ret); }
       return ret.length;
-    }
+    };
 
     /**
      * Convenience method for reading a value from a path.
@@ -1115,10 +1288,98 @@ export const ElementLiteBase = dedupingMixin(base => {
      *   is undefined.
      * @public
      */
-    get (path, root) {
-      return getProp(root || this, path, null);
-    }
-  }
+    ElementLiteBase.prototype.get = function get (path, root$$1) {
+      return getProp(root$$1 || this, path, null);
+    };
+
+    Object.defineProperties( ElementLiteBase, staticAccessors );
+
+    return ElementLiteBase;
+  }((base)));
 
   return ElementLiteBase;
 });
+
+// @ts-nocheck
+var sinon = window.sinon;
+
+/**
+ * @extends {ElementLiteBase}
+*/
+var TestElement = (function (superclass) {
+  function TestElement () {
+    superclass.call(this);
+    sinon.spy(this, '_propertiesChanged');
+    this._prop4Changed = sinon.spy();
+    this._propChanged = sinon.spy();
+    this._prop7Changed = sinon.spy();
+  }
+
+  if ( superclass ) TestElement.__proto__ = superclass;
+  TestElement.prototype = Object.create( superclass && superclass.prototype );
+  TestElement.prototype.constructor = TestElement;
+
+  var staticAccessors = { is: { configurable: true },properties: { configurable: true },observers: { configurable: true } };
+
+  staticAccessors.is.get = function () { return 'test-element'; };
+
+  staticAccessors.properties.get = function () {
+    return {
+      prop1: {
+        type: String
+      },
+
+      prop2: {
+        type: String
+      },
+
+      prop3: {
+        type: String,
+        value: 'c'
+      },
+
+      prop4: {
+        type: String,
+        observer: '_prop4Changed'
+      },
+
+      prop5: {
+        type: Object
+      },
+
+      prop6: {
+        type: Object
+      },
+
+      prop7: {
+        type: Array,
+        observer: '_prop7Changed'
+      },
+
+      prop8: {
+        type: String,
+        value: 'j',
+        readOnly: true
+      },
+
+      prop9: {
+        type: String,
+        reflectToAttribute: true
+      }
+    };
+  };
+
+  staticAccessors.observers.get = function () {
+    return [
+      '_propChanged(prop5.attr1, prop6.attr2)'
+    ];
+  };
+
+  Object.defineProperties( TestElement, staticAccessors );
+
+  return TestElement;
+}(ElementLiteBase(window.HTMLElement)));
+
+window.customElements.define(TestElement.is, TestElement);
+
+})));

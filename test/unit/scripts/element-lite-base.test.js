@@ -1,7 +1,7 @@
 // @ts-nocheck
 
-var ElementLiteBase = window.ElementLite.ElementLiteBase;
-var sinon = window.sinon;
+import { ElementLiteBase } from '../../../element-lite-base.js';
+const sinon = window.sinon;
 
 /**
  * @extends {ElementLiteBase}

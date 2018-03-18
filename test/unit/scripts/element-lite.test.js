@@ -1,13 +1,12 @@
 // @ts-nocheck
 
-var ElementLite = window.ElementLite.ElementLite;
-var html = window.ElementLite.html;
+import { ElementLite, html } from '../../../element-lite.js';
 var sinon = window.sinon;
 
 /**
  * @extends {ElementLite}
 */
-class TestElementThree extends ElementLite(window.HTMLElement) {
+class TestElement extends ElementLite(window.HTMLElement) {
   static get is () { return 'test-element-three'; }
 
   static get properties () {
@@ -47,4 +46,4 @@ class TestElementThree extends ElementLite(window.HTMLElement) {
   }
 }
 
-window.customElements.define(TestElementThree.is, TestElementThree);
+window.customElements.define(TestElement.is, TestElement);
