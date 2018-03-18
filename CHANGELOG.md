@@ -1,3 +1,7 @@
+# v0.1.4 (2018-18-03)
+- Added `lib` on `files` in package.json
+- Cleaned up README
+
 # v0.1.3 (2018-18-03)
 - Added more tests and created bundled versions for distribution
 - Added CODE_OF_CONDUCT.md
