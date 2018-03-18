@@ -1,5 +1,10 @@
 /// <reference path="typings-project/global.d.ts"/>
 
+import { dedupingMixin } from './lib/deduping-mixin.js';
+import { root, getProp, setProp, isPath } from './lib/path.js';
+import { saveAccessorValue } from './lib/save-accessor-value.js';
+import { camelToDashCase } from './lib/case-map.js';
+
 /**
  * Parts are copied from different mixin parts of https://github.com/Polymer/polymer/tree/__auto_generated_3.0_preview
  *
@@ -35,6 +40,10 @@
  *     - HTMLElement Methods
  *       - attributeChangedCallback - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L379
  *       - observedAttributes - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L85
+ *     - Public methods
+ *       - ready - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L149
+ *       - set - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1805
+ *
  *
  *
  * - Modified
@@ -48,6 +57,13 @@
  *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L160
  *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L112
  *       - _invalidateProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L257
+ *     - Public Methods
+ *       - push - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1831
+ *       - pop - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1855
+ *       - splice - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1883
+ *       - shift - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1935
+ *       - unshift - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1960
+ *       - get - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1780
  *   - Class Constructor - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L122
  *
  * - Created
@@ -57,11 +73,6 @@
  *       - _propertiesChanged
  *
  */
-
-import { dedupingMixin } from './lib/deduping-mixin.js';
-import { root, getProp, setProp, isPath } from './lib/path.js';
-import { saveAccessorValue } from './lib/save-accessor-value.js';
-import { camelToDashCase } from './lib/case-map.js';
 
 export const ElementLiteBase = dedupingMixin(base => {
   /**
