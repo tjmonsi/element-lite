@@ -1,11 +1,15 @@
 import { ElementLiteBase } from './element-lite-base.js';
+import { ElementLiteStaticShadow } from './element-lite-static-shadow.js';
+import { ElementLiteLitOnly } from './element-lite-lit-only.js';
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from '../../lit-html/lib/lit-extended.js';
 
-export { html };
+export { html, ElementLiteBase, ElementLiteStaticShadow, ElementLiteLitOnly };
 export const ElementLite = dedupingMixin(base => {
   /**
-   * ElementLite is a set of methods
+   * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
+   * that automates the creation of setter and getters given a list of properties and
+   * allows auto-calling of methods given observers.
    * @extends {ElementLiteBase}
   */
   class ElementLite extends ElementLiteBase(/** @type {HTMLElement} */(base)) {

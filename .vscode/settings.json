@@ -1,0 +1,68 @@
+{
+  "editor.tabSize": 2,
+    "editor.fontSize": 18,
+    "workbench.iconTheme": null,
+    "files.trimTrailingWhitespace": true,
+    "javascript.validate.enable": true,
+    "standard.enable": true,
+    "standard.semistandard": true,
+    "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/node_modules": true,
+      "**/bower_components": true
+    },
+    "standard.options": {
+      "globals": [
+        "$",
+        "ga",
+        "__dirname",
+        "URL",
+        "describe",
+        "it"
+      ],
+      "ignore": [
+        "node_modules",
+        "bower_components",
+        "node_modules/**",
+        "bower_components/**",
+        "node_modules\\**",
+        "bower_components\\**",
+        "test/**",
+        "test\\**",
+        "dist/**",
+        "dist\\**",
+        "**/node_modules/**",
+        "**/bower_components/**",
+        "**\\bower_components\\**",
+        "**\\node_modules\\**",
+        "**\\test\\**",
+        "**/test/**",
+        "node_modules/**",
+        "bower_components/**",
+        "src/test/**"
+      ],
+      "plugins": [
+        "html"
+      ],
+      "parser": "babel-eslint"
+    },
+    "standard.validate": [
+      "javascript",
+      "html"
+    ],
+    "search.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/bower_components": true,
+      "**/dist": true
+    },
+    "git.enableSmartCommit": true,
+    "window.zoomLevel": 0,
+    "workbench.colorTheme": "Polymer Syntax Theme",
+    "git.autofetch": true,
+    "javascript.implicitProjectConfig.checkJs": true
+}

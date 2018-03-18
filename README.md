@@ -8,13 +8,19 @@ simple library.
 
 This is a work in progress but I will use it on my own projects. You can freely use it on your own projects.
 
+Most of the methods and its internals came from Polymer's properties-mixin, properties-changed, property-accessors mixin, and property-effects mixin.
+
 
 ## How to install:
 
-To install, just do this:
+### using npm
+
+This is the recommended way. To install, just do this:
 ```
 npm i --save @littleq/element-lite
 ```
+
+
 
 
 ## Out of the box, what can I do?

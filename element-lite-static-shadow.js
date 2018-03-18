@@ -3,7 +3,10 @@ import { dedupingMixin } from './lib/deduping-mixin.js';
 
 export const ElementLiteStaticShadow = dedupingMixin(base => {
   /**
-   * ElementLite is a set of methods
+   * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
+   * that automates the creation of setter and getters given a list of properties and
+   * allows auto-calling of methods given observers. This uses a static shadow DOM. It doesn't use
+   * lit-html
    * @extends {ElementLiteBase}
   */
   class ElementLiteStaticShadow extends ElementLiteBase(base) {
