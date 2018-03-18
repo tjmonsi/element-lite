@@ -484,6 +484,17 @@ var ElementLiteLitOnly = window.ElementLite.ElementLiteLitOnly
 ```
 
 
+## And does it work on?
+
+It works on all major evergreen Browsers (Edge, Safari, Chrome, Firefox) as long as you have the Polyfills
+set (make sure to add `webcomponents-lite` or `webcomponents-loader` and create the components after the
+`WebComponentsReady` event has been fired)
+
+It also works on IE 11, Safari 11, Safari 10.1, Safari 9, and Safari 8.
+
+Still checking on IE 10, 9, 8 and Safari 7, 6. (Need polyfills for `Map` and `WeakMap`).
+
+
 ## Size
 
 Based on size-limit
