@@ -11,8 +11,11 @@ before_install:
 - sh -e /etc/init.d/xvfb start
 before_script:
 - cp -r node_modules/lit-html ../../lit-html
-
 script: npm test && npm run wct-sauce
+branches:
+  only:
+  - master
+  - develop
 env:
   global:
   - secure: IczLyQVw0rGAirfVHal4lcPNymjSQewhh2F8vu2rsp6ncNSAkSEVm9tXvSq47UkYzkLEUvi5l2rOIcmnfGsyjc8uCH3yFVpsMdoClP5W+2LO6XB7k6FyV3GXpfotEjKqIXqUWFosbFMdsV5X3zhuouckdvPcrY+QNltVl8P90JqGtVq5VqSIUZVhWsMxelrgY1p0iIx0YdftD0Hq8mip8ULztip+mbAAcLbUBOlOHHRdiG1cNp7GjpaBUPvtVY+/rDM8sgJ7SlK9F+BWsxj5If/Ky3n4HcyvvAAGeiqxJu0jxPQ37JwJKHligE5gK1O/piaAblSsy5kT4ElQXkxJLKLH8SQ7XViJ1NVGzh2AynDnx4J7PzWYfHKMYTbW2/6VaPOR/wr2xj1OdCRlNi8dK7y7Frhml9o58BakCDPx9zJgHd0s9lZQGdGA6O8DD6FpBwK9n8GqzEHI56phgtW8HH9T98r8ZSmm3iggwUesZo12kkkdc9/Eoe3X07G5cxq5r97E/rCnzhFz/uF786FX25H/pDIRUJ9K03VQuBMgG/vkFk1hzMEPjiFqFFXoa6odBR98OwbVFpR0JEpg4vcSRXDXfeNjxy1Pb2HXXSJAR9y2aCEW0U+IL4INPvK40igA/ijp16RP8TsLYszulzwxl8w8EvJTm0eJc1zlMc2QpZI=
