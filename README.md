@@ -440,8 +440,8 @@ If you are going to load it via the `<script>` tag, you need to do these
 For ES6
 
 ```html
-<script src="/node_modules/@littleq/element-lite/dist/element-lite.umd.es6.js">
-<!-- <script src="/node_modules/@littleq/element-lite/dist/element-lite.umd.es6.min.js">
+<script src="/node_modules/@littleq/element-lite/dist/element-lite.umd.js">
+<!-- <script src="/node_modules/@littleq/element-lite/dist/element-lite.umd.min.js">
 if you need the minified file -->
 ```
 
@@ -492,7 +492,7 @@ set (make sure to add `webcomponents-lite` or `webcomponents-loader` and create 
 
 It also works on IE 11, Safari 11, Safari 10.1, Safari 9, and Safari 8.
 
-Still checking on IE 10, 9, 8 and Safari 7, 6. (Need polyfills for `Map` and `WeakMap`).
+Still checking on IE 10, 9, 8 and Safari 7, 6. (Need polyfills for `Map` and `WeakMap` when using the webcomponents-lite polyfill and custom-element-es5-adapter).
 
 
 ## Size
@@ -526,6 +526,6 @@ npm run size
 
 ## Known Issues
 
-1. Not yet tested for Production #9
-2. Not yet tested using Webpack on older browsers #10
-3. Haven't tested a proper loop and if-then-else in #11
+1. Not yet tested for Production https://github.com/tjmonsi/element-lite/issues/9
+2. Not yet tested using Webpack on older browsers https://github.com/tjmonsi/element-lite/issues/10
+3. Haven't tested a proper loop and if-then-else in https://github.com/tjmonsi/element-lite/issues/11
