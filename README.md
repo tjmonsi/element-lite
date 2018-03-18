@@ -526,6 +526,6 @@ npm run size
 
 ## Known Issues
 
-1. Not yet tested for Production #2
-2. Not yet tested using Webpack on older browsers #2
-3. Haven't tested a proper loop and if-then-else in #2
+1. Not yet tested for Production #9
+2. Not yet tested using Webpack on older browsers #10
+3. Haven't tested a proper loop and if-then-else in #11

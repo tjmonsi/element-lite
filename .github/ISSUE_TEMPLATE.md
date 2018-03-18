@@ -1,4 +1,4 @@
-<!-- Instructions: https://github.com/gdgphilippines/devfest/blob/master/CONTRIBUTING.md#using-the-issue-tracker -->
+<!-- Instructions: https://github.com/tjmonsi/element-lite/blob/master/CONTRIBUTING.md#using-the-issue-tracker -->
 <!-- Copied from Firebase Polyfire template -->
 
 ### Description
