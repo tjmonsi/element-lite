@@ -9,58 +9,41 @@
   </head>
   <body>
 
-    <test-element-three id="test"></test-element-three>
+    <test-element-two id="test"></test-element-two>
 
-    <script src="../../dist/element-lite.umd.es5.min.js"></script>
-    <script src="./scripts/element-lite.browser.es5.test.js"></script>
+    <script src="../../dist/element-lite-lit-only.umd.es5.min.js"></script>
+    <script src="./scripts/element-lite-lit-only.browser.es5.test.js"></script>
 
     <script>
-      suite('ElementLite Mixin', () => {
+      suite('ElementLiteLitOnly Mixin', () => {
         test('should have not be a HTMLUnknownElement constructor', () => {
           const el = document.querySelector('#test');
-          expect(el.constructor.is).to.equal('test-element-three');
+          expect(el.constructor.is).to.equal('test-element-two');
         });
 
         test('shadow root elements should exist', () => {
           const el = document.querySelector('#test');
-          const span = el.shadowRoot.querySelector('#span');
-          const span2 = el.shadowRoot.querySelector('#span-two');
+          const input = el.shadowRoot.querySelector('#input');
           const button = el.shadowRoot.querySelector('#button');
-          expect(span).to.exist;
-          expect(span2).to.exist;
+          expect(input).to.exist;
           expect(button).to.exist;
         });
 
-        test('shadowRoot changes when props changed', done => {
-          const el = document.createElement('test-element-three');
-          document.body.append(el);
-          el.prop1 = 'a';
-          el.set('prop2.attr1', 'b');
-          setTimeout(() => {
-            expect(el.shadowRoot.querySelector('#span').textContent.trim()).to.equal('a')
-            expect(el.shadowRoot.querySelector('#span-two').textContent.trim()).to.equal('b')
-            document.body.removeChild(el);
-            done();
-          });
-        });
-
         test('button can be clicked', done => {
-          const el = document.createElement('test-element-three');
+          const el = document.createElement('test-element-two');
           document.body.append(el);
           const button = el.shadowRoot.querySelector('#button');
           expect(button).to.exist;
           MockInteractions.tap(button);
           setTimeout(() => {
             expect(el._boundedButtonClicked.calledOnce).to.be.true;
-            expect(el.prop1).to.equal('changed');
-            expect(el.shadowRoot.querySelector('#span').textContent.trim()).to.equal('changed')
             document.body.removeChild(el);
             done();
           });
         });
 
         test('button style is changed', () => {
-          const el = document.createElement('test-element-three');
+          const el = document.createElement('test-element-two');
           document.body.append(el);
           const button = el.shadowRoot.querySelector('#button');
           expect(button).to.exist;

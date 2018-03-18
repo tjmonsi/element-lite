@@ -1,3 +1,14 @@
+# v0.1.3 (2018-18-03)
+- Added more tests and created bundled versions for distribution
+- Added CODE_OF_CONDUCT.md
+
+# v0.1.1 (2018-15-03)
+- Made a small fix on package.json on `main` to reflect main file
+
+# v0.1.0 (2018-13-03)
+- Did a re-haul and copied parts of @polymer/polymer mixins to element-lite-base
+- Created tests for better stability
+
 # v0.0.4 (2018-02-02)
 - Updated lit-html with basic support on shadyCSS
 

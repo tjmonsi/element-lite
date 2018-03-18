@@ -1,5 +1,63 @@
 /// <reference path="typings-project/global.d.ts"/>
 
+/**
+ * Parts are copied from different mixin parts of https://github.com/Polymer/polymer/tree/__auto_generated_3.0_preview
+ *
+ * Here are the list of parts that are copied or modified
+ * - Copied:
+ *   - Private Functions
+ *     - normalizeProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L14
+ *     - ownProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L58
+ *   - Class Methods
+ *     - Static methods
+ *       - createProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L25
+ *     - Protected Methods
+ *       - _initializeProtoProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L133
+ *       - _initializeInstanceProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1177
+ *       - _setProperty - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L202
+ *       - _getProperty - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L214
+ *       - _setPendingProperty - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1419
+ *       - _flushProperties
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L300
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1502
+ *       - _shouldPropertiesChange - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L323
+ *       - _shouldPropertyChange - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L360
+ *       - _attributeToProperty - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L400
+ *       - _propertyToAttribute - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L419
+ *       - _valueToNodeAttribute - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L440
+ *       - _serializeValue
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L460
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L162
+ *       - _deserializeValue
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L481
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L196
+ *       - _setPendingPropertyOrPath - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-effects.js#L1319
+ *     - HTMLElement Methods
+ *       - attributeChangedCallback - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L379
+ *       - observedAttributes - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L85
+ *
+ *
+ * - Modified
+ *   - Class Methods
+ *     - Protected Methods
+ *       - _createPropertyAccessor - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L73
+ *       - _addPropertyToAttributeMap - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L91
+ *       - _definePropertyAccessor - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L107
+ *       - _initializeProperties
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L163
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-mixin.js#L160
+ *         - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/property-accessors.js#L112
+ *       - _invalidateProperties - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L257
+ *   - Class Constructor - https://github.com/Polymer/polymer/blob/__auto_generated_3.0_preview/lib/mixins/properties-changed.js#L122
+ *
+ * - Created
+ *   - Class Methods
+ *     - Protected Methods
+ *       - _initializeObservers
+ *       - _propertiesChanged
+ *
+ */
+
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { root, getProp, setProp, isPath } from './lib/path.js';
 import { saveAccessorValue } from './lib/save-accessor-value.js';
@@ -52,7 +110,23 @@ export const ElementLiteBase = dedupingMixin(base => {
   */
   class ElementLiteBase extends /** @type {HTMLElement} */(base) {
     /**
+      * Returns a memoized version of all properties, including those inherited
+      * from super classes. Properties not in object format are converted to
+      * at least {type}.
+      *
+      * @return {Object} Object containing properties for this class
+      * @protected
+      */
+    static get _properties () {
+      if (!this.hasOwnProperty('__properties')) {
+        this.__properties = Object.assign({}, ownProperties(this));
+      }
+      return this.__properties;
+    }
+
+    /**
      * Creates property accessors for the given property names.
+     *
      * @param {!Object} props Object whose keys are names of accessors.
      * @return {void}
      * @protected
@@ -70,8 +144,87 @@ export const ElementLiteBase = dedupingMixin(base => {
     }
 
     /**
-     * Copied and modifed from polymer/polymer/lib/mixins/properties-changed.js
+      * Implements standard custom elements getter to observes the attributes
+      * listed in `properties`.
+      * @suppress {missingProperties} Interfaces in closure do not inherit statics, but classes do
+      */
+    static get observedAttributes () {
+      const props = this._properties;
+      return props ? Object.keys(props).map(p => camelToDashCase(p)) : [];
+    }
+
+    /**
+      * Overrides `PropertiesChanged` method to return type specified in the
+      * static `properties` object for the given property.
+      * @param {string} name Name of property
+      * @return {*} Type to which to deserialize attribute
+      *
+      * @protected
+      */
+    static typeForProperty (name) {
+      const info = this._properties[name];
+      return info && info.type;
+    }
+
+    constructor () {
+      super();
+      this.__dataEnabled = false;
+      this.__dataReady = false;
+      this.__dataInvalid = false;
+      this.__data = Object.assign({}, this.__data);
+      this.__dataPending = null;
+      this.__dataOld = null;
+      this.__dataInstanceProps = null;
+      this.__serializing = false;
+      this.__dataHasPaths = false;
+      this.__dataTemp = {};
+      /** @type {number} */
+      // NOTE: used to track re-entrant calls to `_flushProperties`
+      // path changes dirty check against `__dataTemp` only during one "turn"
+      // and are cleared when `__dataCounter` returns to 0.
+      this.__dataCounter = 0;
+      this._initializeProperties();
+      this._initializeObservers();
+    }
+
+    /**
+      * Called when the element is added to a document.
+      * Calls `_enableProperties` to turn on property system from
+      * `PropertiesChanged`.
+      * @suppress {missingProperties} Super may or may not implement the callback
+      * @return {void}
+      */
+    connectedCallback () {
+      if (super.connectedCallback) {
+        super.connectedCallback();
+      }
+      this._enableProperties();
+    }
+
+    /**
+     * Call to enable property accessor processing. Before this method is
+     * called accessor values will be set but side effects are
+     * queued. When called, any pending side effects occur immediately.
+     * For elements, generally `connectedCallback` is a normal spot to do so.
+     * It is safe to call this method multiple times as it only turns on
+     * property accessors once.
      *
+     * @return {void}
+     * @protected
+     */
+    _enableProperties () {
+      if (!this.__dataEnabled) {
+        this.__dataEnabled = true;
+        // put here setting of attributes
+        if (this.__dataInstanceProps) {
+          this._initializeInstanceProperties(this.__dataInstanceProps);
+          this.__dataInstanceProps = null;
+        }
+        this.ready();
+      }
+    }
+
+    /**
      * Creates a setter/getter pair for the named property with its own
      * local storage.  The getter returns the value in the local storage,
      * and the setter calls `_setProperty`, which updates the local storage
@@ -172,6 +325,7 @@ export const ElementLiteBase = dedupingMixin(base => {
 
     /**
      * Defines a property accessor for the given property.
+     *
      * @param {string} property Name of the property
      * @param {boolean=} readOnly When true, no setter is created
      * @return {void}
@@ -187,32 +341,8 @@ export const ElementLiteBase = dedupingMixin(base => {
       });
     }
 
-    constructor () {
-      super();
-      this.__dataEnabled = false;
-      this.__dataReady = false;
-      this.__dataInvalid = false;
-      this.__data = Object.assign({}, this.__data);
-      this.__dataPending = null;
-      this.__dataOld = null;
-      this.__dataInstanceProps = null;
-      this.__serializing = false;
-      this.__dataHasPaths = false;
-      this.__dataTemp = {};
-      /** @type {number} */
-      // NOTE: used to track re-entrant calls to `_flushProperties`
-      // path changes dirty check against `__dataTemp` only during one "turn"
-      // and are cleared when `__dataCounter` returns to 0.
-      this.__dataCounter = 0;
-      this._initializeProperties();
-      this._initializeObservers();
-    }
-
     /**
      * Initializes the local storage for property accessors.
-     *
-     * Provided as an override point for performing any setup work prior
-     * to initializing the property accessor system.
      *
      * @return {void}
      * @protected
@@ -252,6 +382,52 @@ export const ElementLiteBase = dedupingMixin(base => {
       }
     }
 
+    /**
+     * Called at ready time with bag of instance properties that overwrote
+     * accessors when the element upgraded.
+     *
+     * @param {Object} props Bag of property values that were overwritten
+     *   when creating property accessors.
+     * @return {void}
+     * @protected
+     */
+    _initializeInstanceProperties (props) {
+      let readOnly = this.__readOnly;
+      for (let prop in props) {
+        if (!readOnly || !readOnly[prop]) {
+          this.__dataPending = this.__dataPending || {};
+          this.__dataOld = this.__dataOld || {};
+          this.__data[prop] = this.__dataPending[prop] = props[prop];
+        }
+      }
+    }
+
+    /**
+     * Called at instance time with bag of properties that were overwritten
+     * by accessors on the prototype when accessors were created.
+     *
+     * The default implementation sets these properties back into the
+     * setter at instance time.
+     *
+     * @param {Object} props Bag of property values that were overwritten
+     *   when creating property accessors.
+     * @return {void}
+     * @protected
+     */
+    _initializeProtoProperties (props) {
+      for (let p in props) {
+        this._setProperty(p, props[p]);
+      }
+    }
+
+    /**
+     * Initializes the observers to call methods when property values have changed
+     *
+     * @return {void}
+     * @protected
+     * @suppress {invalidCasts}
+     */
+
     _initializeObservers () {
       const observers = this.constructor.observers;
 
@@ -289,49 +465,6 @@ export const ElementLiteBase = dedupingMixin(base => {
     }
 
     /**
-     * Called at instance time with bag of properties that were overwritten
-     * by accessors on the prototype when accessors were created.
-     *
-     * The default implementation sets these properties back into the
-     * setter at instance time.  This method is provided as an override
-     * point for customizing or providing more efficient initialization.
-     *
-     * @param {Object} props Bag of property values that were overwritten
-     *   when creating property accessors.
-     * @return {void}
-     * @protected
-     */
-    _initializeProtoProperties (props) {
-      for (let p in props) {
-        this._setProperty(p, props[p]);
-      }
-    }
-
-    /**
-     * Called at ready time with bag of instance properties that overwrote
-     * accessors when the element upgraded.
-     *
-     * The default implementation sets these properties back into the
-     * setter at ready time.  This method is provided as an override
-     * point for customizing or providing more efficient initialization.
-     *
-     * @param {Object} props Bag of property values that were overwritten
-     *   when creating property accessors.
-     * @return {void}
-     * @protected
-     */
-    _initializeInstanceProperties (props) {
-      let readOnly = this.__readOnly;
-      for (let prop in props) {
-        if (!readOnly || !readOnly[prop]) {
-          this.__dataPending = this.__dataPending || {};
-          this.__dataOld = this.__dataOld || {};
-          this.__data[prop] = this.__dataPending[prop] = props[prop];
-        }
-      }
-    }
-
-    /**
      * Updates the local storage for a property (via `_setPendingProperty`)
      * and enqueues a `_proeprtiesChanged` callback.
      *
@@ -341,17 +474,73 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @protected
      */
     _setProperty (property, value) {
-      if (this._setPendingProperty(property, value)) this._invalidateProperties();
+      if (this._setPendingProperty(property, value)) {
+        this._invalidateProperties();
+      }
     }
 
     /**
      * Returns the value for the given property.
+     *
      * @param {string} property Name of property
      * @return {*} Value for the given property
      * @protected
      */
     _getProperty (property) {
       return this.__data[property];
+    }
+
+    /**
+     * Sets a pending property or path.  If the root property of the path in
+     * question had no accessor, the path is set, otherwise it is enqueued
+     * via `_setPendingProperty`.
+     *
+     * This function isolates relatively expensive functionality necessary
+     * for the public API (`set`, `setProperties`, `notifyPath`, and property
+     * change listeners via {{...}} bindings), such that it is only done
+     * when paths enter the system, and not at every propagation step.  It
+     * also sets a `__dataHasPaths` flag on the instance which is used to
+     * fast-path slower path-matching code in the property effects host paths.
+     *
+     * `path` can be a path string or array of path parts as accepted by the
+     * public API.
+     *
+     * @param {string} path Path to set
+     * @param {*} value Value to set
+     * @param {boolean=} shouldNotify Set to true if this change should
+     *  cause a property notification event dispatch
+     * @param {boolean=} isPathNotification If the path being set is a path
+     *   notification of an already changed value, as opposed to a request
+     *   to set and notify the change.  In the latter `false` case, a dirty
+     *   check is performed and then the value is set to the path before
+     *   enqueuing the pending property change.
+     * @return {boolean} Returns true if the property/path was enqueued in
+     *   the pending changes bag.
+     * @protected
+     */
+    _setPendingPropertyOrPath (path, value, shouldNotify, isPathNotification) {
+      if (isPathNotification || root(Array.isArray(path) ? path[0] : path) !== path) {
+        // Dirty check changes being set to a path against the actual object,
+        // since this is the entry point for paths into the system; from here
+        // the only dirty checks are against the `__dataTemp` cache to prevent
+        // duplicate work in the same turn only. Note, if this was a notification
+        // of a change already set to a path (isPathNotification: true),
+        // we always let the change through and skip the `set` since it was
+        // already dirty checked at the point of entry and the underlying
+        // object has already been updated
+        if (!isPathNotification) {
+          let old = getProp(this, path, null);
+          path = setProp(this, path, value);
+          // Use property-accessor's simpler dirty check
+          if (!path || !this._shouldPropertyChange(path, value, old)) return false;
+        }
+        this.__dataHasPaths = true;
+        return this._setPendingProperty(path, value, shouldNotify);
+      } else {
+        if (this.__dataHasAccessor && this.__dataHasAccessor[path]) return this._setPendingProperty(path, value, shouldNotify);
+        else this[path] = value;
+      }
+      return false;
     }
 
     /**
@@ -441,6 +630,7 @@ export const ElementLiteBase = dedupingMixin(base => {
      * should be called. The default implementation returns true if
      * properties are pending. Override to customize when
      * `_propertiesChanged` is called.
+     *
      * @param {!Object} currentProps Bag of all current accessor values
      * @param {!Object} changedProps Bag of properties changed since the last
      *   call to `_propertiesChanged`
@@ -530,9 +720,6 @@ export const ElementLiteBase = dedupingMixin(base => {
      *
      * The default implementation returns `true` if a strict equality
      * check fails. The method always returns false for `NaN`.
-     *
-     * Override this method to e.g. provide stricter checking for
-     * Objects/Arrays when using immutable patterns.
      *
      * @param {string} property Property name
      * @param {*} value New property value
@@ -703,81 +890,6 @@ export const ElementLiteBase = dedupingMixin(base => {
           return value;
       }
       return outValue;
-    }
-
-    /**
-      * Implements standard custom elements getter to observes the attributes
-      * listed in `properties`.
-      * @suppress {missingProperties} Interfaces in closure do not inherit statics, but classes do
-      */
-    static get observedAttributes () {
-      const props = this._properties;
-      return props ? Object.keys(props).map(p => camelToDashCase(p)) : [];
-    }
-
-    /**
-      * Returns a memoized version of all properties, including those inherited
-      * from super classes. Properties not in object format are converted to
-      * at least {type}.
-      *
-      * @return {Object} Object containing properties for this class
-      * @protected
-      */
-    static get _properties () {
-      if (!this.hasOwnProperty('__properties')) {
-        this.__properties = Object.assign({}, ownProperties(this));
-      }
-      return this.__properties;
-    }
-
-    /**
-      * Overrides `PropertiesChanged` method to return type specified in the
-      * static `properties` object for the given property.
-      * @param {string} name Name of property
-      * @return {*} Type to which to deserialize attribute
-      *
-      * @protected
-      */
-    static typeForProperty (name) {
-      const info = this._properties[name];
-      return info && info.type;
-    }
-
-    /**
-      * Called when the element is added to a document.
-      * Calls `_enableProperties` to turn on property system from
-      * `PropertiesChanged`.
-      * @suppress {missingProperties} Super may or may not implement the callback
-      * @return {void}
-      */
-    connectedCallback () {
-      if (super.connectedCallback) {
-        super.connectedCallback();
-      }
-      this._enableProperties();
-    }
-
-    /**
-     * Call to enable property accessor processing. Before this method is
-     * called accessor values will be set but side effects are
-     * queued. When called, any pending side effects occur immediately.
-     * For elements, generally `connectedCallback` is a normal spot to do so.
-     * It is safe to call this method multiple times as it only turns on
-     * property accessors once.
-     *
-     * @return {void}
-     * @protected
-     */
-    _enableProperties () {
-      if (!this.__dataEnabled) {
-        this.__dataEnabled = true;
-        // put here setting of attributes
-        if (this.__dataInstanceProps) {
-          this._initializeInstanceProperties(this.__dataInstanceProps);
-          this.__dataInstanceProps = null;
-        }
-        this.ready();
-      }
     }
 
     /**
@@ -994,59 +1106,6 @@ export const ElementLiteBase = dedupingMixin(base => {
      */
     get (path, root) {
       return getProp(root || this, path, null);
-    }
-
-    /**
-     * Sets a pending property or path.  If the root property of the path in
-     * question had no accessor, the path is set, otherwise it is enqueued
-     * via `_setPendingProperty`.
-     *
-     * This function isolates relatively expensive functionality necessary
-     * for the public API (`set`, `setProperties`, `notifyPath`, and property
-     * change listeners via {{...}} bindings), such that it is only done
-     * when paths enter the system, and not at every propagation step.  It
-     * also sets a `__dataHasPaths` flag on the instance which is used to
-     * fast-path slower path-matching code in the property effects host paths.
-     *
-     * `path` can be a path string or array of path parts as accepted by the
-     * public API.
-     *
-     * @param {string} path Path to set
-     * @param {*} value Value to set
-     * @param {boolean=} shouldNotify Set to true if this change should
-     *  cause a property notification event dispatch
-     * @param {boolean=} isPathNotification If the path being set is a path
-     *   notification of an already changed value, as opposed to a request
-     *   to set and notify the change.  In the latter `false` case, a dirty
-     *   check is performed and then the value is set to the path before
-     *   enqueuing the pending property change.
-     * @return {boolean} Returns true if the property/path was enqueued in
-     *   the pending changes bag.
-     * @protected
-     */
-    _setPendingPropertyOrPath (path, value, shouldNotify, isPathNotification) {
-      if (isPathNotification || root(Array.isArray(path) ? path[0] : path) !== path) {
-        // Dirty check changes being set to a path against the actual object,
-        // since this is the entry point for paths into the system; from here
-        // the only dirty checks are against the `__dataTemp` cache to prevent
-        // duplicate work in the same turn only. Note, if this was a notification
-        // of a change already set to a path (isPathNotification: true),
-        // we always let the change through and skip the `set` since it was
-        // already dirty checked at the point of entry and the underlying
-        // object has already been updated
-        if (!isPathNotification) {
-          let old = getProp(this, path, null);
-          path = setProp(this, path, value);
-          // Use property-accessor's simpler dirty check
-          if (!path || !this._shouldPropertyChange(path, value, old)) return false;
-        }
-        this.__dataHasPaths = true;
-        return this._setPendingProperty(path, value, shouldNotify);
-      } else {
-        if (this.__dataHasAccessor && this.__dataHasAccessor[path]) return this._setPendingProperty(path, value, shouldNotify);
-        else this[path] = value;
-      }
-      return false;
     }
   }
 
