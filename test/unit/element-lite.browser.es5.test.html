@@ -12,18 +12,7 @@
 
     <test-element-three id="test"></test-element-three>
 
-    <script>
-      window.addEventListener('WebComponentsReady', function() {
-        var component = document.createElement('script');
-        component.src = './scripts-es5/element-lite.test.js';
-        document.head.appendChild(component);
-
-        setTimeout(function() {
-          var cases = document.createElement('script');
-          cases.src = './cases-es5/element-lite.test.js';
-          document.head.appendChild(cases);
-        }, 200);
-      });
-    </script>
+    <script src="./scripts-es5/element-lite.test.js"></script>
+    <script src="./cases-es5/element-lite.test.js"></script>
   </body>
 </html>

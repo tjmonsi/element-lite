@@ -7,6 +7,8 @@
   "browser": "dist/element-lite.umd.js",
   "scripts": {
     "size": "./node_modules/.bin/size-limit",
+    "copy": "cp -r ./node_modules/lit-html lib/lit-html",
+    "postinstall": "npm run copy",
     "semistandard": "./node_modules/.bin/semistandard",
     "wct": "npm run pretest && ./node_modules/.bin/wct --npm",
     "wct-firefox": "./node_modules/.bin/wct --npm --configFile wct-firefox.conf.json",
@@ -54,7 +56,7 @@
     },
     {
       "path": "element-lite.js",
-      "limit": "5.5KB"
+      "limit": "5.6KB"
     }
   ],
   "semistandard": {
