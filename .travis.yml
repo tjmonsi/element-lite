@@ -9,7 +9,7 @@ node_js:
 before_install:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
-script: npm test && npm run wct-sauce
+script: npm test && npm run wct-sauce && npm run wct-sauce-ie
 branches:
   only:
   - master
