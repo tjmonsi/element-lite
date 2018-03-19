@@ -64,7 +64,8 @@
     "parser": "babel-eslint",
     "ignore": [
       "test/*",
-      "dist/*"
+      "dist/*",
+      "lib/native-shim.es5.js"
     ],
     "env": [
       "mocha"
