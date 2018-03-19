@@ -4,6 +4,36 @@
 	(factory());
 }(this, (function () { 'use strict';
 
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+var possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
 // @ts-nocheck
 
 /**
@@ -69,7 +99,8 @@
 (function () {
 
   // Do nothing if `customElements` does not exist.
-  if (!window.customElements) { return; }
+
+  if (!window.customElements) return;
 
   var NativeHTMLElement = window.HTMLElement;
   var nativeDefine = window.customElements.define;
@@ -108,7 +139,7 @@
 
       // Make sure that the fake constructor doesn't call back to this constructor
       userConstruction = true;
-      var instance = new (fakeClass)(); // eslint-disable-line
+      var instance = new fakeClass(); // eslint-disable-line
       return instance;
     }
     // Else do nothing. This will be reached by ES5-style classes doing
@@ -122,34 +153,36 @@
   // ptototype chain of built-in elements.
   window.HTMLElement.prototype = NativeHTMLElement.prototype;
 
-  var define = function (tagname, elementClass) {
+  var define = function define(tagname, elementClass) {
     var elementProto = elementClass.prototype;
-    var StandInElement = (function (NativeHTMLElement) {
-      function StandInElement () {
-        // Call the native HTMLElement constructor, this gives us the
-        // under-construction instance as `this`:
-        NativeHTMLElement.call(this);
+    var StandInElement = function (_NativeHTMLElement) {
+      inherits(StandInElement, _NativeHTMLElement);
+
+      function StandInElement() {
+        classCallCheck(this, StandInElement);
 
         // The prototype will be wrong up because the browser used our fake
         // class, so fix it:
-        Object.setPrototypeOf(this, elementProto);
+        var _this = possibleConstructorReturn(this, (StandInElement.__proto__ || Object.getPrototypeOf(StandInElement)).call(this));
+        // Call the native HTMLElement constructor, this gives us the
+        // under-construction instance as `this`:
+
+
+        Object.setPrototypeOf(_this, elementProto);
 
         if (!userConstruction) {
           // Make sure that user-defined constructor bottom's out to a do-nothing
           // HTMLElement() call
           browserConstruction = true;
           // Call the user-defined constructor on our instance:
-          elementClass.call(this);
+          elementClass.call(_this);
         }
         userConstruction = false;
+        return _this;
       }
 
-      if ( NativeHTMLElement ) StandInElement.__proto__ = NativeHTMLElement;
-      StandInElement.prototype = Object.create( NativeHTMLElement && NativeHTMLElement.prototype );
-      StandInElement.prototype.constructor = StandInElement;
-
       return StandInElement;
-    }(NativeHTMLElement));
+    }(NativeHTMLElement);
     var standInProto = StandInElement.prototype;
     StandInElement.observedAttributes = elementClass.observedAttributes;
     standInProto.connectedCallback = elementProto.connectedCallback;
@@ -162,16 +195,15 @@
     nativeDefine.call(window.customElements, tagname, StandInElement);
   };
 
-  var get = function (tagname) { return constructorByTagname.get(tagname); };
+  var get$$1 = function get$$1(tagname) {
+    return constructorByTagname.get(tagname);
+  };
 
   // Workaround for Safari bug where patching customElements can be lost, likely
   // due to native wrapper garbage collection issue
-  Object.defineProperty(window, 'customElements',
-    {value: window.customElements, configurable: true, writable: true});
-  Object.defineProperty(window.customElements, 'define',
-    {value: define, configurable: true, writable: true});
-  Object.defineProperty(window.customElements, 'get',
-    {value: get, configurable: true, writable: true});
+  Object.defineProperty(window, 'customElements', { value: window.customElements, configurable: true, writable: true });
+  Object.defineProperty(window.customElements, 'define', { value: define, configurable: true, writable: true });
+  Object.defineProperty(window.customElements, 'get', { value: get$$1, configurable: true, writable: true });
 })();
 
 })));

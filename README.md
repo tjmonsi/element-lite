@@ -490,7 +490,7 @@ It works on all major evergreen Browsers (Edge, Safari, Chrome, Firefox) as long
 set (make sure to add `webcomponents-lite` or `webcomponents-loader` and create the components after the
 `WebComponentsReady` event has been fired)
 
-It also works on IE 11, Safari 11, Safari 10.1.
+It also works on Safari 11, Safari 10.1.
 
 Still checking on IE 10, 9, 8 and Safari 9, 8, 7, 6. (Need polyfills for `Map` and `WeakMap` when using the webcomponents-lite polyfill and `custom-element-es5-adapter`).
 
