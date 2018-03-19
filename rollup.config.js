@@ -15,6 +15,25 @@ const files = [
 const testScriptFiles = fs.readdirSync('test/unit/scripts');
 const testCaseFiles = fs.readdirSync('test/unit/cases');
 
+output.push({
+  input: `lib/native-shim.js`,
+  output: {
+    file: `lib/native-shim.es5.js`,
+    format: 'umd',
+    name: 'NativeShim'
+  },
+  plugins: [
+    resolve(), // so Rollup can find `ms`
+    commonjs(), // so Rollup can convert `ms` to an ES module
+    buble({ // transpile ES2015+ to ES5
+      transforms: {
+        templateString: false,
+        forOf: false
+      }
+    })
+  ]
+});
+
 for (let testFile of testScriptFiles) {
   output.push({
     input: `test/unit/scripts/${testFile}`,

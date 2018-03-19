@@ -14,6 +14,7 @@
     "wct-firefox": "./node_modules/.bin/wct --npm --configFile wct-firefox.conf.json",
     "wct-prod": "./node_modules/.bin/wct --npm --configFile wct-prod.conf.json",
     "wct-sauce": "./node_modules/.bin/wct --npm --configFile wct-sauce.conf.json",
+    "wct-sauce-ie": "./node_modules/.bin/wct --npm --configFile wct-sauce-ie.conf.json",
     "test": "npm run semistandard && npm run size && npm run wct-prod",
     "build": "./node_modules/.bin/rollup -c",
     "pretest": "npm run build",
