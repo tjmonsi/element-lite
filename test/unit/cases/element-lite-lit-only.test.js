@@ -17,7 +17,7 @@ suite('ElementLiteLitOnly Mixin', () => {
 
   test('button can be clicked', done => {
     const el = document.createElement('test-element-two');
-    document.body.append(el);
+    document.body.appendChild(el);
     const button = el.shadowRoot.querySelector('#button');
     expect(button).to.exist;
     MockInteractions.tap(button);
@@ -30,7 +30,7 @@ suite('ElementLiteLitOnly Mixin', () => {
 
   test('button style is changed', () => {
     const el = document.createElement('test-element-two');
-    document.body.append(el);
+    document.body.appendChild(el);
     const button = el.shadowRoot.querySelector('#button');
     expect(button).to.exist;
     expect(button.getBoundingClientRect().width).to.equal(500);
