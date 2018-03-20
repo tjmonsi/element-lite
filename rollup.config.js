@@ -1,6 +1,6 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
-import buble from 'rollup-plugin-buble';
+import babel from 'rollup-plugin-babel';
 import uglify from 'rollup-plugin-uglify';
 import fs from 'fs';
 const output = [];
@@ -15,6 +15,34 @@ const files = [
 const testScriptFiles = fs.readdirSync('test/unit/scripts');
 const testCaseFiles = fs.readdirSync('test/unit/cases');
 
+output.push({
+  input: `lib/es6-symbol.js`,
+  output: {
+    file: `polyfills/es6-symbol.js`,
+    format: 'umd',
+    name: 'NativeShim'
+  },
+  plugins: [
+    resolve(), // so Rollup can find `ms`
+    commonjs(), // so Rollup can convert `ms` to an ES module
+    babel() // transpile ES2015+ to ES5
+  ]
+});
+
+output.push({
+  input: `lib/native-shim.js`,
+  output: {
+    file: `polyfills/native-shim.js`,
+    format: 'umd',
+    name: 'NativeShim'
+  },
+  plugins: [
+    resolve(), // so Rollup can find `ms`
+    commonjs(), // so Rollup can convert `ms` to an ES module
+    babel() // transpile ES2015+ to ES5
+  ]
+});
+
 for (let testFile of testScriptFiles) {
   output.push({
     input: `test/unit/scripts/${testFile}`,
@@ -26,12 +54,7 @@ for (let testFile of testScriptFiles) {
     plugins: [
       resolve(), // so Rollup can find `ms`
       commonjs(), // so Rollup can convert `ms` to an ES module
-      buble({ // transpile ES2015+ to ES5
-        transforms: {
-          templateString: false,
-          forOf: false
-        }
-      })
+      babel() // transpile ES2015+ to ES5
     ]
   });
 }
@@ -47,12 +70,7 @@ for (let testFile of testCaseFiles) {
     plugins: [
       resolve(), // so Rollup can find `ms`
       commonjs(), // so Rollup can convert `ms` to an ES module
-      buble({ // transpile ES2015+ to ES5
-        transforms: {
-          templateString: false,
-          forOf: false
-        }
-      })
+      babel() // transpile ES2015+ to ES5
     ]
   });
 }
@@ -96,13 +114,7 @@ for (let name of files) {
     plugins: [
       resolve(), // so Rollup can find `ms`
       commonjs(), // so Rollup can convert `ms` to an ES module
-      buble({ // transpile ES2015+ to ES5
-        exclude: ['node_modules/**'],
-        transforms: {
-          templateString: false,
-          forOf: false
-        }
-      })
+      babel() // transpile ES2015+ to ES5
     ]
   });
 
@@ -116,13 +128,7 @@ for (let name of files) {
     plugins: [
       resolve(), // so Rollup can find `ms`
       commonjs(), // so Rollup can convert `ms` to an ES module
-      buble({ // transpile ES2015+ to ES5
-        exclude: ['node_modules/**'],
-        transforms: {
-          templateString: false,
-          forOf: false
-        }
-      }),
+      babel(), // transpile ES2015+ to ES5,
       uglify()
     ]
   });
@@ -144,13 +150,7 @@ for (let name of files) {
       { file: `dist/${name}.esm.es5.js`, format: 'es' }
     ],
     plugins: [
-      buble({ // transpile ES2015+ to ES5
-        exclude: ['node_modules/**'],
-        transforms: {
-          templateString: false,
-          forOf: false
-        }
-      })
+      babel() // transpile ES2015+ to ES5
     ]
   });
 }

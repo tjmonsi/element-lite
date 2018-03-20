@@ -1,7 +1,7 @@
 /// <reference path="typings-project/global.d.ts"/>
 
 import { dedupingMixin } from './lib/deduping-mixin.js';
-import { render, html } from '../../lit-html/lib/lit-extended.js';
+import { render, html } from './lib/lit-html/lib/lit-extended.js';
 
 export { html };
 export const ElementLiteLitOnly = dedupingMixin(base => {

@@ -1,3 +1,6 @@
+# v0.1.5 (2018-18-03)
+- Changed the position of lit-html to be dependent on own lib
+
 # v0.1.4 (2018-18-03)
 - Added `lib` on `files` in package.json
 - Cleaned up README

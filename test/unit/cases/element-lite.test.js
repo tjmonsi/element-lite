@@ -47,7 +47,7 @@ suite('ElementLite Mixin', () => {
 
   test('button style is changed', () => {
     const el = document.createElement('test-element-three');
-    document.body.append(el);
+    document.body.appendChild(el);
     const button = el.shadowRoot.querySelector('#button');
     expect(button).to.exist;
     expect(button.getBoundingClientRect().width).to.equal(500);

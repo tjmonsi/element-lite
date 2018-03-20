@@ -2,7 +2,7 @@ import { ElementLiteBase } from './element-lite-base.js';
 import { ElementLiteStaticShadow } from './element-lite-static-shadow.js';
 import { ElementLiteLitOnly } from './element-lite-lit-only.js';
 import { dedupingMixin } from './lib/deduping-mixin.js';
-import { render, html } from '../../lit-html/lib/lit-extended.js';
+import { render, html } from './lib/lit-html/lib/lit-extended.js';
 
 export { html, ElementLiteBase, ElementLiteStaticShadow, ElementLiteLitOnly };
 export const ElementLite = dedupingMixin(base => {
