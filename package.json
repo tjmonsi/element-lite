@@ -17,6 +17,7 @@
     "test": "npm run semistandard && npm run size && npm run wct-prod",
     "build": "npm run copy && ./node_modules/.bin/rollup -c",
     "pretest": "npm run build",
+    "postinstall": "npm run copy",
     "prepublishOnly": "npm run copy && npm test"
   },
   "files": [
