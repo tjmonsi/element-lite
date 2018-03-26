@@ -1,14 +1,13 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A take on using lit-html and polymer's properties-mixin",
   "main": "dist/element-lite.cjs.js",
   "module": "element-lite.js",
   "browser": "dist/element-lite.umd.js",
   "scripts": {
     "size": "./node_modules/.bin/size-limit",
-    "copy": "cp -r ./node_modules/lit-html lib/lit-html",
-    "postinstall": "npm run copy",
+    "copy": "./copy.sh",
     "semistandard": "./node_modules/.bin/semistandard",
     "wct": "npm run pretest && ./node_modules/.bin/wct --npm",
     "wct-firefox": "./node_modules/.bin/wct --npm --configFile wct-firefox.conf.json",
@@ -16,9 +15,9 @@
     "wct-sauce": "./node_modules/.bin/wct --npm --configFile wct-sauce.conf.json",
     "wct-sauce-ie": "./node_modules/.bin/wct --npm --configFile wct-sauce-ie.conf.json",
     "test": "npm run semistandard && npm run size && npm run wct-prod",
-    "build": "./node_modules/.bin/rollup -c",
+    "build": "npm run copy && ./node_modules/.bin/rollup -c",
     "pretest": "npm run build",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "npm run copy && npm test"
   },
   "files": [
     "element-lite-base.js",
@@ -26,7 +25,11 @@
     "element-lite-static-shadow.js",
     "element-lite.js",
     "lib",
+    "lib/lit-html/**",
     "dist"
+  ],
+  "bundledDependencies": [
+    "lit-html"
   ],
   "repository": {
     "type": "git",
