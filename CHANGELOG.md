@@ -1,3 +1,6 @@
+# v0.1.6 (2018-26-03)
+- Fixed a bug
+
 # v0.1.5 (2018-18-03)
 - Changed the position of lit-html to be dependent on own lib
 

@@ -1,13 +1,13 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.1.5-pre-0.1",
+  "version": "0.1.6",
   "description": "A take on using lit-html and polymer's properties-mixin",
   "main": "dist/element-lite.cjs.js",
   "module": "element-lite.js",
   "browser": "dist/element-lite.umd.js",
   "scripts": {
     "size": "./node_modules/.bin/size-limit",
-    "copy": "cp -r ./node_modules/lit-html lib/lit-html",
+    "copy": "cp -r ./node_modules/lit-html ./lib/lit-html",
     "semistandard": "./node_modules/.bin/semistandard",
     "wct": "npm run pretest && ./node_modules/.bin/wct --npm",
     "wct-firefox": "./node_modules/.bin/wct --npm --configFile wct-firefox.conf.json",
@@ -25,7 +25,11 @@
     "element-lite-static-shadow.js",
     "element-lite.js",
     "lib",
+    "lib/lit-html/**",
     "dist"
+  ],
+  "bundledDependencies": [
+    "lit-html"
   ],
   "repository": {
     "type": "git",
