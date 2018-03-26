@@ -1,6 +1,6 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A take on using lit-html and polymer's properties-mixin",
   "main": "dist/element-lite.cjs.js",
   "module": "element-lite.js",
@@ -17,6 +17,7 @@
     "test": "npm run semistandard && npm run size && npm run wct-prod",
     "build": "npm run copy && ./node_modules/.bin/rollup -c",
     "pretest": "npm run build",
+    "postinstall": "npm run copy",
     "prepublishOnly": "npm run copy && npm test"
   },
   "files": [
