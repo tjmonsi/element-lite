@@ -7,7 +7,7 @@
   "browser": "dist/element-lite.umd.js",
   "scripts": {
     "size": "./node_modules/.bin/size-limit",
-    "copy": "cp -r ./node_modules/lit-html ./lib/lit-html",
+    "copy": "./copy.sh",
     "semistandard": "./node_modules/.bin/semistandard",
     "wct": "npm run pretest && ./node_modules/.bin/wct --npm",
     "wct-firefox": "./node_modules/.bin/wct --npm --configFile wct-firefox.conf.json",
@@ -15,7 +15,7 @@
     "wct-sauce": "./node_modules/.bin/wct --npm --configFile wct-sauce.conf.json",
     "wct-sauce-ie": "./node_modules/.bin/wct --npm --configFile wct-sauce-ie.conf.json",
     "test": "npm run semistandard && npm run size && npm run wct-prod",
-    "build": "./node_modules/.bin/rollup -c",
+    "build": "npm run copy && ./node_modules/.bin/rollup -c",
     "pretest": "npm run build",
     "prepublishOnly": "npm run copy && npm test"
   },
