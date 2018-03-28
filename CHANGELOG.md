@@ -1,5 +1,13 @@
 # Change Log
 
+## [v0.1.7](https://github.com/tjmonsi/element-lite/tree/v0.1.7) (2018-03-26)
+[Full Changelog](https://github.com/tjmonsi/element-lite/compare/v0.1.6...v0.1.7)
+
+**Merged pull requests:**
+
+- Added github\_changelog\_generator and edited baseBranch [\#19](https://github.com/tjmonsi/element-lite/pull/19) ([tjmonsi](https://github.com/tjmonsi))
+- Pin Dependencies [\#17](https://github.com/tjmonsi/element-lite/pull/17) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [v0.1.6](https://github.com/tjmonsi/element-lite/tree/v0.1.6) (2018-03-26)
 [Full Changelog](https://github.com/tjmonsi/element-lite/compare/v0.1.5...v0.1.6)
 
