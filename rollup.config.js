@@ -5,154 +5,76 @@ import uglify from 'rollup-plugin-uglify';
 import fs from 'fs';
 const output = [];
 
-const files = [
-  'element-lite',
-  'element-lite-lit-only',
-  'element-lite-base',
-  'element-lite-static-shadow'
+const ignoreFiles = [
+  '.eslintrc.js',
+  'rollup.config.js'
 ];
+
+const files = fs.readdirSync(__dirname).filter(file => {
+  const fileArray = file.split('.');
+  return fileArray[fileArray.length - 1] === 'js' && ignoreFiles.indexOf(file) < 0;
+}).map(file => file.replace(/\.js$/g, ''));
 
 const testScriptFiles = fs.readdirSync('test/unit/scripts');
 const testCaseFiles = fs.readdirSync('test/unit/cases');
 
-output.push({
-  input: `lib/es6-symbol.js`,
-  output: {
-    file: `polyfills/es6-symbol.js`,
-    format: 'umd',
-    name: 'NativeShim'
-  },
-  plugins: [
+const outputUMDPush = (input, file, name, es5, minify) => {
+  const plugins = [
     resolve(), // so Rollup can find `ms`
-    commonjs(), // so Rollup can convert `ms` to an ES module
-    babel() // transpile ES2015+ to ES5
-  ]
-});
-
-output.push({
-  input: `lib/native-shim.js`,
-  output: {
-    file: `polyfills/native-shim.js`,
-    format: 'umd',
-    name: 'NativeShim'
-  },
-  plugins: [
-    resolve(), // so Rollup can find `ms`
-    commonjs(), // so Rollup can convert `ms` to an ES module
-    babel() // transpile ES2015+ to ES5
-  ]
-});
-
-for (let testFile of testScriptFiles) {
-  output.push({
-    input: `test/unit/scripts/${testFile}`,
-    output: {
-      file: `test/unit/scripts-es5/${testFile}`,
-      format: 'umd',
-      name: 'TestElements'
-    },
-    plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs(), // so Rollup can convert `ms` to an ES module
-      babel() // transpile ES2015+ to ES5
-    ]
-  });
-}
-
-for (let testFile of testCaseFiles) {
-  output.push({
-    input: `test/unit/cases/${testFile}`,
-    output: {
-      file: `test/unit/cases-es5/${testFile}`,
-      format: 'umd',
-      name: 'TestElements'
-    },
-    plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs(), // so Rollup can convert `ms` to an ES module
-      babel() // transpile ES2015+ to ES5
-    ]
-  });
-}
-
-for (let name of files) {
-  let input = `${name}.js`;
+    commonjs() // so Rollup can convert `ms` to an ES module
+  ];
+  if (es5) {
+    plugins.push(babel());
+  }
+  if (minify) {
+    plugins.push(uglify());
+  }
   output.push({
     input,
+    plugins,
     output: {
-      file: `dist/${name}.umd.js`,
-      format: 'umd',
-      name: 'ElementLite'
-    },
-    plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs() // so Rollup can convert `ms` to an ES module
-    ]
+      file,
+      name,
+      format: 'umd'
+    }
   });
+};
 
+const outputCJSESPush = (input, name, es5) => {
+  const plugins = [];
+  if (es5) {
+    plugins.push(babel());
+  }
   output.push({
     input,
-    output: {
-      file: `dist/${name}.umd.min.js`,
-      format: 'umd',
-      name: 'ElementLite'
-    },
-    plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs(), // so Rollup can convert `ms` to an ES module
-      uglify()
-    ]
-  });
-
-  output.push({
-    input,
-    output: {
-      file: `dist/${name}.umd.es5.js`,
-      format: 'umd',
-      name: 'ElementLite'
-    },
-    plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs(), // so Rollup can convert `ms` to an ES module
-      babel() // transpile ES2015+ to ES5
-    ]
-  });
-
-  output.push({
-    input,
-    output: {
-      file: `dist/${name}.umd.es5.min.js`,
-      format: 'umd',
-      name: 'ElementLite'
-    },
-    plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs(), // so Rollup can convert `ms` to an ES module
-      babel(), // transpile ES2015+ to ES5,
-      uglify()
-    ]
-  });
-
-  output.push({
-    input,
-    external: ['ms'],
-    output: [
-      { file: `dist/${name}.cjs.js`, format: 'cjs' },
-      { file: `dist/${name}.esm.js`, format: 'es' }
-    ]
-  });
-
-  output.push({
-    input,
+    plugins,
     external: ['ms'],
     output: [
       { file: `dist/${name}.cjs.es5.js`, format: 'cjs' },
       { file: `dist/${name}.esm.es5.js`, format: 'es' }
-    ],
-    plugins: [
-      babel() // transpile ES2015+ to ES5
     ]
   });
+};
+
+outputUMDPush('lib/es6-symbol.js', 'polyfills/es6-symbol.js', 'NativeShim', true);
+outputUMDPush('lib/native-shim.js', 'polyfills/native-shim.js', 'NativeShim', true);
+
+for (let testFile of testCaseFiles) {
+  outputUMDPush(`test/unit/cases/${testFile}`, `test/unit/cases-es5/${testFile}`, 'TestElements', true);
+}
+
+for (let testFile of testScriptFiles) {
+  outputUMDPush(`test/unit/scripts/${testFile}`, `test/unit/scripts-es5/${testFile}`, 'TestElements', true);
+}
+
+for (let name of files) {
+  let input = `${name}.js`;
+  outputUMDPush(input, `dist/${name}.umd.js`, 'ElementLite');
+  outputUMDPush(input, `dist/${name}.umd.min.js`, 'ElementLite', false, true);
+  outputUMDPush(input, `dist/${name}.umd.es5.js`, 'ElementLite', true);
+  outputUMDPush(input, `dist/${name}.umd.es5.min.js`, 'ElementLite', true, true);
+  outputCJSESPush(input, name);
+  outputCJSESPush(input, name, true);
 }
 
 export default output;
