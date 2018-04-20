@@ -27,6 +27,7 @@
     "element-lite.js",
     "lib",
     "lib/lit-html/**",
+    "copy.sh",
     "dist"
   ],
   "bundledDependencies": [
