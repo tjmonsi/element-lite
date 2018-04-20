@@ -10,13 +10,25 @@ export const ElementLiteStaticShadow = dedupingMixin(base => {
    * @extends {ElementLiteBase}
   */
   class ElementLiteStaticShadow extends ElementLiteBase(base) {
+    constructor () {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this.__template = document.createElement('template');
+      this.__template.innerHTML = this.render();
+      
+      if (window.ShadyCSS) {
+        window.ShadyCSS.prepareTemplate(this.__template, this.constructor.is || this.tagName.toLowerCase())
+      }
+    }
+    
     ready () {
       // attaches shadow
-      this.attachShadow({ mode: 'open' });
       super.ready();
-
       // renders the shadowRoot statically
-      this.shadowRoot = this.render();
+      if (window.ShadyCSS && this.__template) {
+        window.ShadyCSS.styleElement(this);
+      }
+      this.shadowRoot.appendChild(document.importNode(this.__template.content, true));
     }
 
     /**

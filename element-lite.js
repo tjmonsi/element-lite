@@ -37,6 +37,7 @@ export const ElementLite = dedupingMixin(base => {
      */
     _propertiesChanged (currentProps, changedProps, oldProps) {
       this.__isChanging = true;
+      this.__isInvalid = false;
       super._propertiesChanged(currentProps, changedProps, oldProps);
       this._setShadow();
 
@@ -67,9 +68,9 @@ export const ElementLite = dedupingMixin(base => {
     /**
      * Override which provides tracking of invalidated state.
     */
-    _invalidateProperties () {
+    _invalidateProperties (forceInvalidate) {
       this.__isInvalid = true;
-      super._invalidateProperties();
+      super._invalidateProperties(forceInvalidate);
     }
 
     /**
@@ -81,7 +82,7 @@ export const ElementLite = dedupingMixin(base => {
      * Helper method to re-render the whole setup.
      */
     invalidate () {
-      this._invalidateProperties();
+      this._invalidateProperties(true);
     }
   }
 
