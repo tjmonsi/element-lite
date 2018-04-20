@@ -15,12 +15,12 @@ export const ElementLiteStaticShadow = dedupingMixin(base => {
       this.attachShadow({ mode: 'open' });
       this.__template = document.createElement('template');
       this.__template.innerHTML = this.render();
-      
+
       if (window.ShadyCSS) {
-        window.ShadyCSS.prepareTemplate(this.__template, this.constructor.is || this.tagName.toLowerCase())
+        window.ShadyCSS.prepareTemplate(this.__template, this.constructor.is || this.tagName.toLowerCase());
       }
     }
-    
+
     ready () {
       // attaches shadow
       super.ready();
