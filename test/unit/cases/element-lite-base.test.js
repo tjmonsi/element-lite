@@ -30,19 +30,19 @@ suite('ElementLiteBase Mixin', () => {
     el.prop2 = 'b';
     assert.equal(el._propertiesChanged.callCount, 0, '_propertiesChanged is not async');
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
       // currentProps
-      expect(el._propertiesChanged.getCall(0).args[0].prop1).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[0].prop2).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[0].prop1).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[0].prop2).to.equal('b');
 
       // changedProps
-      expect(el._propertiesChanged.getCall(0).args[1].prop1).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop2).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop1).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop2).to.equal('b');
 
       // oldProps
-      expect(el._propertiesChanged.getCall(0).args[2].prop1).to.equal(undefined);
-      expect(el._propertiesChanged.getCall(0).args[2].prop2).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop1).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop2).to.equal(undefined);
 
       // reflect on property
       expect(el.prop1).to.equal('a');
@@ -50,19 +50,19 @@ suite('ElementLiteBase Mixin', () => {
 
       el.prop1 = 'aa';
       setTimeout(() => {
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
         // currentProps
-        expect(el._propertiesChanged.getCall(1).args[0].prop1).to.equal('aa');
-        expect(el._propertiesChanged.getCall(1).args[0].prop2).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[0].prop1).to.equal('aa');
+        expect(el._propertiesChanged.getCall(2).args[0].prop2).to.equal('b');
 
         // changedProps
-        expect(el._propertiesChanged.getCall(1).args[1].prop1).to.equal('aa');
-        expect('prop2' in el._propertiesChanged.getCall(1).args[1]).to.be.false;
+        expect(el._propertiesChanged.getCall(2).args[1].prop1).to.equal('aa');
+        expect('prop2' in el._propertiesChanged.getCall(2).args[1]).to.be.false;
 
         // oldProps
-        expect(el._propertiesChanged.getCall(1).args[2].prop1).to.equal('a');
-        expect('prop2' in el._propertiesChanged.getCall(1).args[2]).to.be.false;
+        expect(el._propertiesChanged.getCall(2).args[2].prop1).to.equal('a');
+        expect('prop2' in el._propertiesChanged.getCall(2).args[2]).to.be.false;
 
         document.body.removeChild(el);
         done();
@@ -76,19 +76,19 @@ suite('ElementLiteBase Mixin', () => {
     el.setAttribute('prop1', 'a');
     el.setAttribute('prop2', 'b');
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
       // currentProps
-      expect(el._propertiesChanged.getCall(0).args[0].prop1).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[0].prop2).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[0].prop1).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[0].prop2).to.equal('b');
 
       // changedProps
-      expect(el._propertiesChanged.getCall(0).args[1].prop1).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop2).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop1).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop2).to.equal('b');
 
       // oldProps
-      expect(el._propertiesChanged.getCall(0).args[2].prop1).to.equal(undefined);
-      expect(el._propertiesChanged.getCall(0).args[2].prop2).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop1).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop2).to.equal(undefined);
 
       // reflect on property
       expect(el.prop1).to.equal('a');
@@ -96,19 +96,19 @@ suite('ElementLiteBase Mixin', () => {
 
       el.setAttribute('prop1', 'aa');
       setTimeout(() => {
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
         // currentProps
-        expect(el._propertiesChanged.getCall(1).args[0].prop1).to.equal('aa');
-        expect(el._propertiesChanged.getCall(1).args[0].prop2).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[0].prop1).to.equal('aa');
+        expect(el._propertiesChanged.getCall(2).args[0].prop2).to.equal('b');
 
         // changedProps
-        expect(el._propertiesChanged.getCall(1).args[1].prop1).to.equal('aa');
-        expect('prop2' in el._propertiesChanged.getCall(1).args[1]).to.be.false;
+        expect(el._propertiesChanged.getCall(2).args[1].prop1).to.equal('aa');
+        expect('prop2' in el._propertiesChanged.getCall(2).args[1]).to.be.false;
 
         // oldProps
-        expect(el._propertiesChanged.getCall(1).args[2].prop1).to.equal('a');
-        expect('prop2' in el._propertiesChanged.getCall(1).args[2]).to.be.false;
+        expect(el._propertiesChanged.getCall(2).args[2].prop1).to.equal('a');
+        expect('prop2' in el._propertiesChanged.getCall(2).args[2]).to.be.false;
         document.body.removeChild(el);
         done();
       });
@@ -133,14 +133,14 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop4 = 'd';
     setTimeout(() => {
-      expect(el._prop4Changed.calledOnce).to.be.true;
-      expect(el._prop4Changed.getCall(0).args[0]).to.equal('d');
-      expect(el._prop4Changed.getCall(0).args[1]).to.equal(undefined);
+      expect(el._prop4Changed.calledTwice).to.be.true;
+      expect(el._prop4Changed.getCall(1).args[0]).to.equal('d');
+      expect(el._prop4Changed.getCall(1).args[1]).to.equal(undefined);
       el.prop4 = 'dd';
       setTimeout(() => {
-        expect(el._prop4Changed.calledTwice).to.be.true;
-        expect(el._prop4Changed.getCall(1).args[0]).to.equal('dd');
-        expect(el._prop4Changed.getCall(1).args[1]).to.equal('d');
+        expect(el._prop4Changed.calledThrice).to.be.true;
+        expect(el._prop4Changed.getCall(2).args[0]).to.equal('dd');
+        expect(el._prop4Changed.getCall(2).args[1]).to.equal('d');
         document.body.removeChild(el);
         done();
       });
@@ -160,9 +160,9 @@ suite('ElementLiteBase Mixin', () => {
       expect(el.prop5.attr1).to.equal('e');
       expect(el.prop6.attr2).to.equal('f');
 
-      expect(el._propChanged.calledOnce).to.be.true;
-      expect(el._propChanged.getCall(0).args[0]).to.equal('e');
-      expect(el._propChanged.getCall(0).args[1]).to.equal('f');
+      expect(el._propChanged.calledTwice).to.be.true;
+      expect(el._propChanged.getCall(1).args[0]).to.equal('e');
+      expect(el._propChanged.getCall(1).args[1]).to.equal('f');
 
       document.body.removeChild(el);
       done();
@@ -196,29 +196,29 @@ suite('ElementLiteBase Mixin', () => {
 
     assert.equal(el._propertiesChanged.callCount, 0, '_propertiesChanged is not async');
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
       // currentProps
-      expect(el._propertiesChanged.getCall(0).args[0].prop5.attr1).to.equal('g');
+      expect(el._propertiesChanged.getCall(1).args[0].prop5.attr1).to.equal('g');
 
       // changedProps
-      expect(el._propertiesChanged.getCall(0).args[1].prop5.attr1).to.equal('g');
+      expect(el._propertiesChanged.getCall(1).args[1].prop5.attr1).to.equal('g');
 
       // oldProps
-      expect(el._propertiesChanged.getCall(0).args[2].prop5).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop5).to.equal(undefined);
 
       // reflect on property
       expect(el.prop5.attr1).to.equal('g');
 
       el.set('prop5.attr1', 'gg');
       setTimeout(() => {
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
         // currentProps
-        expect(el._propertiesChanged.getCall(0).args[0].prop5.attr1).to.equal('gg');
+        expect(el._propertiesChanged.getCall(1).args[0].prop5.attr1).to.equal('gg');
 
         // changedProps
-        expect(el._propertiesChanged.getCall(1).args[1]['prop5.attr1']).to.equal('gg');
+        expect(el._propertiesChanged.getCall(2).args[1]['prop5.attr1']).to.equal('gg');
 
         // reflect on property
         expect(el.prop5.attr1).to.equal('gg');
@@ -242,17 +242,17 @@ suite('ElementLiteBase Mixin', () => {
       expect(el.prop5.attr1).to.equal('h');
       expect(el.prop6.attr2).to.equal('i');
 
-      expect(el._propChanged.calledOnce).to.be.true;
-      expect(el._propChanged.getCall(0).args[0]).to.equal('h');
-      expect(el._propChanged.getCall(0).args[1]).to.equal('i');
+      expect(el._propChanged.calledTwice).to.be.true;
+      expect(el._propChanged.getCall(1).args[0]).to.equal('h');
+      expect(el._propChanged.getCall(1).args[1]).to.equal('i');
 
       el.set('prop5.attr1', 'hh');
       setTimeout(() => {
         expect(el.prop5.attr1).to.equal('hh');
 
-        expect(el._propChanged.calledTwice).to.be.true;
-        expect(el._propChanged.getCall(1).args[0]).to.equal('hh');
-        expect(el._propChanged.getCall(1).args[1]).to.equal('i');
+        expect(el._propChanged.calledThrice).to.be.true;
+        expect(el._propChanged.getCall(2).args[0]).to.equal('hh');
+        expect(el._propChanged.getCall(2).args[1]).to.equal('i');
         document.body.removeChild(el);
         done();
       });
@@ -268,14 +268,14 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop7 = ['a', 'b', 'c'];
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
-      expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(3);
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
 
-      expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop7).to.equal(undefined);
 
       el.push('prop7', 'd');
       setTimeout(() => {
@@ -285,18 +285,18 @@ suite('ElementLiteBase Mixin', () => {
         expect(el.prop7[2]).to.equal('c');
         expect(el.prop7[3]).to.equal('d');
 
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
-        expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(4);
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[3]).to.equal('d');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7.length).to.equal(4);
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[2]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[3]).to.equal('d');
 
-        expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7.length).to.equal(3);
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[2]).to.equal('c');
         done();
       });
     });
@@ -305,16 +305,17 @@ suite('ElementLiteBase Mixin', () => {
   test('array pop mutations work and _propertiesChanged are called', done => {
     const el = document.createElement('test-element');
     document.body.appendChild(el);
+    expect(el._propertiesChanged.calledOnce).to.be.true;
     el.prop7 = ['a', 'b', 'c'];
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
-      expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(3);
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
 
-      expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop7).to.equal(undefined);
 
       el.pop('prop7');
       setTimeout(() => {
@@ -322,16 +323,16 @@ suite('ElementLiteBase Mixin', () => {
         expect(el.prop7[0]).to.equal('a');
         expect(el.prop7[1]).to.equal('b');
 
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
-        expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(2);
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7.length).to.equal(2);
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[1]).to.equal('b');
 
-        expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7.length).to.equal(3);
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[2]).to.equal('c');
         done();
       });
     });
@@ -342,14 +343,14 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop7 = ['a', 'b', 'c'];
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
-      expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(3);
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
 
-      expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop7).to.equal(undefined);
 
       el.unshift('prop7', 'd');
       setTimeout(() => {
@@ -359,18 +360,18 @@ suite('ElementLiteBase Mixin', () => {
         expect(el.prop7[3]).to.equal('c');
         expect(el.prop7[0]).to.equal('d');
 
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
-        expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(4);
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[3]).to.equal('c');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('d');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7.length).to.equal(4);
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[1]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[2]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[3]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[0]).to.equal('d');
 
-        expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7.length).to.equal(3);
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[2]).to.equal('c');
         done();
       });
     });
@@ -381,14 +382,14 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop7 = ['a', 'b', 'c'];
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
-      expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(3);
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
 
-      expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop7).to.equal(undefined);
 
       el.shift('prop7');
       setTimeout(() => {
@@ -396,16 +397,16 @@ suite('ElementLiteBase Mixin', () => {
         expect(el.prop7[0]).to.equal('b');
         expect(el.prop7[1]).to.equal('c');
 
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
-        expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(2);
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7.length).to.equal(2);
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[0]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[1]).to.equal('c');
 
-        expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7.length).to.equal(3);
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[2]).to.equal('c');
         done();
       });
     });
@@ -416,14 +417,14 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop7 = ['a', 'b', 'c'];
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
-      expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(3);
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
 
-      expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop7).to.equal(undefined);
 
       el.splice('prop7', 1, 1);
       setTimeout(() => {
@@ -431,16 +432,16 @@ suite('ElementLiteBase Mixin', () => {
         expect(el.prop7[0]).to.equal('a');
         expect(el.prop7[1]).to.equal('c');
 
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
-        expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(2);
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7.length).to.equal(2);
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[1]).to.equal('c');
 
-        expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7.length).to.equal(3);
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[2]).to.equal('c');
         done();
       });
     });
@@ -451,14 +452,14 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop7 = ['a', 'b', 'c'];
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
-      expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(3);
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
 
-      expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop7).to.equal(undefined);
 
       el.splice('prop7', 1, 0, 'd', 'e');
       setTimeout(() => {
@@ -469,19 +470,19 @@ suite('ElementLiteBase Mixin', () => {
         expect(el.prop7[3]).to.equal('b');
         expect(el.prop7[4]).to.equal('c');
 
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
-        expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(5);
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('d');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('e');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[3]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[4]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7.length).to.equal(5);
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[1]).to.equal('d');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[2]).to.equal('e');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[3]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[4]).to.equal('c');
 
-        expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7.length).to.equal(3);
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[2]).to.equal('c');
         done();
       });
     });
@@ -492,14 +493,14 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop7 = ['a', 'b', 'c'];
     setTimeout(() => {
-      expect(el._propertiesChanged.calledOnce).to.be.true;
+      expect(el._propertiesChanged.calledTwice).to.be.true;
 
-      expect(el._propertiesChanged.getCall(0).args[1].prop7.length).to.equal(3);
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[0]).to.equal('a');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[1]).to.equal('b');
-      expect(el._propertiesChanged.getCall(0).args[1].prop7[2]).to.equal('c');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(3);
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('b');
+      expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('c');
 
-      expect(el._propertiesChanged.getCall(0).args[2].prop7).to.equal(undefined);
+      expect(el._propertiesChanged.getCall(1).args[2].prop7).to.equal(undefined);
 
       el.splice('prop7', 1, 1, 'd', 'e');
       setTimeout(() => {
@@ -509,18 +510,18 @@ suite('ElementLiteBase Mixin', () => {
         expect(el.prop7[2]).to.equal('e');
         expect(el.prop7[3]).to.equal('c');
 
-        expect(el._propertiesChanged.calledTwice).to.be.true;
+        expect(el._propertiesChanged.calledThrice).to.be.true;
 
-        expect(el._propertiesChanged.getCall(1).args[1].prop7.length).to.equal(4);
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[1]).to.equal('d');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[2]).to.equal('e');
-        expect(el._propertiesChanged.getCall(1).args[1].prop7[3]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7.length).to.equal(4);
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[1]).to.equal('d');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[2]).to.equal('e');
+        expect(el._propertiesChanged.getCall(2).args[1].prop7[3]).to.equal('c');
 
-        expect(el._propertiesChanged.getCall(1).args[2].prop7.length).to.equal(3);
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[0]).to.equal('a');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[1]).to.equal('b');
-        expect(el._propertiesChanged.getCall(1).args[2].prop7[2]).to.equal('c');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7.length).to.equal(3);
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[0]).to.equal('a');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[1]).to.equal('b');
+        expect(el._propertiesChanged.getCall(2).args[2].prop7[2]).to.equal('c');
         done();
       });
     });
@@ -535,14 +536,14 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop7 = ['a', 'b', 'c'];
     setTimeout(() => {
-      expect(el._prop7Changed.calledOnce).to.be.true;
+      expect(el._prop7Changed.calledTwice).to.be.true;
 
-      expect(el._prop7Changed.getCall(0).args[0].length).to.equal(3);
-      expect(el._prop7Changed.getCall(0).args[0][0]).to.equal('a');
-      expect(el._prop7Changed.getCall(0).args[0][1]).to.equal('b');
-      expect(el._prop7Changed.getCall(0).args[0][2]).to.equal('c');
+      expect(el._prop7Changed.getCall(1).args[0].length).to.equal(3);
+      expect(el._prop7Changed.getCall(1).args[0][0]).to.equal('a');
+      expect(el._prop7Changed.getCall(1).args[0][1]).to.equal('b');
+      expect(el._prop7Changed.getCall(1).args[0][2]).to.equal('c');
 
-      expect(el._prop7Changed.getCall(0).args[1]).to.equal(undefined);
+      expect(el._prop7Changed.getCall(1).args[1]).to.equal(undefined);
 
       el.splice('prop7', 1, 1, 'd', 'e');
       setTimeout(() => {
@@ -552,18 +553,18 @@ suite('ElementLiteBase Mixin', () => {
         expect(el.prop7[2]).to.equal('e');
         expect(el.prop7[3]).to.equal('c');
 
-        expect(el._prop7Changed.calledTwice).to.be.true;
+        expect(el._prop7Changed.calledThrice).to.be.true;
 
-        expect(el._prop7Changed.getCall(1).args[0].length).to.equal(4);
-        expect(el._prop7Changed.getCall(1).args[0][0]).to.equal('a');
-        expect(el._prop7Changed.getCall(1).args[0][1]).to.equal('d');
-        expect(el._prop7Changed.getCall(1).args[0][2]).to.equal('e');
-        expect(el._prop7Changed.getCall(1).args[0][3]).to.equal('c');
+        expect(el._prop7Changed.getCall(2).args[0].length).to.equal(4);
+        expect(el._prop7Changed.getCall(2).args[0][0]).to.equal('a');
+        expect(el._prop7Changed.getCall(2).args[0][1]).to.equal('d');
+        expect(el._prop7Changed.getCall(2).args[0][2]).to.equal('e');
+        expect(el._prop7Changed.getCall(2).args[0][3]).to.equal('c');
 
-        expect(el._prop7Changed.getCall(1).args[1].length).to.equal(3);
-        expect(el._prop7Changed.getCall(1).args[1][0]).to.equal('a');
-        expect(el._prop7Changed.getCall(1).args[1][1]).to.equal('b');
-        expect(el._prop7Changed.getCall(1).args[1][2]).to.equal('c');
+        expect(el._prop7Changed.getCall(2).args[1].length).to.equal(3);
+        expect(el._prop7Changed.getCall(2).args[1][0]).to.equal('a');
+        expect(el._prop7Changed.getCall(2).args[1][1]).to.equal('b');
+        expect(el._prop7Changed.getCall(2).args[1][2]).to.equal('c');
         done();
       });
     });
