@@ -28,7 +28,7 @@ suite('ElementLiteBase Mixin', () => {
     document.body.appendChild(el);
     el.prop1 = 'a';
     el.prop2 = 'b';
-    assert.equal(el._propertiesChanged.callCount, 0, '_propertiesChanged is not async');
+    assert.equal(el._propertiesChanged.callCount, 1, '_propertiesChanged is not async');
     setTimeout(() => {
       expect(el._propertiesChanged.calledTwice).to.be.true;
 
@@ -194,7 +194,7 @@ suite('ElementLiteBase Mixin', () => {
       attr1: 'g'
     };
 
-    assert.equal(el._propertiesChanged.callCount, 0, '_propertiesChanged is not async');
+    assert.equal(el._propertiesChanged.callCount, 1, '_propertiesChanged is not async');
     setTimeout(() => {
       expect(el._propertiesChanged.calledTwice).to.be.true;
 
