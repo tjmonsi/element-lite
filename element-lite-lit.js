@@ -4,7 +4,7 @@ import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from './lib/lit-html/lib/lit-extended.js';
 
 export { html };
-export const ElementLiteLitOnly = dedupingMixin(base => {
+export const ElementLiteLit = dedupingMixin(base => {
   /**
    * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
    * that automates the creation of setter and getters given a list of properties and
@@ -13,7 +13,7 @@ export const ElementLiteLitOnly = dedupingMixin(base => {
    *
    * @extends {HTMLElement}
   */
-  class ElementLiteLitOnly extends /** @type {HTMLElement} */(base) {
+  class ElementLiteLit extends /** @type {HTMLElement} */(base) {
     connectedCallback () {
       if (super.connectedCallback) super.connectedCallback();
       this.attachShadow({ mode: 'open' });
@@ -32,5 +32,5 @@ export const ElementLiteLitOnly = dedupingMixin(base => {
     render (self) { return html``; }
   }
 
-  return ElementLiteLitOnly;
+  return ElementLiteLit;
 });

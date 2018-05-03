@@ -1,12 +1,12 @@
 // @ts-nocheck
 
-import { ElementLiteLitOnly, html } from '../../../element-lite-lit-only.js';
+import { ElementLiteLit, html } from '../../../element-lite-lit.js';
 var sinon = window.sinon;
 
 /**
- * @extends {ElementLiteLitOnly}
+ * @extends {ElementLiteLit}
 */
-class TestElement extends ElementLiteLitOnly(window.HTMLElement) {
+class TestElement extends ElementLiteLit(window.HTMLElement) {
   static get is () { return 'test-element-two'; }
 
   constructor () {

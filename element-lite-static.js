@@ -1,7 +1,7 @@
 import { ElementLiteBase } from './element-lite-base.js';
 import { dedupingMixin } from './lib/deduping-mixin.js';
 
-export const ElementLiteStaticShadow = dedupingMixin(base => {
+export const ElementLiteStatic = dedupingMixin(base => {
   /**
    * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
    * that automates the creation of setter and getters given a list of properties and
@@ -9,7 +9,7 @@ export const ElementLiteStaticShadow = dedupingMixin(base => {
    * lit-html
    * @extends {ElementLiteBase}
   */
-  class ElementLiteStaticShadow extends ElementLiteBase(base) {
+  class ElementLiteStatic extends ElementLiteBase(base) {
     constructor () {
       super();
       this.attachShadow({ mode: 'open' });
@@ -37,5 +37,5 @@ export const ElementLiteStaticShadow = dedupingMixin(base => {
     render () { return ``; }
   }
 
-  return ElementLiteStaticShadow;
+  return ElementLiteStatic;
 });

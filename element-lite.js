@@ -1,10 +1,10 @@
 import { ElementLiteBase } from './element-lite-base.js';
-import { ElementLiteStaticShadow } from './element-lite-static-shadow.js';
-import { ElementLiteLitOnly } from './element-lite-lit-only.js';
+import { ElementLiteStatic } from './element-lite-static.js';
+import { ElementLiteLit } from './element-lite-lit.js';
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from './lib/lit-html/lib/lit-extended.js';
 
-export { html, ElementLiteBase, ElementLiteStaticShadow, ElementLiteLitOnly };
+export { html, ElementLiteBase, ElementLiteStatic, ElementLiteLit };
 export const ElementLite = dedupingMixin(base => {
   /**
    * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
