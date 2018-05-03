@@ -49,7 +49,7 @@
   "flat": true,
   "size-limit": [
     {
-      "path": "element-lite-lit-only.js",
+      "path": "element-lite-lit.js",
       "limit": "3KB"
     },
     {
@@ -57,7 +57,7 @@
       "limit": "3.5KB"
     },
     {
-      "path": "element-lite-static-shadow.js",
+      "path": "element-lite-static.js",
       "limit": "3.5KB"
     },
     {
