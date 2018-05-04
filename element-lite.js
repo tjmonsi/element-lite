@@ -1,10 +1,10 @@
 import { ElementLiteBase } from './element-lite-base.js';
-import { ElementLiteStaticShadow } from './element-lite-static-shadow.js';
-import { ElementLiteLitOnly } from './element-lite-lit-only.js';
+import { ElementLiteStatic } from './element-lite-static.js';
+import { ElementLiteLit } from './element-lite-lit.js';
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from './lib/lit-html/lib/lit-extended.js';
 
-export { html, ElementLiteBase, ElementLiteStaticShadow, ElementLiteLitOnly };
+export { html, ElementLiteBase, ElementLiteStatic, ElementLiteLit };
 export const ElementLite = dedupingMixin(base => {
   /**
    * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
@@ -37,6 +37,7 @@ export const ElementLite = dedupingMixin(base => {
      */
     _propertiesChanged (currentProps, changedProps, oldProps) {
       this.__isChanging = true;
+      this.__isInvalid = false;
       super._propertiesChanged(currentProps, changedProps, oldProps);
       this._setShadow();
 
@@ -67,9 +68,9 @@ export const ElementLite = dedupingMixin(base => {
     /**
      * Override which provides tracking of invalidated state.
     */
-    _invalidateProperties () {
+    _invalidateProperties (forceInvalidate) {
       this.__isInvalid = true;
-      super._invalidateProperties();
+      super._invalidateProperties(forceInvalidate);
     }
 
     /**
@@ -81,7 +82,7 @@ export const ElementLite = dedupingMixin(base => {
      * Helper method to re-render the whole setup.
      */
     invalidate () {
-      this._invalidateProperties();
+      this._invalidateProperties(true);
     }
   }
 
