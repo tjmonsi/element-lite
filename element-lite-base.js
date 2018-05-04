@@ -459,17 +459,18 @@ export const ElementLiteBase = dedupingMixin(base => {
               this.__dataMethodObserver[args[p]] = { methods: [], root: root(args[p]) };
             }
 
-            if (this.__dataMethodObserver[args[p]].methods.findIndex(item => item.fn === fn) < 0) {
-              this.__dataMethodObserver[args[p]].methods.push({ fn, args });
-            }
-
             if (!this.__dataMethodObserver[rootPath]) {
               this.__dataMethodObserver[rootPath] = { methods: [], root: root(rootPath) };
             }
 
-            if (this.__dataMethodObserver[rootPath].methods.findIndex(item => item.fn === fn) < 0) {
-              this.__dataMethodObserver[rootPath].methods.push({ fn, args });
-            }
+            // Removed these parts so that you can call the same function name with same set of
+            // paramaters but in different order
+            // if (this.__dataMethodObserver[args[p]].methods.findIndex(item => item.fn === fn) < 0) {
+            this.__dataMethodObserver[args[p]].methods.push({ fn, args });
+            // }
+            // if (this.__dataMethodObserver[rootPath].methods.findIndex(item => item.fn === fn) < 0) {
+            this.__dataMethodObserver[rootPath].methods.push({ fn, args });
+            // }
           }
         }
       }
@@ -687,7 +688,7 @@ export const ElementLiteBase = dedupingMixin(base => {
           const args = [this.__data[prop], oldProps && oldProps[prop]];
 
           if (fn) {
-            fns[this.__dataObserver[prop]] = { fn: fn.bind(this), args };
+            fns[`${this.__dataObserver[prop]}-${prop}`] = { fn: fn.bind(this), args };
           } else {
             console.warn(`There's not observer named ${this.__dataObserver[prop]} for ${prop}`);
           }
@@ -704,7 +705,7 @@ export const ElementLiteBase = dedupingMixin(base => {
             }
 
             if (fn) {
-              fns[fnName] = { fn: fn.bind(this), args };
+              fns[`${fnName}-${argNames.join('-')}`] = { fn: fn.bind(this), args };
             } else {
               console.warn(`There's not method named ${fnName}`);
             }
