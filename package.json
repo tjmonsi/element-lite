@@ -1,6 +1,6 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A take on using lit-html and polymer's properties-mixin",
   "main": "dist/element-lite.cjs.js",
   "module": "element-lite.js",
