@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>Demo of element-lite</title>
+  </head>
+  <body>
+    <test-component></test-component>
+    <script type="module">
+      import { ElementLiteBase } from './element-lite-base.js';
+
+      class TestComponent extends ElementLiteBase(window.HTMLElement) {
+        static get is () { return 'test-component'; }
+
+        static get properties () {
+          return {
+            prop1: {
+              type: String,
+              value: 'Hello',
+              observer: '_testMethod'
+            },
+            prop2: {
+              type: String,
+              value: 'World',
+              observer: '_testMethod'
+            }
+          };
+        }
+
+        static get observers () {
+          return [
+            '_testTwoProps(prop1, prop2)',
+            '_testTwoProps(prop2, prop1)'
+          ];
+        }
+
+        _testMethod (prop1) {
+          console.log(prop1);
+        }
+
+        _testTwoProps (prop1, prop2) {
+          console.log(prop1, prop2);
+        }
+      }
+
+      window.customElements.define(TestComponent.is, TestComponent);
+    </script>
+  </body>
+</html>
