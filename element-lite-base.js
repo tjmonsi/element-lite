@@ -599,14 +599,14 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _invalidateProperties () {
+    _invalidateProperties (forceInvalidate) {
       if (!this.__dataInvalid && this.__dataReady) {
         this.__dataInvalid = true;
 
         Promise.resolve().then(() => {
           if (this.__dataInvalid) {
             this.__dataInvalid = false;
-            this._flushProperties();
+            this._flushProperties(forceInvalidate);
           }
         });
       }
@@ -621,16 +621,16 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      * @protected
      */
-    _flushProperties () {
+    _flushProperties (forceFlush) {
       this.__dataCounter++;
 
       const props = this.__data;
       const changedProps = this.__dataPending;
       const old = this.__dataOld;
-      if (this._shouldPropertiesChange(props, changedProps, old)) {
+      if (this._shouldPropertiesChange(props, changedProps, old) || forceFlush) {
         this.__dataPending = null;
         this.__dataOld = {};
-        this._propertiesChanged(props, changedProps, old);
+        this._propertiesChanged(props, forceFlush ? props : changedProps, old);
       }
 
       this.__dataCounter--;
@@ -679,7 +679,7 @@ export const ElementLiteBase = dedupingMixin(base => {
         }
 
         if (this.__dataNotify[root(prop)]) {
-          this.dispatchEvent(new window.CustomEvent(`${camelToDashCase(root(prop))}-changed`, { detail: this.__data[root(prop)] }));
+          this.dispatchEvent(new window.CustomEvent(`${camelToDashCase(root(prop))}-change`, { detail: this.__data[root(prop)] }));
         }
 
         if (this.__dataObserver[prop]) {
@@ -919,7 +919,7 @@ export const ElementLiteBase = dedupingMixin(base => {
      */
     ready () {
       this.__dataReady = true;
-      this._flushProperties();
+      this._flushProperties(true);
     }
 
     /**
