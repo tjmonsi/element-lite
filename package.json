@@ -22,8 +22,8 @@
   },
   "files": [
     "element-lite-base.js",
-    "element-lite-lit-only.js",
-    "element-lite-static-shadow.js",
+    "element-lite-lit.js",
+    "element-lite-static.js",
     "element-lite.js",
     "lib",
     "lib/lit-html/**",
@@ -49,7 +49,7 @@
   "flat": true,
   "size-limit": [
     {
-      "path": "element-lite-lit-only.js",
+      "path": "element-lite-lit.js",
       "limit": "3KB"
     },
     {
@@ -57,7 +57,7 @@
       "limit": "3.5KB"
     },
     {
-      "path": "element-lite-static-shadow.js",
+      "path": "element-lite-static.js",
       "limit": "3.5KB"
     },
     {

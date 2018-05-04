@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable no-undef */
 
-suite('ElementLiteLitOnly Mixin', () => {
+suite('ElementLiteLit Mixin', () => {
   test('should have not be a HTMLUnknownElement constructor', () => {
     const el = document.querySelector('#test');
     expect(el.constructor.is).to.equal('test-element-two');
