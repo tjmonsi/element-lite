@@ -110,7 +110,7 @@
     "rollup-plugin-uglify": "3.0.0",
     "semistandard": "12.0.1",
     "size-limit": "0.17.0",
-    "wct-browser-legacy": "0.0.1-pre.12",
+    "wct-browser-legacy": "1.0.0",
     "web-component-tester": "6.5.0"
   }
 }
