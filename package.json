@@ -62,7 +62,7 @@
     },
     {
       "path": "element-lite.js",
-      "limit": "5.6KB"
+      "limit": "6KB"
     }
   ],
   "semistandard": {
