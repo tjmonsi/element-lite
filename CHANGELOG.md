@@ -2,10 +2,17 @@
 
 ## [Unreleased](https://github.com/tjmonsi/element-lite/tree/HEAD)
 
-[Full Changelog](https://github.com/tjmonsi/element-lite/compare/v0.1.9...HEAD)
+[Full Changelog](https://github.com/tjmonsi/element-lite/compare/untagged-362e8e0896fcb1824c3b...HEAD)
+
+## [untagged-362e8e0896fcb1824c3b](https://github.com/tjmonsi/element-lite/tree/untagged-362e8e0896fcb1824c3b) (2018-05-09)
+[Full Changelog](https://github.com/tjmonsi/element-lite/compare/v0.2.0...untagged-362e8e0896fcb1824c3b)
+
+## [v0.2.0](https://github.com/tjmonsi/element-lite/tree/v0.2.0) (2018-05-09)
+[Full Changelog](https://github.com/tjmonsi/element-lite/compare/v0.1.9...v0.2.0)
 
 **Implemented enhancements:**
 
+- Add invalidate to re-render lit-html on element-lite-lit [\#73](https://github.com/tjmonsi/element-lite/issues/73)
 - Update travis.yml to mimic automation-tester repo [\#39](https://github.com/tjmonsi/element-lite/issues/39)
 
 **Closed issues:**
@@ -15,12 +22,28 @@
 - Add shadyCSS capabilities on static shadow [\#53](https://github.com/tjmonsi/element-lite/issues/53)
 - Fix static-shadow [\#52](https://github.com/tjmonsi/element-lite/issues/52)
 
+**Merged pull requests:**
+
+- Release 0.2.0 [\#78](https://github.com/tjmonsi/element-lite/pull/78) ([tjmonsi](https://github.com/tjmonsi))
+- Resolved conflicts [\#77](https://github.com/tjmonsi/element-lite/pull/77) ([tjmonsi](https://github.com/tjmonsi))
+- Pin dependency babel-core to v6.26.3 \(develop\) [\#76](https://github.com/tjmonsi/element-lite/pull/76) ([renovate[bot]](https://github.com/apps/renovate))
+- fix \#73 [\#74](https://github.com/tjmonsi/element-lite/pull/74) ([tjmonsi](https://github.com/tjmonsi))
+- Update dependency web-component-tester to v6.6.0 \(develop\) [\#72](https://github.com/tjmonsi/element-lite/pull/72) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency wct-browser-legacy to v1 \(develop\) [\#71](https://github.com/tjmonsi/element-lite/pull/71) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency lit-html to ^0.10.0 \(develop\) [\#70](https://github.com/tjmonsi/element-lite/pull/70) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency eslint-plugin-promise to v3.7.0 \(develop\) [\#69](https://github.com/tjmonsi/element-lite/pull/69) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency eslint-plugin-import to v2.11.0 \(develop\) [\#68](https://github.com/tjmonsi/element-lite/pull/68) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency eslint-config-standard to v11.0.0 \(develop\) [\#67](https://github.com/tjmonsi/element-lite/pull/67) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency eslint to v4.19.1 \(develop\) [\#66](https://github.com/tjmonsi/element-lite/pull/66) ([renovate[bot]](https://github.com/apps/renovate))
+- updated changelog \[ci skip\] [\#64](https://github.com/tjmonsi/element-lite/pull/64) ([tjmonsi](https://github.com/tjmonsi))
+- update CHANGELOG \[skip ci\] [\#63](https://github.com/tjmonsi/element-lite/pull/63) ([tjmonsi](https://github.com/tjmonsi))
+- Release 0.1.9 [\#62](https://github.com/tjmonsi/element-lite/pull/62) ([tjmonsi](https://github.com/tjmonsi))
+
 ## [v0.1.9](https://github.com/tjmonsi/element-lite/tree/v0.1.9) (2018-05-04)
 [Full Changelog](https://github.com/tjmonsi/element-lite/compare/untagged-12fe76177360af4f3a99...v0.1.9)
 
 **Merged pull requests:**
 
-- Release 0.1.9 [\#62](https://github.com/tjmonsi/element-lite/pull/62) ([tjmonsi](https://github.com/tjmonsi))
 - Fixed \#60 [\#61](https://github.com/tjmonsi/element-lite/pull/61) ([tjmonsi](https://github.com/tjmonsi))
 - Update develop branch [\#59](https://github.com/tjmonsi/element-lite/pull/59) ([tjmonsi](https://github.com/tjmonsi))
 
