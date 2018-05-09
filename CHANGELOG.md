@@ -4,10 +4,6 @@
 
 [Full Changelog](https://github.com/tjmonsi/element-lite/compare/untagged-362e8e0896fcb1824c3b...HEAD)
 
-**Implemented enhancements:**
-
-- Add invalidate to re-render lit-html on element-lite-lit [\#73](https://github.com/tjmonsi/element-lite/issues/73)
-
 ## [untagged-362e8e0896fcb1824c3b](https://github.com/tjmonsi/element-lite/tree/untagged-362e8e0896fcb1824c3b) (2018-05-09)
 [Full Changelog](https://github.com/tjmonsi/element-lite/compare/v0.2.0...untagged-362e8e0896fcb1824c3b)
 
@@ -16,6 +12,7 @@
 
 **Implemented enhancements:**
 
+- Add invalidate to re-render lit-html on element-lite-lit [\#73](https://github.com/tjmonsi/element-lite/issues/73)
 - Update travis.yml to mimic automation-tester repo [\#39](https://github.com/tjmonsi/element-lite/issues/39)
 
 **Closed issues:**
