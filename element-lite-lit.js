@@ -17,7 +17,18 @@ export const ElementLiteLit = dedupingMixin(base => {
     connectedCallback () {
       if (super.connectedCallback) super.connectedCallback();
       this.attachShadow({ mode: 'open' });
+      this.invalidate();
+    }
 
+    /**
+     * Return a template result to render using lit-html.
+     */
+    render (self) { return html``; }
+
+    /**
+     * Invalidates the shadowDOM and re-renders it.
+     */
+    invalidate () {
       // renders the shadowRoot statically
       const result = this.render(this);
 
@@ -25,11 +36,6 @@ export const ElementLiteLit = dedupingMixin(base => {
         render(this.render(this) || html``, /** @type {DocumentFragment} */(this.shadowRoot));
       }
     }
-
-    /**
-     * Return a template result to render using lit-html.
-     */
-    render (self) { return html``; }
   }
 
   return ElementLiteLit;
