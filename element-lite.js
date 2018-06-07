@@ -3,6 +3,7 @@ import { ElementLiteStatic } from './element-lite-static.js';
 import { ElementLiteLit } from './element-lite-lit.js';
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from './lib/lit-html/lib/lit-extended.js';
+import { prepareShadyCSS } from './polyfills/shady-css.js';
 
 export { html, ElementLiteBase, ElementLiteStatic, ElementLiteLit };
 export const ElementLite = dedupingMixin(base => {
@@ -27,6 +28,7 @@ export const ElementLite = dedupingMixin(base => {
       const result = this.render(this);
       if (result) {
         render(this.render(this) || html``, this.shadowRoot || this);
+        if (window.ShadyCSS) prepareShadyCSS(this);
       }
     }
 
