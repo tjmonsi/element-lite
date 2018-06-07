@@ -1,6 +1,6 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "A take on using lit-html and polymer's properties-mixin",
   "main": "dist/element-lite.cjs.js",
   "module": "element-lite.js",
@@ -103,7 +103,7 @@
     "eslint-plugin-standard": "3.1.0",
     "lodash": "3.10.1",
     "mocha": "5.2.0",
-    "rollup": "0.59.4",
+    "rollup": "0.60.1",
     "rollup-plugin-babel": "3.0.4",
     "rollup-plugin-buble": "0.19.2",
     "rollup-plugin-commonjs": "9.1.3",

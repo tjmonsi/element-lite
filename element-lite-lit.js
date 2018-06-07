@@ -2,10 +2,9 @@
 
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from './lib/lit-html/lib/lit-extended.js';
-import { prepareShadyCSS } from './polyfills/shady-css.js';
 
 export { html };
-export const ElementLiteLit = dedupingMixin(base => {
+export const ElementLiteLit = dedupingMixin((base, style) => {
   /**
    * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
    * that automates the creation of setter and getters given a list of properties and
@@ -14,7 +13,17 @@ export const ElementLiteLit = dedupingMixin(base => {
    *
    * @extends {HTMLElement}
   */
+
   class ElementLiteLit extends /** @type {HTMLElement} */(base) {
+    constructor () {
+      super();
+      if (window.ShadyCSS && style) {
+        const t = document.createElement('template');
+        render(html`<style>${style}</style>`, t.content);
+        window.ShadyCSS.prepareTemplate(t, this.is || this.tagName.toLowerCase());
+      }
+    }
+
     connectedCallback () {
       if (super.connectedCallback) super.connectedCallback();
       this.attachShadow({ mode: 'open' });
@@ -35,7 +44,7 @@ export const ElementLiteLit = dedupingMixin(base => {
 
       if (result && this.shadowRoot) {
         render(this.render(this) || html``, /** @type {DocumentFragment} */(this.shadowRoot));
-        if (window.ShadyCSS) prepareShadyCSS(this);
+        if (window.ShadyCSS) window.ShadyCSS.styleElement(this);
       }
     }
   }
