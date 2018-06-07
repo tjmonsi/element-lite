@@ -2,6 +2,7 @@
 
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from './lib/lit-html/lib/lit-extended.js';
+import { prepareShadyCSS } from './polyfills/shady-css.js';
 
 export { html };
 export const ElementLiteLit = dedupingMixin(base => {
@@ -34,10 +35,7 @@ export const ElementLiteLit = dedupingMixin(base => {
 
       if (result && this.shadowRoot) {
         render(this.render(this) || html``, /** @type {DocumentFragment} */(this.shadowRoot));
-
-        if (window.ShadyCSS) {
-          window.ShadyCSS.prepareTemplate(result, this.constructor.is || this.tagName.toLowerCase());
-        }
+        if (window.ShadyCSS) prepareShadyCSS(this);
       }
     }
   }
