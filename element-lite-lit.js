@@ -2,7 +2,7 @@
 
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from './lib/lit-html/lib/lit-extended.js';
-import { prepareShadyCSS } from './polyfills/shady-css.js';
+import { prepareShadyCSS } from './lib/shady-css.js';
 
 export { html };
 export const ElementLiteLit = dedupingMixin(base => {
