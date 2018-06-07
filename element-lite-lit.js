@@ -34,6 +34,10 @@ export const ElementLiteLit = dedupingMixin(base => {
 
       if (result && this.shadowRoot) {
         render(this.render(this) || html``, /** @type {DocumentFragment} */(this.shadowRoot));
+
+        if (window.ShadyCSS) {
+          window.ShadyCSS.prepareTemplate(result, this.constructor.is || this.tagName.toLowerCase());
+        }
       }
     }
   }

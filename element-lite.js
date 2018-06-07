@@ -27,6 +27,10 @@ export const ElementLite = dedupingMixin(base => {
       const result = this.render(this);
       if (result) {
         render(this.render(this) || html``, this.shadowRoot || this);
+
+        if (window.ShadyCSS) {
+          window.ShadyCSS.prepareTemplate(result, this.constructor.is || this.tagName.toLowerCase());
+        }
       }
     }
 
