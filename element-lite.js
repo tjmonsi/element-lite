@@ -4,8 +4,9 @@ import { ElementLiteLit } from './element-lite-lit.js';
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { render, html } from './lib/lit-html/lib/lit-extended.js';
 
+export { prepareShadyCSS } from './lib/prepare-shady-css.js';
 export { html, ElementLiteBase, ElementLiteStatic, ElementLiteLit };
-export const ElementLite = dedupingMixin((base, style) => {
+export const ElementLite = dedupingMixin(base => {
   /**
    * ElementLite is a set of methods coming from Polymer Property Mixins and Property Accessor Mixins
    * that automates the creation of setter and getters given a list of properties and
@@ -13,15 +14,6 @@ export const ElementLite = dedupingMixin((base, style) => {
    * @extends {ElementLiteBase}
   */
   class ElementLite extends ElementLiteBase(/** @type {HTMLElement} */(base)) {
-    constructor () {
-      super();
-      if (window.ShadyCSS && style) {
-        const t = document.createElement('template');
-        render(html`<style>${style}</style>`, t.content);
-        window.ShadyCSS.prepareTemplate(t, this.is || this.tagName.toLowerCase());
-      }
-    }
-
     static get noShadow () {
       return false;
     }
