@@ -77,4 +77,6 @@ for (let name of files) {
   outputCJSESPush(input, name, true);
 }
 
+outputUMDPush('node_modules/@polymer/iron-test-helpers/mock-interactions.js', 'polyfills/mock-interactions.js', 'Polyfills', true);
+
 export default output;
