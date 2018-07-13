@@ -8106,22 +8106,12 @@
   });
 
   /**
-   * @param {!PolymerElementConstructor} prototype Element prototype to log
-   * @this {this}
-   * @private
-   */
-  function _regLog(prototype) {
-    console.log('[' + prototype.is + ']: registered');
-  }
-
-  /**
    * Registers a class prototype for telemetry purposes.
    * @param {HTMLElement} prototype Element prototype to register
    * @this {this}
    * @protected
    */
   function register(prototype) {
-    undefined && _regLog(prototype);
   }
 
   /**
@@ -14623,6 +14613,12 @@
   Code distributed by Google as part of the polymer project is also
   subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
   */
+
+  var mutablePropertyChange$1 = void 0;
+  /** @suppress {missingProperties} */
+  (function () {
+    mutablePropertyChange$1 = MutableData._mutablePropertyChange;
+  })();
 
   /**
   @license

@@ -9,6 +9,7 @@
     "size": "./node_modules/.bin/size-limit",
     "copy": "./copy.sh",
     "semistandard": "./node_modules/.bin/semistandard",
+    "wct-c9": "export DISPLAY=:99.0 && xvfb-run npm run wct",
     "wct": "npm run pretest && ./node_modules/.bin/wct --npm",
     "wct-firefox": "./node_modules/.bin/wct --npm --configFile wct-firefox.conf.json",
     "wct-prod": "./node_modules/.bin/wct --npm --configFile wct-prod.conf.json",
