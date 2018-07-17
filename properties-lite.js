@@ -2,13 +2,9 @@
 'use strict';
 
 import { dedupingMixin } from './lib/deduping-mixin.js';
-import { saveAccessorValue } from './lib/save-accessor-value.js';
-const _hiddenPropOptions = (value) => ({
-  configurable: false,
-  writable: false,
-  enumerable: false,
-  value
-});
+import { root } from './lib/path.js';
+// import { saveAccessorValue } from './lib/save-accessor-value.js';
+import { camelToDashCase } from './lib/case-map.js';
 
 /**
  * Creates a copy of `props` with each property normalized such that
@@ -48,9 +44,33 @@ function ownProperties (constructor) {
   return constructor._ownProperties;
 }
 
-export const ElementLiteBase = dedupingMixin(base => {
+export const PropertiesLite = dedupingMixin(base => {
   class PropertiesLite extends /** @type {HTMLElement} */(base) {
-    
+    /**
+      * Returns a memoized version of all properties, including those inherited
+      * from super classes. Properties not in object format are converted to
+      * at least {type}.
+      *
+      * @return {Object} Object containing properties for this class
+      * @protected
+      */
+    static get _properties () {
+      if (!this.hasOwnProperty('__properties')) {
+        this.__properties = Object.assign({}, ownProperties(this));
+      }
+      return this.__properties;
+    }
+
+    /**
+      * Implements standard custom elements getter to observes the attributes
+      * listed in `properties`.
+      * @suppress {missingProperties} Interfaces in closure do not inherit statics, but classes do
+      */
+    static get observedAttributes () {
+      const props = this._properties;
+      return props ? Object.keys(props).map(p => camelToDashCase(p)) : [];
+    }
+
     /**
      * Creates property accessors for the given property names.
      *
@@ -62,33 +82,57 @@ export const ElementLiteBase = dedupingMixin(base => {
       const proto = this.prototype;
       for (let prop in props) {
         const { readOnly, reflectToAttribute, notify } = props[prop];
-        
+
         // don't stomp an existing accessor
         if (!(prop in proto)) {
           proto._createPropertyAccessor(prop, readOnly, reflectToAttribute, notify);
         }
       }
     }
-    
+
+    /**
+      * Overrides `PropertiesChanged` method to return type specified in the
+      * static `properties` object for the given property.
+      * @param {string} name Name of property
+      * @return {*} Type to which to deserialize attribute
+      *
+      * @protected
+      */
+    static typeForProperty (name) {
+      const info = this._properties[name];
+      return info && info.type;
+    }
+
     constructor () {
       super();
-      
-      const _options = _hiddenPropOptions({});
+
       // flags
       this._finalized = false;
-      
+
       // This holds the data of the object, but is hidden on console log
-      Object.defineProperty(this, '_dataProps', _options);
-      
+      // this._dataProps = {};
+      // this._dataOldProps = {};
+      Object.defineProperty(this, '_dataProps', {
+        configurable: false,
+        writable: false,
+        enumerable: false,
+        value: {}
+      });
+
       // This holds the old data of the object
-      Object.defineProperty(this, '_dataOldProps', _options);
-      
+      Object.defineProperty(this, '_dataOldProps', {
+        configurable: false,
+        writable: false,
+        enumerable: false,
+        value: {}
+      });
+
       // This holds the data path of the object's data properties
       this._dataHasPaths = false;
       this._dataInvalid = false;
       this._initializeProperties();
     }
-    
+
     /**
      * Initializes the local storage for property accessors.
      *
@@ -98,16 +142,16 @@ export const ElementLiteBase = dedupingMixin(base => {
      */
     _initializeProperties () {
       const props = ownProperties(this.constructor);
-      const keys = props ? Object.keys(props) : [];
-      
-      if (!this.hasOwnProperty('_finalized')) {
+      // const keys = props ? Object.keys(props) : [];
+
+      if (!this.hasOwnProperty('_finalized') || !this._finalized) {
         this._finalized = true;
         if (props) {
           this.constructor.createProperties(props);
         }
       }
     }
-    
+
     /**
      * Creates a setter/getter pair for the named property with its own
      * local storage.  The getter returns the value in the local storage,
@@ -139,26 +183,50 @@ export const ElementLiteBase = dedupingMixin(base => {
       const _dataReflectToAttribute = '_dataReflectToAttribute';
       const _dataNotify = '_dataNotify';
       const _dataObserver = '_dataObserver';
-      const _options = _hiddenPropOptions({});
 
       if (!this.hasOwnProperty(_dataHasAccessor)) {
-        Object.defineProperty(this, _dataHasAccessor, _options);
+        Object.defineProperty(this, _dataHasAccessor, {
+          configurable: false,
+          writable: false,
+          enumerable: false,
+          value: {}
+        });
       }
 
       if (!this.hasOwnProperty(_readOnly)) {
-        Object.defineProperty(this, _readOnly, _options);
+        Object.defineProperty(this, _readOnly, {
+          configurable: false,
+          writable: false,
+          enumerable: false,
+          value: {}
+        });
       }
 
       if (!this.hasOwnProperty(_dataReflectToAttribute)) {
-        Object.defineProperty(this, _dataReflectToAttribute, _options);
+        Object.defineProperty(this, _dataReflectToAttribute, {
+          configurable: false,
+          writable: false,
+          enumerable: false,
+          value: {}
+        });
       }
 
       if (!this.hasOwnProperty(_dataNotify)) {
-        Object.defineProperty(this, _dataNotify, _options);
+        Object.defineProperty(this, _dataNotify, {
+          configurable: false,
+          writable: false,
+          enumerable: false,
+          value: {}
+        });
       }
 
       if (!this.hasOwnProperty(_dataObserver)) {
-        Object.defineProperty(this, _dataObserver, _options);
+        Object.defineProperty(this, _dataObserver, {
+          configurable: false,
+          writable: false,
+          enumerable: false,
+          value: {}
+        });
       }
 
       if (!this._dataHasAccessor[property]) {
@@ -178,7 +246,46 @@ export const ElementLiteBase = dedupingMixin(base => {
         this._dataNotify[property] = true;
       }
     }
-    
+
+    /**
+     * Adds the given `property` to a map matching attribute names
+     * to property names, using `camelToDashCase`. This map is
+     * used when deserializing attribute values to properties.
+     *
+     * @param {string} property Name of the property
+     */
+    _addPropertyToAttributeMap (property) {
+      const attr = camelToDashCase(property);
+      const _dataAttributes = '_dataAttributes';
+      const _dataAttributeProperties = '_dataAttributeProperties';
+
+      if (!this.hasOwnProperty(_dataAttributes)) {
+        Object.defineProperty(this, _dataAttributes, {
+          configurable: false,
+          writable: false,
+          enumerable: false,
+          value: {}
+        });
+      }
+
+      if (!this.hasOwnProperty(_dataAttributeProperties)) {
+        Object.defineProperty(this, _dataAttributeProperties, {
+          configurable: false,
+          writable: false,
+          enumerable: false,
+          value: {}
+        });
+      }
+
+      if (!this._dataAttributes[attr]) {
+        this._dataAttributes[attr] = property;
+      }
+
+      if (!this._dataAttributeProperties[property]) {
+        this._dataAttributeProperties[property] = attr;
+      }
+    }
+
     /**
      * Defines a property accessor for the given property.
      *
@@ -187,20 +294,31 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @return {void}
      */
     _definePropertyAccessor (property, readOnly) {
-      saveAccessorValue(this, property);
+      // saveAccessorValue(this, property);
       Object.defineProperty(this, property, {
         // @ts-ignore
         get () { return this._getProperty(property); },
         set: readOnly
-          ? function () { 
-            console.error(`Cannot set on a read-only property: ${property}`); 
+          ? function () {
+            console.error(`Cannot set on a read-only property: ${property}`);
           }
-          : function (value) { 
-            this._setProperty(property, value); 
+          : function (value) {
+            this._setProperty(property, value);
           }
       });
     }
-    
+
+    /**
+     * Returns the value for the given property.
+     *
+     * @param {string} property Name of property
+     * @return {*} Value for the given property
+     * @protected
+     */
+    _getProperty (property) {
+      return this._dataProps[property];
+    }
+
     /**
      * Updates the local storage for a property (via `_setPendingProperty`)
      * and enqueues a `_proeprtiesChanged` callback.
@@ -215,7 +333,7 @@ export const ElementLiteBase = dedupingMixin(base => {
         this._invalidateProperties();
       }
     }
-    
+
     /**
      * Updates the local storage for a property, records the previous value,
      * and adds it to the set of "pending changes" that will be passed to the
@@ -228,22 +346,23 @@ export const ElementLiteBase = dedupingMixin(base => {
      * @protected
      */
     _setPendingProperty (property, value) {
-      console.log(this._dataOldProps);
       const prevProps = this._dataOldProps;
-      
+
       if (!this._shouldPropertyChange(property, value, prevProps[property])) {
         return false;
       }
-      
-      // get old data from _dataProps to _dataOldProps
-      if (!(property in this._dataProps)) {
-        this._dataOldProps[property] = this._dataProps[property];
+
+      if (!this._dataPending) {
+        this._dataPending = {};
       }
-      
-      this._dataProps = value;
-      return true
+
+      // get old data from _dataProps to _dataOldProps
+      this._dataOldProps[property] = this._dataProps[property];
+      this._dataProps[property] = value;
+      this._dataPending[property] = value;
+      return true;
     }
-    
+
     /**
      * Method called to determine whether a property value should be
      * considered as a change and cause the `_propertiesChanged` callback
@@ -267,11 +386,11 @@ export const ElementLiteBase = dedupingMixin(base => {
         (old === old || value === value)) // eslint-disable-line
       );
     }
-    
+
     _invalidateProperties () {
       if (!this._dataInvalid) {
         this._dataInvalid = true;
-        
+
         Promise.resolve().then(() => {
           if (this._dataInvalid) {
             this._dataInvalid = false;
@@ -280,12 +399,142 @@ export const ElementLiteBase = dedupingMixin(base => {
             // check hack
             Promise.resolve().then(this._invalidateProperties.bind(this));
           }
-        })
+        });
       }
     }
-    
+
     _flushProperties () {
-        
+      const props = this._dataProps;
+      const changedProps = this._dataPending;
+      this._dataPending = {};
+      this._propertiesChanged(props, changedProps, this._dataOldProps);
+    }
+
+    /**
+     * Callback called when any properties with accessors created via
+     * `_createPropertyAccessor` have been set.
+     *
+     * @param {!Object} currentProps Bag of all current accessor values
+     * @param {!Object} changedProps Bag of properties changed since the last
+     *   call to `_propertiesChanged`
+     * @param {!Object} oldProps Bag of previous values for each property
+     *   in `changedProps`
+     * @return {void}
+     * @protected
+     */
+    _propertiesChanged (currentProps, changedProps, oldProps) {
+      let keys = Object.keys(changedProps);
+      for (let i = 0, l = keys.length; i < l; i++) {
+        const key = keys[i];
+        const prop = root(key);
+
+        if (this._dataNotify[root(prop)]) {
+          this.dispatchEvent(new window.CustomEvent(`${camelToDashCase(root(prop))}-change`, { detail: this._dataProps[root(prop)] }));
+        }
+      }
+    }
+
+    /**
+     * Implements native Custom Elements `attributeChangedCallback` to
+     * set an attribute value to a property via `_attributeToProperty`.
+     *
+     * @param {string} name Name of attribute that changed
+     * @param {?string} old Old attribute value
+     * @param {?string} value New attribute value
+     * @return {void}
+     * @suppress {missingProperties} Super may or may not implement the callback
+     */
+    attributeChangedCallback (name, old, value) {
+      if (old !== value) {
+        this._attributeToProperty(name, value);
+      }
+
+      if (super.attributeChangedCallback) {
+        super.attributeChangedCallback(name, old, value);
+      }
+    }
+
+    /**
+     * Deserializes an attribute to its associated property.
+     *
+     * This method calls the `_deserializeValue` method to convert the string to
+     * a typed value.
+     *
+     * @param {string} attribute Name of attribute to deserialize.
+     * @param {?string} value of the attribute.
+     * returned from `typeForProperty`
+     * @return {void}
+     */
+    _attributeToProperty (attribute, value) {
+      if (!this.__serializing) {
+        const map = this.__dataAttributes;
+        const property = (map && map[attribute]) || attribute;
+        this[property] = this._deserializeValue(value, this.constructor.typeForProperty(property));
+      }
+    }
+
+    /**
+     * Serializes a property to its associated attribute.
+     *
+     * @param {string} property Property name to reflect.
+     * @param {string=} attribute Attribute name to reflect to.
+     * @param {any=} value Property value to refect.
+     * @return {void}
+     */
+    _propertyToAttribute (property, attribute, value) {
+      this.__serializing = true;
+      value = (arguments.length < 3) ? this[property] : value;
+      this._valueToNodeAttribute(this, value, attribute || camelToDashCase(property));
+      this.__serializing = false;
+    }
+
+    /**
+     * Converts a string to a typed JavaScript value.
+     *
+     * This method is called when reading HTML attribute values to
+     * JS properties.  Users may override this method to provide
+     * deserialization for custom `type`s. Types for `Boolean`, `String`,
+     * and `Number` convert attributes to the expected types.
+     *
+     * @param {?string} value Value to deserialize.
+     * @param {any=} type Type to deserialize the string to.
+     * @return {*} Typed value deserialized from the provided string.
+     */
+    _deserializeValue (value, type) {
+      /** @type {any} */
+      let outValue;
+      switch (type) {
+        case Object:
+          try {
+            outValue = JSON.parse(value);
+          } catch (x) {
+            // allow non-JSON literals like Strings and Numbers
+            outValue = value;
+          }
+          break;
+        case Array:
+          try {
+            outValue = JSON.parse(value);
+          } catch (x) {
+            outValue = null;
+            console.warn(`Couldn't decode Array as JSON: ${value}`);
+          }
+          break;
+        case Date:
+          // @ts-ignore
+          outValue = isNaN(value) ? String(value) : Number(value);
+          outValue = new Date(outValue);
+          break;
+        case Boolean:
+          return (value !== null);
+        case Number:
+          return Number(value);
+        default:
+          return value;
+      }
+      return outValue;
     }
   }
+
+  return PropertiesLite;
 });

@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <title>Test</title>
+  </head>
+  <body>
+    <properties-element></properties-element>
+  </body>
+  <script type="module">
+    import { PropertiesLite } from '../properties-lite.js';
+    const { customElements, HTMLElement } = window;
+    const propertiesEelement = 'properties-element';
+
+    class PropertiesElement extends PropertiesLite(HTMLElement) {
+      static get properties () {
+        return {
+          prop1: {
+            type: String,
+            notify: true
+          }
+        };
+      }
+    }
+
+    customElements.define(propertiesEelement, PropertiesElement);
+
+    setTimeout(() => {
+      const el = document.querySelector(propertiesEelement);
+      el.addEventListener('prop1-change', e => {
+        console.log(e.detail)
+      });
+      el.prop1 = 'TJ';
+      console.log(el.prop1);
+      setTimeout(() => {
+        el.prop1 = 'TJ2';
+        console.log(el.prop1);
+      }, 500)
+
+    }, 500);
+  </script>
+</html>

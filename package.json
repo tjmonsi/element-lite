@@ -50,20 +50,8 @@
   "flat": true,
   "size-limit": [
     {
-      "path": "element-lite-lit.js",
+      "path": "properties-lite.js",
       "limit": "3.5KB"
-    },
-    {
-      "path": "element-lite-base.js",
-      "limit": "3.5KB"
-    },
-    {
-      "path": "element-lite-static.js",
-      "limit": "3.5KB"
-    },
-    {
-      "path": "element-lite.js",
-      "limit": "6KB"
     }
   ],
   "semistandard": {
@@ -81,7 +69,7 @@
     "@webcomponents/shadycss": "^1.1.1",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "es6-symbol": "^3.1.1",
-    "lit-html": "^0.10.0"
+    "lit-html": "0.10.2"
   },
   "devDependencies": {
     "@polymer/iron-test-helpers": "3.0.0-pre.21",
