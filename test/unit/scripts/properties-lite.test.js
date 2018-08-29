@@ -16,6 +16,17 @@ class TestElement extends PropertiesLite(window.HTMLElement) {
       },
       prop2: {
         type: String
+      },
+      title: {
+        type: String
+      },
+      prop3: {
+        type: String,
+        value: 'c'
+      },
+      prop4: {
+        type: String,
+        reflectToAttribute: true
       }
     };
   }

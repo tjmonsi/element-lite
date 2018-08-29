@@ -61,7 +61,7 @@
   var keys = Object.keys;
 
   var shim = function shim(object) {
-  	return keys(isValue(object) ? Object(object) : object);
+    return keys(isValue(object) ? Object(object) : object);
   };
 
   var keys$1 = isImplemented$2() ? Object.keys : shim;

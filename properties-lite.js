@@ -6,6 +6,17 @@ import { root } from './lib/path.js';
 // import { saveAccessorValue } from './lib/save-accessor-value.js';
 import { camelToDashCase } from './lib/case-map.js';
 
+// Save map of native properties; this forms a blacklist of properties
+// that won't have their values "saved".
+const nativeProperties = {};
+let proto = window.HTMLElement.prototype;
+
+while (proto) {
+  let props = Object.getOwnPropertyNames(proto);
+  for (let i = 0; i < props.length; i++) { nativeProperties[props[i]] = true; }
+  proto = Object.getPrototypeOf(proto);
+}
+
 /**
  * Creates a copy of `props` with each property normalized such that
  * upgraded it is an object with at least a type property { type: Type }.
@@ -142,12 +153,32 @@ export const PropertiesLite = dedupingMixin(base => {
      */
     _initializeProperties () {
       const props = ownProperties(this.constructor);
-      // const keys = props ? Object.keys(props) : [];
 
       if (!this.hasOwnProperty('_finalized') || !this._finalized) {
         this._finalized = true;
         if (props) {
           this.constructor.createProperties(props);
+          this._setDefaultValues(props);
+        }
+      }
+    }
+
+    /**
+     * Sets default values given in props
+     *
+     * @param {!Object} props Object whose keys are names of accessors.
+     * @return {void}
+     * @protected
+     */
+    _setDefaultValues (props) {
+      // set default value
+      for (let prop in props) {
+        const { value } = props[prop];
+        if (value !== undefined && value !== null) {
+          this[prop] = value;
+
+          // if native property, force invalidate using _setProperty method
+          if (nativeProperties[prop]) this._setProperty(prop, value);
         }
       }
     }
@@ -168,7 +199,7 @@ export const PropertiesLite = dedupingMixin(base => {
      * @param {string} property Name of the property
      * @param {boolean=} readOnly When true, no setter is created; the
      *   protected `_setProperty` function must be used to set the property
-     * @param {boolean=} reflectToAttribute When true, sets flag to `__dataReflectToAttribute`;
+     * @param {boolean=} reflectToAttribute When true, sets flag to `_dataReflectToAttribute`;
      *   this will automatically set the attribute to the element tag using `setAttribute`
      * @param {boolean=} notify When true, sets flag to `__dataNotify`;
      *   this will automatically dispatch a `CustomEvent` given the attribute-name of the
@@ -428,6 +459,10 @@ export const PropertiesLite = dedupingMixin(base => {
         const key = keys[i];
         const prop = root(key);
 
+        if (this._dataReflectToAttribute[prop]) {
+          this._propertyToAttribute(prop, this._dataAttributeProperties[prop], this._dataProps[prop]);
+        }
+
         if (this._dataNotify[root(prop)]) {
           this.dispatchEvent(new window.CustomEvent(`${camelToDashCase(root(prop))}-change`, { detail: this._dataProps[root(prop)] }));
         }
@@ -469,7 +504,15 @@ export const PropertiesLite = dedupingMixin(base => {
       if (!this.__serializing) {
         const map = this.__dataAttributes;
         const property = (map && map[attribute]) || attribute;
-        this[property] = this._deserializeValue(value, this.constructor.typeForProperty(property));
+
+        // checks if the property is native property
+        // if it is native property, it just uses the _setProperty method
+        // to invalidate the properties to run the changedProperties method
+        if (nativeProperties[property]) {
+          this._setProperty(property, this[property]);
+        } else {
+          this[property] = this._deserializeValue(value, this.constructor.typeForProperty(property));
+        }
       }
     }
 
@@ -486,6 +529,60 @@ export const PropertiesLite = dedupingMixin(base => {
       value = (arguments.length < 3) ? this[property] : value;
       this._valueToNodeAttribute(this, value, attribute || camelToDashCase(property));
       this.__serializing = false;
+    }
+
+    /**
+     * Sets a typed value to an HTML attribute on a node.
+     *
+     * This method calls the `_serializeValue` method to convert the typed
+     * value to a string.  If the `_serializeValue` method returns `undefined`,
+     * the attribute will be removed (this is the default for boolean
+     * type `false`).
+     *
+     * @param {Element | ElementLiteBase} node Element to set attribute to.
+     * @param {*} value Value to serialize.
+     * @param {string} attribute Attribute name to serialize to.
+     * @return {void}
+     */
+    _valueToNodeAttribute (node, value, attribute) {
+      const str = this._serializeValue(value);
+
+      if (str === undefined) {
+        node.removeAttribute(attribute);
+      } else {
+        node.setAttribute(attribute, str);
+      }
+    }
+
+    /**
+     * Converts a typed JavaScript value to a string.
+     *
+     * This method is called when setting JS property values to
+     * HTML attributes.  Users may override this method to provide
+     * serialization for custom types.
+     *
+     * @param {*} value Property value to serialize.
+     * @return {string | undefined} String serialized from the provided
+     * property  value.
+     */
+    _serializeValue (value) {
+      /* eslint-disable no-fallthrough */
+      switch (typeof value) {
+        case 'boolean':
+          return value ? '' : undefined;
+        case 'object':
+          if (value instanceof Date) {
+            return value.toString();
+          } else if (value) {
+            try {
+              return JSON.stringify(value);
+            } catch (x) {
+              return '';
+            }
+          }
+        default:
+          return value != null ? value.toString() : undefined;
+      }
     }
 
     /**
