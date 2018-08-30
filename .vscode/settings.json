@@ -1,6 +1,5 @@
 {
   "editor.tabSize": 2,
-    "editor.fontSize": 18,
     "workbench.iconTheme": null,
     "files.trimTrailingWhitespace": true,
     "javascript.validate.enable": true,

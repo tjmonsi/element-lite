@@ -39,15 +39,14 @@
     setTimeout(() => {
       const el = document.querySelector(propertiesEelement);
       el.addEventListener('prop1-change', e => {
-        console.log(e.detail)
+        console.log(e.detail);
       });
       el.prop1 = 'TJ';
       console.log(el.prop1);
       setTimeout(() => {
         el.prop1 = 'TJ2';
         console.log(el.prop1);
-      }, 500)
-
+      }, 500);
     }, 500);
   </script>
 </html>
