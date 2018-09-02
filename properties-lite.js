@@ -2,9 +2,10 @@
 'use strict';
 
 import { dedupingMixin } from './lib/deduping-mixin.js';
-import { root } from './lib/path.js';
-// import { saveAccessorValue } from './lib/save-accessor-value.js';
+import { root, isPath } from './lib/path.js';
+import { ownProperties } from './lib/own-properties.js';
 import { camelToDashCase } from './lib/case-map.js';
+import { InvalidatePropertiesMixin } from './lib/invalidate-properties-mixin.js';
 
 // Save map of native properties; this forms a blacklist of properties
 // that won't have their values "saved".
@@ -17,46 +18,8 @@ while (proto) {
   proto = Object.getPrototypeOf(proto);
 }
 
-/**
- * Creates a copy of `props` with each property normalized such that
- * upgraded it is an object with at least a type property { type: Type }.
- *
- * @param {Object} props Properties to normalize
- * @return {Object} Copy of input `props` with normalized properties that
- * are in the form {type: Type}
- * @private
- */
-function normalizeProperties (props) {
-  const output = {};
-  for (let p in props) {
-    const o = props[p];
-    output[p] = (typeof o === 'function') ? {type: o} : o;
-  }
-  return output;
-}
-
-/**
-* Returns a memoized version of the `properties` object for the
-* given class. Properties not in object format are converted to at
-* least {type}.
-*
-* @param {(ElementLiteBase | Function | typeof ElementLiteBase)} constructor ElementLiteBase constructor
-* @return {Object} Memoized properties object
-*/
-function ownProperties (constructor) {
-  if (!constructor.hasOwnProperty('_ownProperties')) {
-    // @ts-ignore
-    constructor._ownProperties = (constructor.hasOwnProperty('properties') && constructor.properties)
-      // @ts-ignore
-      ? normalizeProperties(constructor.properties)
-      : null;
-  }
-  // @ts-ignore
-  return constructor._ownProperties;
-}
-
 export const PropertiesLite = dedupingMixin(base => {
-  class PropertiesLite extends /** @type {HTMLElement} */(base) {
+  class PropertiesLite extends /** @type {HTMLElement} */InvalidatePropertiesMixin(base) {
     /**
       * Returns a memoized version of all properties, including those inherited
       * from super classes. Properties not in object format are converted to
@@ -140,7 +103,6 @@ export const PropertiesLite = dedupingMixin(base => {
 
       // This holds the data path of the object's data properties
       this._dataHasPaths = false;
-      this._dataInvalid = false;
       this._initializeProperties();
     }
 
@@ -213,7 +175,6 @@ export const PropertiesLite = dedupingMixin(base => {
       const _readOnly = '_readOnly';
       const _dataReflectToAttribute = '_dataReflectToAttribute';
       const _dataNotify = '_dataNotify';
-      const _dataObserver = '_dataObserver';
 
       if (!this.hasOwnProperty(_dataHasAccessor)) {
         Object.defineProperty(this, _dataHasAccessor, {
@@ -244,15 +205,6 @@ export const PropertiesLite = dedupingMixin(base => {
 
       if (!this.hasOwnProperty(_dataNotify)) {
         Object.defineProperty(this, _dataNotify, {
-          configurable: false,
-          writable: false,
-          enumerable: false,
-          value: {}
-        });
-      }
-
-      if (!this.hasOwnProperty(_dataObserver)) {
-        Object.defineProperty(this, _dataObserver, {
           configurable: false,
           writable: false,
           enumerable: false,
@@ -377,7 +329,8 @@ export const PropertiesLite = dedupingMixin(base => {
      * @protected
      */
     _setPendingProperty (property, value) {
-      const prevProps = this._dataOldProps;
+      let path = this._dataHasPaths && isPath(property);
+      const prevProps = path ? this._dataTemp : this._dataOldProps;
 
       if (!this._shouldPropertyChange(property, value, prevProps[property])) {
         return false;
@@ -389,8 +342,15 @@ export const PropertiesLite = dedupingMixin(base => {
 
       // get old data from _dataProps to _dataOldProps
       this._dataOldProps[property] = this._dataProps[property];
-      this._dataProps[property] = value;
+
+      if (path) {
+        this._dataTemp[property] = value;
+      } else {
+        this._dataProps[property] = value;
+      }
+
       this._dataPending[property] = value;
+
       return true;
     }
 
@@ -418,27 +378,11 @@ export const PropertiesLite = dedupingMixin(base => {
       );
     }
 
-    _invalidateProperties () {
-      if (!this._dataInvalid) {
-        this._dataInvalid = true;
-
-        Promise.resolve().then(() => {
-          if (this._dataInvalid) {
-            this._dataInvalid = false;
-            this._flushProperties();
-          } else {
-            // check hack
-            Promise.resolve().then(this._invalidateProperties.bind(this));
-          }
-        });
-      }
-    }
-
-    _flushProperties () {
+    _flushProperties (forceFlush) {
       const props = this._dataProps;
-      const changedProps = this._dataPending;
+      const changedProps = Object.assign({}, this._dataPending);
       this._dataPending = {};
-      this._propertiesChanged(props, changedProps, this._dataOldProps);
+      this._propertiesChanged(props, forceFlush ? props : changedProps, this._dataOldProps);
     }
 
     /**

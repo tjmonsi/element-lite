@@ -5,15 +5,6 @@
     "javascript.validate.enable": true,
     "standard.enable": true,
     "standard.semistandard": true,
-    "files.exclude": {
-      "**/.git": true,
-      "**/.svn": true,
-      "**/.hg": true,
-      "**/CVS": true,
-      "**/.DS_Store": true,
-      "**/node_modules": true,
-      "**/bower_components": true
-    },
     "standard.options": {
       "globals": [
         "$",
@@ -25,27 +16,7 @@
         "expect",
         "assert"
       ],
-      "ignore": [
-        "node_modules",
-        "bower_components",
-        "node_modules/**",
-        "bower_components/**",
-        "node_modules\\**",
-        "bower_components\\**",
-        "test/**",
-        "test\\**",
-        "dist/**",
-        "dist\\**",
-        "**/node_modules/**",
-        "**/bower_components/**",
-        "**\\bower_components\\**",
-        "**\\node_modules\\**",
-        "**\\test\\**",
-        "**/test/**",
-        "node_modules/**",
-        "bower_components/**",
-        "src/test/**"
-      ],
+
       "plugins": [
         "html"
       ],
