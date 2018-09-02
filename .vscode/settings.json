@@ -1,43 +1,23 @@
 {
   "editor.tabSize": 2,
-    "workbench.iconTheme": null,
-    "files.trimTrailingWhitespace": true,
-    "javascript.validate.enable": true,
-    "standard.enable": true,
-    "standard.semistandard": true,
-    "standard.options": {
-      "globals": [
-        "$",
-        "ga",
-        "__dirname",
-        "URL",
-        "describe",
-        "it",
-        "expect",
-        "assert"
-      ],
-
-      "plugins": [
-        "html"
-      ],
-      "parser": "babel-eslint",
-      "env": [
-        "mocha"
-      ]
-    },
-    "standard.validate": [
-      "javascript",
+  "files.trimTrailingWhitespace": true,
+  "javascript.validate.enable": true,
+  "standard.enable": true,
+  "standard.semistandard": true,
+  "standard.options": {
+    "plugins": [
       "html"
     ],
-    "search.exclude": {
-      "**/.git": true,
-      "**/node_modules": true,
-      "**/bower_components": true,
-      "**/dist": true
-    },
-    "git.enableSmartCommit": true,
-    "window.zoomLevel": 0,
-    "workbench.colorTheme": "Polymer Syntax Theme",
-    "git.autofetch": true,
-    "javascript.implicitProjectConfig.checkJs": true
+    "parser": "babel-eslint",
+    "env": [
+      "mocha"
+    ]
+  },
+  "standard.validate": [
+    "javascript",
+    "html"
+  ],
+  "git.enableSmartCommit": true,
+  "git.autofetch": true,
+  "javascript.implicitProjectConfig.checkJs": true
 }

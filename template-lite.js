@@ -22,32 +22,35 @@ export const TemplateLite = dedupingMixin(base => {
     constructor () {
       super();
       this._root = this.constructor.noShadow ? this : this.attachShadow({ mode: 'open' });
+
+      const result = this.template();
+      const template = document.createElement('template');
+
+      if (this.constructor.renderer) {
+        this.constructor.renderer(result, template.content);
+      } else {
+        template.innerHTML = result || '';
+      }
+
+      if (window.ShadyCSS) {
+        const name = this.constructor.is || this.tagName.toLowerCase();
+        window.ShadyCSS.prepareTemplate(template, name);
+      }
+
       this.requestRender();
     }
 
     _render () {
       const result = this.template();
       if (!this.constructor.renderer) {
-        let prepareTemplate = false;
-
-        if (!this._template) {
-          this._template = document.createElement('template');
-          prepareTemplate = true;
-        }
-
-        this._template.innerHTML = result;
-
-        if (window.ShadyCSS && prepareTemplate) {
-          prepareTemplate = false;
-          window.ShadyCSS.prepareTemplate(this._template, this.constructor.is || this.tagName.toLowerCase());
-        }
-
-        this._root.appendChild(document.importNode(this._template.content, true));
+        const template = document.createElement('template');
+        template.innerHTML = result || '';
+        this._root.appendChild(document.importNode(template.content, true));
       } else if (result) {
         this.constructor.renderer(result, this._root);
       }
 
-      if (window.ShadyCSS && this._template) {
+      if (window.ShadyCSS) {
         window.ShadyCSS.styleElement(this);
       }
     }
