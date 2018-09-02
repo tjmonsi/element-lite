@@ -2,8 +2,6 @@
   "name": "@littleq/element-lite",
   "version": "0.3.0",
   "description": "A take on using lit-html and polymer's properties-mixin",
-  "main": "dist/element-lite.cjs.js",
-  "module": "element-lite.js",
   "browser": "dist/element-lite.umd.js",
   "scripts": {
     "size": "./node_modules/.bin/size-limit",
@@ -17,19 +15,17 @@
     "test": "npm run semistandard && npm run size && npm run wct-prod",
     "build": "./node_modules/.bin/rollup -c",
     "pretest": "npm run build",
-    "prepublishOnly": "npm run copy && npm test"
+    "prepublish": "npm run build"
   },
   "files": [
-    "element-lite-base.js",
-    "element-lite-lit.js",
-    "element-lite-static.js",
+    "properties-lite.js",
+    "observers-lite.js",
+    "object-accessors-lite.js",
+    "array-accessors-lite.js",
+    "template-lite.js",
     "element-lite.js",
     "lib",
-    "copy.sh",
     "dist"
-  ],
-  "bundledDependencies": [
-    "lit-html"
   ],
   "repository": {
     "type": "git",
@@ -80,7 +76,8 @@
     "ignore": [
       "test/*",
       "dist/*",
-      "polyfills/*"
+      "polyfills/*",
+      "demo/*"
     ],
     "env": [
       "mocha"
