@@ -71,10 +71,10 @@ export const ObserversLite = dedupingMixin(base => {
 
             // Removed these parts so that you can call the same function name with same set of
             // paramaters but in different order
-            // if (this.__dataMethodObserver[args[p]].methods.findIndex(item => item.fn === fn) < 0) {
+            // if (this._dataMethodObserver[args[p]].methods.findIndex(item => item.fn === fn) < 0) {
             this._dataMethodObserver[args[p]].methods.push({ fn, args });
             // }
-            // if (this.__dataMethodObserver[rootPath].methods.findIndex(item => item.fn === fn) < 0) {
+            // if (this._dataMethodObserver[rootPath].methods.findIndex(item => item.fn === fn) < 0) {
             this._dataMethodObserver[rootPath].methods.push({ fn, args });
             // }
           }
@@ -87,7 +87,7 @@ export const ObserversLite = dedupingMixin(base => {
      *
      * @param {string} property Name of the property
      * @param {boolean=} observer Puts the string name reference of the method in this element in
-     *   the `__dataObserver` object; The method referenced will be called when there are changes
+     *   the `_dataObserver` object; The method referenced will be called when there are changes
      *   in the property associated to it
      * @return {void}
      * @protected
@@ -142,7 +142,7 @@ export const ObserversLite = dedupingMixin(base => {
           }
         }
 
-        if (this.__ataMethodObserver[key]) {
+        if (this._dataMethodObserver[key]) {
           const { methods } = this._dataMethodObserver[key];
           for (let p = 0, m = methods.length; p < m; p++) {
             const { fn: fnName, args: argNames } = methods[p];
