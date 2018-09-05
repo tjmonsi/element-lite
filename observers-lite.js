@@ -83,6 +83,33 @@ export const ObserversLite = dedupingMixin(base => {
     }
 
     /**
+     * Creates a reference to function call given by observer
+     *
+     * @param {string} property Name of the property
+     * @param {boolean=} observer Puts the string name reference of the method in this element in
+     *   the `__dataObserver` object; The method referenced will be called when there are changes
+     *   in the property associated to it
+     * @return {void}
+     * @protected
+     */
+    _createPropertyObserver (property, observer) {
+      const _dataObserver = '_dataObserver';
+
+      if (!this.hasOwnProperty(_dataObserver)) {
+        Object.defineProperty(this, _dataObserver, {
+          configurable: false,
+          writable: false,
+          enumerable: false,
+          value: {}
+        });
+      }
+
+      if (observer && typeof observer === 'string') {
+        this._dataObserver[property] = observer;
+      }
+    }
+
+    /**
      * Callback called when any properties with accessors created via
      * `_createPropertyAccessor` have been set. This is the extended version for
      * calling observer functions as well.
