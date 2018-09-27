@@ -329,6 +329,9 @@ export const PropertiesLite = dedupingMixin(base => {
      * @protected
      */
     _setPendingProperty (property, value) {
+      // get old data from _dataProps to _dataOldProps
+      this._dataOldProps[property] = this._dataProps[property];
+
       let path = this._dataHasPaths && isPath(property);
       const prevProps = path ? this._dataTemp : this._dataOldProps;
 
@@ -339,9 +342,6 @@ export const PropertiesLite = dedupingMixin(base => {
       if (!this._dataPending) {
         this._dataPending = {};
       }
-
-      // get old data from _dataProps to _dataOldProps
-      this._dataOldProps[property] = this._dataProps[property];
 
       if (path) {
         this._dataTemp[property] = value;

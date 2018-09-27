@@ -1912,7 +1912,7 @@
    * `rootPath` to provide a stable application mount path when
    * using client side routing.
    */
-  var rootPath = undefined || pathFromUrl(document.baseURI || window.location.href);
+  var rootPath = pathFromUrl(document.baseURI || window.location.href);
 
   /**
    * A global callback used to sanitize any value before inserting it into the DOM. The callback signature is:
