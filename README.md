@@ -7,12 +7,7 @@ A take on using lit-html and using methods coming from Polymer.
 This is based on https://github.com/PolymerLabs/lit-element and added my own take on creating my own
 simple library. You can freely use it on your own projects.
 
-Most of the methods and its internals came from Polymer's properties-mixin, properties-changed, property-accessors mixin, and property-effects mixin (You can see each file on where parts are copied/modified from).
-
-The reason for copying rather than depending on files is the added overhead of extending classes and
-the number of method overrides, making some inherited methods not used in the final part of
-upgrading the element. This is to squeeze out unused parts from the mixins.
-
+Most of the methods and its internals came from Polymer's properties-mixin, properties-changed, property-accessors mixin, and property-effects mixin.
 
 ## How to install:
 
@@ -32,11 +27,11 @@ You can add this to your JS
 
 ```js
 // main.js
-import { ElementLite, html } from 'node_modules/@littleq/element-lite/element-lite.js'
+import { ElementLite } from 'node_modules/@littleq/element-lite/element-lite.js';
 
 class Component extends ElementLite(HTMLElement) {
-  render () {
-    return html`Whatever you want to put in the ShadowDom`;
+  template () {
+    return 'Whatever you want to put in the ShadowDom';
   }
 }
 
@@ -47,6 +42,24 @@ and add this to your HTML
 
 ```html
 <script src="main.js" type="module"></script>
+```
+
+If you are going to use it with lit-html...
+
+```js
+// main.js
+import { ElementLite } from 'node_modules/@littleq/element-lite/element-lite.js';
+import { render, html } from 'node_modules/lit-html/lit-html.js';
+
+class Component extends ElementLite(HTMLElement) {
+  static get renderer () { return render; }
+
+  template () {
+    return html`Whatever you want to put in the ShadowDom`;
+  }
+}
+
+customElement.define('web-component', Component);
 ```
 
 ### Usage on bundlers like Webpack
@@ -280,11 +293,14 @@ index.html
 test-element.js
 ```js
 // you can get lit-html's `html` from the bundle as well
-import { ElementLite, html } from './node_modules/@littleq/element-lite/element-lite.js';
+import { ElementLite } from './node_modules/@littleq/element-lite/element-lite.js';
+import { html, render } from './node_modules/lit-html/lit-html.js';
 const { customElements } = window;
 
 class Component extends ElementLite(HTMLElement) {
   static get is () { return 'test-element'; }
+
+  static get renderer () { return render; }
 
   static get properties () {
     return {
@@ -306,10 +322,11 @@ class Component extends ElementLite(HTMLElement) {
   /**
    * Return a template result to render using lit-html.
    */
-  render ({test: { name }, testFx, testtwo, number, addNumber}) {
+  template () {
+    const {test: { name }, testFx, testtwo, number, addNumber} = this;
     return html`
       Hello World ${testFx(name)} ${testtwo} ${number}
-      <button on-click=${addNumber.bind(this)}>
+      <button @click=${addNumber.bind(this)}>
         Click
       </button>
     `;
@@ -338,60 +355,129 @@ setTimeout(() => {
 
 ```
 
-## Element-lite-base
-
-If you need only the power to track changes in properties and use the additional parts like providing default
-and (in the future) call functions based on observed variables, without the need of shadow DOM,
-use `element-lite-base`
+## Properties-Lite
+If you need only the power to track changes in properties without the need of shadow DOM,
+use `PropertiesLite`
 
 ```js
 // main-base.js
-import { ElementLiteBase } from 'node_modules/@littleq/element-lite/element-lite-base.js'
+import { PropertiesLite } from 'node_modules/@littleq/element-lite/properties-lite.js'
 
-class Component extends ElementLiteBase(HTMLElement) {
-  ...
+class Component extends PropertiesLite(HTMLElement) {
+  static get properties () {
+    return {
+      prop1: {
+        type: String,
+        // sets up an event propagation upwards with the event name called 'prop1-change', anyone can listen to this to get change on the value of prop1 by using this:
+        // thisElement.addEventListener('prop1-change', (event) => { console.log(event.detail) })
+        // the value can be found in detail
+        notify: true,
+        // sets up the changes on the attribute itself. Will show up on DOM.
+        reflectToAttribute: true,
+        value: 'default'
+      },
+      prop2: {
+        type: String,
+        value: 'prop2',
+        // will not setup a setter from the outside.
+        // to change this value, you can only do thisElement._setProperty('prop2', value)
+        // which is considered as a private method
+        readOnly: true
+      }
+    }
+  }
 }
 
-customElement.define('web-component-base', Component);
+customElement.define('web-component-properties', Component);
+```
+
+## Observers-Lite
+
+If you need only the power of `PropertiesLite` and use the additional parts like providing default and (in the future) call functions based on observed variables without the need of shadow DOM. Automatically extends `PropertiesLite`
+
+```js
+// main-base.js
+import { ObserversLite } from 'node_modules/@littleq/element-lite/observers-lite.js'
+
+class Component extends ObserversLite(HTMLElement) {
+  static get properties () {
+    return {
+      prop1: {
+        type: String,
+        observer: 'prop1Changed', // calls this method if there are changes in prop1
+        value: 'default'
+      },
+      prop2: {
+        type: String,
+        value: 'prop2',
+      }
+    }
+  }
+
+  static get observers () {
+    return [
+      'propsChanged(prop1, prop2)' // calls this method if there are changes in prop1 or prop2
+    ];
+  }
+
+  // if called in observer only, it will put in both newValue and oldValue
+  prop1Changed (newValue, oldValue) {
+    console.log(newValue, oldValue)
+  }
+
+  // if calle in observers, it will put only the newValue of the parameters
+  propsChanged (prop1, prop2) {
+    console.log(prop1, prop2)
+  }
+}
+
+customElement.define('web-component-observers', Component);
 ```
 
 
-## Element-lite-static-shadow
+## TemplateLite
 
-If you need the power of element-lite-base but doesn't need to re-render the shadow DOM based on property changes,
-use `element-lite-static-shadow`
+If you need the power of templating without tracking properties,
+use `TemplateLite`
 
 ```js
 // main-static.js
-import { ElementLiteStaticShadow } from 'node_modules/@littleq/element-lite/element-lite-static-shadow.js'
+import { TemplateLite } from 'node_modules/@littleq/element-lite/template-lite.js'
 
-class Component extends ElementLiteStaticShadow(HTMLElement) {
-  render () {
+class Component extends TemplateLite(HTMLElement) {
+  template () {
     return `Hello World!`
   }
 }
 
-customElement.define('web-component-static', Component);
+customElement.define('web-component-template', Component);
 ```
 
-## Element-lite-lit-only
-
-If you don't need the power of element-lite-base but need to the power of lit-html,
-use `element-lite-lit-only`
+If you want to use `lit-html`, you need to define the `renderer` of `TemplateLite` to use `lit-html`'s `render` method
 
 ```js
 // main-static.js
-import { ElementLiteLitOnly } from 'node_modules/@littleq/element-lite/element-lite-lit-only.js'
+import { TemplateLite } from 'node_modules/@littleq/element-lite/template-lite.js'
+import { render, html } from 'node_modules/@littleq/lit-html/lit-html.js'
 
-class Component extends ElementLiteLitOnly(HTMLElement) {
-  render () {
-    return `Hello World!`
+class Component extends TemplateLite(HTMLElement) {
+  static get renderer () { return render; }
+
+  template () {
+    return html`Hello World!`
   }
 }
 
-customElement.define('web-component-static', Component);
+customElement.define('web-component-template', Component);
 ```
 
+## ObjectAccessrorsLite
+
+Documentation to be added...
+
+## ArrayAccessorsLite
+
+Documentation to be added...
 
 ## What files to import and how?
 
@@ -406,19 +492,13 @@ If you are going to use it on Webpack or Rollup, you can do any of these
 
 ```js
 // provided that node_modules is resolved in your configurations
-import { ElementLite } from 'element-lite/@littleq/element-lite.js';
+import { ElementLite } from '@littleq/element-lite.js';
 ```
 
 or
 
 ```js
 import { ElementLite } from './node_modules/@littleq/element-lite';
-```
-
-or
-
-```js
-import { ElementLite } from './node_modules/@littleq/element-lite/dist/element-lite.esm.js';
 ```
 
 If you are going to use `require` and not `import` you can do any of these
@@ -459,71 +539,50 @@ and then can access it here
 var ElementLite = window.ElementLite.ElementLite
 ```
 
-You can also load ElementLiteBase, ElementLiteStaticShadow and ElementLiteLitOnly from ElementLite as well
-
-```js
-// right from the box
-import { ElementLiteBase, ElementLiteStaticShadow, ElementLiteLitOnly } from './node_modules/element-lite/element-lite.js';
-```
-
-using `require`
-
-```js
-// provided that node_modules is resolved in your configurations
-var ElementLiteBase = require('@littleq/element-lite/dist/element-lite.cjs.js').ElementLiteBase;
-var ElementLiteStaticShadow = require('@littleq/element-lite/dist/element-lite.cjs.js').ElementLiteStaticShadow;
-var ElementLiteLitOnly = require('@littleq/element-lite/dist/element-lite.cjs.js').ElementLiteLitOnly;
-```
-
-using `<script>`
-
-```js
-var ElementLiteBase = window.ElementLite.ElementLiteBase
-var ElementLiteStaticShadow = window.ElementLite.ElementLiteStaticShadow
-var ElementLiteLitOnly = window.ElementLite.ElementLiteLitOnly
-```
-
-
 ## And does it work on?
 
 It works on all major evergreen Browsers (Edge, Safari, Chrome, Firefox) as long as you have the Polyfills
 set (make sure to add `webcomponents-lite` or `webcomponents-loader` and create the components after the
 `WebComponentsReady` event has been fired)
 
-It also works on Safari 11, Safari 10.1.
+It also works on Safari 11, Safari 10.1, and Safari 9.
 
-Still checking on IE 10, 9, 8 and Safari 9, 8, 7, 6. (Need polyfills for `Map` and `WeakMap` when using the webcomponents-lite polyfill and `custom-element-es5-adapter`).
+This doesn't work on IE 11 below as of the moment. (It should work on IE 11 but the polyfill is different and currently on the works on creating a smooth documentation for it).
 
 For IE 11. You need to use `lib/native-shim.es5.js` instead of `custom-element-es5-adapter` for it to work.
-
 
 ## Size
 
 Based on size-limit
 
 ```
-npm run size
+  properties-lite.js
+  Package size: 1.78 KB
+  Size limit:   2 KB
 
-> @littleq/element-lite@0.0.2 size /home/tjmonsi/Projects/own-projects/element-lite
-> size-limit
-
-  element-lite-lit-only.js
-  Package size: 2.49 KB
+  observers-lite.js
+  Package size: 2.25 KB
   Size limit:   2.5 KB
 
-  element-lite-base.js
-  Package size: 2.91 KB
-  Size limit:   3 KB
+  object-accessors-lite.js // this is without properties-lite
+  Package size: 775 B // should be around 2.6 KB if with properties-lite
+  Size limit:   1 KB
 
-  element-lite-static-shadow.js
-  Package size: 2.98 KB
-  Size limit:   3 KB
+  array-accessors-lite.js // this is without properties-lite
+  Package size: 970 B // should be around 3 KB if with properties-lite
+  Size limit:   1 KB
+
+  template-lite.js // this is without lit-html
+  Package size: 669 B // should be around 3.5 KB if with lit-html
+  Size limit:   1 KB
 
   element-lite.js
-  Package size: 5.33 KB
-  Size limit:   5.5 KB
+  Package size: 3.2 KB
+  Size limit:   3.5 KB
 
-  With all dependencies, minified and gzipped
+  element.js // using element-lite and lit-html
+  Package size: 6.09 KB
+  Size limit:   6.5 KB
 ```
 
 ## Known Issues

@@ -1,37 +1,31 @@
 {
   "name": "@littleq/element-lite",
-  "version": "0.2.3",
+  "version": "0.3.6",
   "description": "A take on using lit-html and polymer's properties-mixin",
-  "main": "dist/element-lite.cjs.js",
-  "module": "element-lite.js",
   "browser": "dist/element-lite.umd.js",
   "scripts": {
     "size": "./node_modules/.bin/size-limit",
-    "copy": "./copy.sh",
     "semistandard": "./node_modules/.bin/semistandard",
+    "wct-c9": "export DISPLAY=:99.0 && xvfb-run npm run wct",
     "wct": "npm run pretest && ./node_modules/.bin/wct --npm",
     "wct-firefox": "./node_modules/.bin/wct --npm --configFile wct-firefox.conf.json",
     "wct-prod": "./node_modules/.bin/wct --npm --configFile wct-prod.conf.json",
     "wct-sauce": "./node_modules/.bin/wct --npm --configFile wct-sauce.conf.json",
     "wct-sauce-ie": "./node_modules/.bin/wct --npm --configFile wct-sauce-ie.conf.json",
     "test": "npm run semistandard && npm run size && npm run wct-prod",
-    "build": "npm run copy && ./node_modules/.bin/rollup -c",
+    "build": "./node_modules/.bin/rollup -c",
     "pretest": "npm run build",
-    "postinstall": "npm run copy",
-    "prepublishOnly": "npm run copy && npm test"
+    "prepublish": "npm run build"
   },
   "files": [
-    "element-lite-base.js",
-    "element-lite-lit.js",
-    "element-lite-static.js",
+    "properties-lite.js",
+    "observers-lite.js",
+    "object-accessors-lite.js",
+    "array-accessors-lite.js",
+    "template-lite.js",
     "element-lite.js",
     "lib",
-    "lib/lit-html/**",
-    "copy.sh",
     "dist"
-  ],
-  "bundledDependencies": [
-    "lit-html"
   ],
   "repository": {
     "type": "git",
@@ -49,20 +43,32 @@
   "flat": true,
   "size-limit": [
     {
-      "path": "element-lite-lit.js",
-      "limit": "3.5KB"
+      "path": "properties-lite.js",
+      "limit": "2KB"
     },
     {
-      "path": "element-lite-base.js",
-      "limit": "3.5KB"
+      "path": "observers-lite.js",
+      "limit": "2.5KB"
     },
     {
-      "path": "element-lite-static.js",
-      "limit": "3.5KB"
+      "path": "object-accessors-lite.js",
+      "limit": "1KB"
+    },
+    {
+      "path": "array-accessors-lite.js",
+      "limit": "1KB"
+    },
+    {
+      "path": "template-lite.js",
+      "limit": "1KB"
     },
     {
       "path": "element-lite.js",
-      "limit": "6KB"
+      "limit": "3.5KB"
+    },
+    {
+      "path": "element.js",
+      "limit": "6.5KB"
     }
   ],
   "semistandard": {
@@ -70,7 +76,8 @@
     "ignore": [
       "test/*",
       "dist/*",
-      "polyfills/*"
+      "polyfills/*",
+      "demo/*"
     ],
     "env": [
       "mocha"
@@ -79,14 +86,13 @@
   "dependencies": {
     "@webcomponents/shadycss": "^1.1.1",
     "@webcomponents/webcomponentsjs": "^2.0.0",
-    "es6-symbol": "^3.1.1",
-    "lit-html": "^0.10.0"
+    "es6-symbol": "^3.1.1"
   },
   "devDependencies": {
     "@polymer/iron-test-helpers": "3.0.1",
-    "babel-core": "6.26.3",
+    "babel-core": "^6.26.3",
     "babel-eslint": "9.0.0",
-    "babel-plugin-external-helpers": "6.22.0",
+    "babel-plugin-external-helpers": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "6.26.0",
     "babel-plugin-transform-runtime": "6.23.0",
     "babel-preset-env": "1.7.0",
@@ -99,9 +105,10 @@
     "eslint-plugin-import": "2.14.0",
     "eslint-plugin-mocha": "5.2.0",
     "eslint-plugin-node": "7.0.1",
-    "eslint-plugin-promise": "4.0.1",
-    "eslint-plugin-standard": "4.0.0",
-    "lodash": "3.10.1",
+    "eslint-plugin-promise": "4.0.0",
+    "eslint-plugin-standard": "3.1.0",
+    "lit-html": "^0.11.0",
+    "lodash": "^4.17.10",
     "mocha": "5.2.0",
     "rollup": "0.66.2",
     "rollup-plugin-babel": "4.0.3",
@@ -112,6 +119,6 @@
     "semistandard": "12.0.1",
     "size-limit": "0.20.0",
     "wct-browser-legacy": "1.0.1",
-    "web-component-tester": "6.8.0"
+    "web-component-tester": "^6.8.0"
   }
 }

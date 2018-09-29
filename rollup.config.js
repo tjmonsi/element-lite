@@ -15,8 +15,8 @@ const files = fs.readdirSync(__dirname).filter(file => {
   return fileArray[fileArray.length - 1] === 'js' && ignoreFiles.indexOf(file) < 0;
 }).map(file => file.replace(/\.js$/g, ''));
 
-const testScriptFiles = fs.readdirSync('test/unit/scripts');
-const testCaseFiles = fs.readdirSync('test/unit/cases');
+const testScriptFiles = []; // fs.readdirSync('test/unit/scripts');
+const testCaseFiles = []; // fs.readdirSync('test/unit/cases');
 
 const outputUMDPush = (input, file, name, es5, minify) => {
   const plugins = [

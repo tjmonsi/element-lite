@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>Test</title>
+  </head>
+  <body>
+    <properties-element></properties-element>
+  </body>
+  <script type="module">
+    import { PropertiesLite } from '../properties-lite.js';
+    import { TemplateLite } from '../template-lite.js';
+    import { render, html } from '../node_modules/lit-html/lit-html.js';
+    const { customElements, HTMLElement } = window;
+    const propertiesEelement = 'properties-element';
+
+    class PropertiesElement extends TemplateLite(PropertiesLite(HTMLElement)) {
+      static get properties () {
+        return {
+          prop1: {
+            type: String,
+            notify: true
+          },
+          prop2: {
+            type: String,
+            value: 'Hey'
+          }
+        };
+      }
+
+      static get renderer () {
+        return render;
+      }
+
+      template () {
+        return html`Hey ${this.prop1} ${this.prop2}`;
+      }
+    }
+
+    customElements.define(propertiesEelement, PropertiesElement);
+
+    setTimeout(() => {
+      const el = document.querySelector(propertiesEelement);
+      el.addEventListener('prop1-change', e => {
+        console.log(e.detail);
+      });
+      el.prop1 = 'TJ';
+      setTimeout(() => {
+        el.prop1 = 'TJ2';
+        el.prop2 = '!!!';
+      }, 500);
+    }, 500);
+  </script>
+</html>

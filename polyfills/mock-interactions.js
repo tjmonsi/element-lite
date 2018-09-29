@@ -619,6 +619,77 @@
     return styleTextParts.join('').trim();
   }
 
+  var CSS_BUILD_ATTR = 'css-build';
+
+  /**
+   * Return the polymer-css-build "build type" applied to this element
+   *
+   * @param {!HTMLElement} element
+   * @return {string} Can be "", "shady", or "shadow"
+   */
+  function getCssBuild(element) {
+    if (element.__cssBuild === undefined) {
+      // try attribute first, as it is the common case
+      var attrValue = element.getAttribute(CSS_BUILD_ATTR);
+      if (attrValue) {
+        element.__cssBuild = attrValue;
+      } else {
+        var buildComment = getBuildComment(element);
+        if (buildComment !== '') {
+          // remove build comment so it is not needlessly copied into every element instance
+          removeBuildComment(element);
+        }
+        element.__cssBuild = buildComment;
+      }
+    }
+    return element.__cssBuild || '';
+  }
+
+  /**
+   * Check if the given element, either a <template> or <style>, has been processed
+   * by polymer-css-build.
+   *
+   * If so, then we can make a number of optimizations:
+   * - polymer-css-build will decompose mixins into individual CSS Custom Properties,
+   * so the ApplyShim can be skipped entirely.
+   * - Under native ShadowDOM, the style text can just be copied into each instance
+   * without modification
+   * - If the build is "shady" and ShadyDOM is in use, the styling does not need
+   * scoping beyond the shimming of CSS Custom Properties
+   *
+   * @param {!HTMLElement} element
+   * @return {boolean}
+   */
+  function elementHasBuiltCss(element) {
+    return getCssBuild(element) !== '';
+  }
+
+  /**
+   * For templates made with tagged template literals, polymer-css-build will
+   * insert a comment of the form `<!--css-build:shadow-->`
+   *
+   * @param {!HTMLElement} element
+   * @return {string}
+   */
+  function getBuildComment(element) {
+    var buildComment = element.localName === 'template' ? element.content.firstChild : element.firstChild;
+    if (buildComment instanceof Comment) {
+      var commentParts = buildComment.textContent.trim().split(':');
+      if (commentParts[0] === CSS_BUILD_ATTR) {
+        return commentParts[1];
+      }
+    }
+    return '';
+  }
+
+  /**
+   * @param {!HTMLElement} element
+   */
+  function removeBuildComment(element) {
+    var buildComment = element.localName === 'template' ? element.content.firstChild : element.firstChild;
+    buildComment.parentNode.removeChild(buildComment);
+  }
+
   /**
   @license
   Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1534,6 +1605,9 @@
       key: 'prepareTemplate',
       value: function prepareTemplate(template, elementName) {
         this.ensure();
+        if (elementHasBuiltCss(template)) {
+          return;
+        }
         templateMap[elementName] = template;
         var ast = applyShim.transformTemplate(template, elementName);
         // save original style ast to use for revalidating instances
@@ -1597,6 +1671,9 @@
             is = _getIsExtends.is;
 
         var template = templateMap[is];
+        if (template && elementHasBuiltCss(template)) {
+          return;
+        }
         if (template && !templateIsValid(template)) {
           // only revalidate template once
           if (!templateIsValidating(template)) {
@@ -1646,6 +1723,23 @@
         applyShimInterface.prepareTemplate(template, elementName);
       },
 
+
+      /**
+       * @param {!HTMLTemplateElement} template
+       * @param {string} elementName
+       * @param {string=} elementExtends
+       */
+      prepareTemplateStyles: function prepareTemplateStyles(template, elementName, elementExtends) {
+        this.prepareTemplate(template, elementName, elementExtends);
+      },
+
+
+      /**
+       * @param {!HTMLTemplateElement} template
+       * @param {string} elementName
+       */
+      prepareTemplateDom: function prepareTemplateDom(template, elementName) {},
+      // eslint-disable-line no-unused-vars
 
       /**
        * @param {!HTMLElement} element
@@ -1898,8 +1992,7 @@
       return extended;
     }
 
-    return (/** @type {T} */dedupingMixin
-    );
+    return dedupingMixin;
   };
   /* eslint-enable valid-jsdoc */
 
@@ -2220,6 +2313,7 @@
        * @param {?string} value Current value of attribute.
        * @param {?string} namespace Attribute namespace.
        * @return {void}
+       * @override
        */
       value: function attributeChangedCallback(name, old, value, namespace) {
         if (old !== value) {
@@ -2559,6 +2653,11 @@
   var CAMEL_TO_DASH = /([A-Z])/g;
 
   /**
+   * @fileoverview Module with utilities for converting between "dash-case" and
+   * "camelCase" identifiers.
+   */
+
+  /**
    * Converts "dash-case" identifier (e.g. `foo-bar-baz`) to "camelCase"
    * (e.g. `fooBarBaz`).
    *
@@ -2751,12 +2850,17 @@
    * @summary Element class mixin for reacting to property changes from
    *   generated property accessors.
    */
-  var PropertiesChanged = dedupingMixin(function (superClass) {
+  var PropertiesChanged = dedupingMixin(
+  /**
+   * @template T
+   * @param {function(new:T)} superClass Class to apply mixin to.
+   * @return {function(new:T)} superClass with mixin applied.
+   */
+  function (superClass) {
 
     /**
      * @polymer
      * @mixinClass
-     * @extends {superClass}
      * @implements {Polymer_PropertiesChanged}
      * @unrestricted
      */
@@ -2781,6 +2885,7 @@
          *   protected `_setProperty` function must be used to set the property
          * @return {void}
          * @protected
+         * @override
          */
         value: function _createPropertyAccessor(property, readOnly) {
           this._addPropertyToAttributeMap(property);
@@ -2799,6 +2904,7 @@
          * used when deserializing attribute values to properties.
          *
          * @param {string} property Name of the property
+         * @override
          */
 
       }, {
@@ -2818,6 +2924,7 @@
          * @param {string} property Name of the property
          * @param {boolean=} readOnly When true, no setter is created
          * @return {void}
+         * @override
          */
 
       }, {
@@ -2916,6 +3023,7 @@
        *
        * @return {void}
        * @public
+       * @override
        */
 
 
@@ -2934,6 +3042,7 @@
          *
          * @return {void}
          * @protected
+         * @override
          */
 
       }, {
@@ -2963,6 +3072,7 @@
          *   when creating property accessors.
          * @return {void}
          * @protected
+         * @override
          */
 
       }, {
@@ -2979,6 +3089,7 @@
          * @param {*} value Value to set
          * @return {void}
          * @protected
+         * @override
          */
 
       }, {
@@ -2994,6 +3105,7 @@
          * @param {string} property Name of property
          * @return {*} Value for the given property
          * @protected
+         * @override
          */
 
       }, {
@@ -3014,6 +3126,7 @@
          * @param {boolean=} ext Not used here; affordance for closure
          * @return {boolean} Returns true if the property changed
          * @protected
+         * @override
          */
 
       }, {
@@ -3043,6 +3156,7 @@
          *
          * @return {void}
          * @protected
+         * @override
          */
 
       }, {
@@ -3071,6 +3185,7 @@
          *
          * @return {void}
          * @protected
+         * @override
          */
 
       }, {
@@ -3094,6 +3209,7 @@
          *
          * @return {void}
          * @protected
+         * @override
          */
 
       }, {
@@ -3115,11 +3231,12 @@
          * properties are pending. Override to customize when
          * `_propertiesChanged` is called.
          * @param {!Object} currentProps Bag of all current accessor values
-         * @param {!Object} changedProps Bag of properties changed since the last
+         * @param {?Object} changedProps Bag of properties changed since the last
          *   call to `_propertiesChanged`
-         * @param {!Object} oldProps Bag of previous values for each property
+         * @param {?Object} oldProps Bag of previous values for each property
          *   in `changedProps`
          * @return {boolean} true if changedProps is truthy
+         * @override
          */
 
       }, {
@@ -3134,12 +3251,13 @@
          * `_createPropertyAccessor` have been set.
          *
          * @param {!Object} currentProps Bag of all current accessor values
-         * @param {!Object} changedProps Bag of properties changed since the last
+         * @param {?Object} changedProps Bag of properties changed since the last
          *   call to `_propertiesChanged`
-         * @param {!Object} oldProps Bag of previous values for each property
+         * @param {?Object} oldProps Bag of previous values for each property
          *   in `changedProps`
          * @return {void}
          * @protected
+         * @override
          */
 
       }, {
@@ -3164,6 +3282,7 @@
          * @return {boolean} Whether the property should be considered a change
          *   and enqueue a `_proeprtiesChanged` callback
          * @protected
+         * @override
          */
 
       }, {
@@ -3187,6 +3306,7 @@
          * @param {?string} namespace Attribute namespace.
          * @return {void}
          * @suppress {missingProperties} Super may or may not implement the callback
+         * @override
          */
 
       }, {
@@ -3211,6 +3331,7 @@
          * @param {*=} type type to deserialize to, defaults to the value
          * returned from `typeForProperty`
          * @return {void}
+         * @override
          */
 
       }, {
@@ -3232,6 +3353,7 @@
          * @param {string=} attribute Attribute name to reflect to.
          * @param {*=} value Property value to refect.
          * @return {void}
+         * @override
          */
 
       }, {
@@ -3255,6 +3377,7 @@
          * @param {*} value Value to serialize.
          * @param {string} attribute Attribute name to serialize to.
          * @return {void}
+         * @override
          */
 
       }, {
@@ -3278,6 +3401,7 @@
          * @param {*} value Property value to serialize.
          * @return {string | undefined} String serialized from the provided
          * property  value.
+         * @override
          */
 
       }, {
@@ -3302,6 +3426,7 @@
          * @param {?string} value Value to deserialize.
          * @param {*=} type Type to deserialize the string to.
          * @return {*} Typed value deserialized from the provided string.
+         * @override
          */
 
       }, {
@@ -3419,6 +3544,7 @@
      * @extends {superClass}
      * @implements {Polymer_PropertiesChanged}
      * @unrestricted
+     * @private
      */
     var base = PropertiesChanged(superClass);
 
@@ -3774,7 +3900,13 @@
    * @polymer
    * @summary Element class mixin that provides basic template parsing and stamping
    */
-  var TemplateStamp = dedupingMixin(function (superClass) {
+  var TemplateStamp = dedupingMixin(
+  /**
+   * @template T
+   * @param {function(new:T)} superClass Class to apply mixin to.
+   * @return {function(new:T)} superClass with mixin applied.
+   */
+  function (superClass) {
 
     /**
      * @polymer
@@ -3814,6 +3946,7 @@
          *
          * @param {!HTMLTemplateElement} template Template to stamp
          * @return {!StampedTemplate} Cloned template content
+         * @override
          */
         value: function _stampTemplate(template) {
           // Polyfill support: bootstrap the template if it has not already been
@@ -3850,6 +3983,7 @@
          * @param {*=} context Context the method will be called on (defaults
          *   to `node`)
          * @return {Function} Generated handler function
+         * @override
          */
 
       }, {
@@ -3868,6 +4002,7 @@
          * @param {string} eventName Name of event
          * @param {function(!Event):void} handler Listener function to add
          * @return {void}
+         * @override
          */
 
       }, {
@@ -3879,10 +4014,11 @@
         /**
          * Override point for adding custom or simulated event handling.
          *
-         * @param {Node} node Node to remove event listener from
+         * @param {!Node} node Node to remove event listener from
          * @param {string} eventName Name of event
          * @param {function(!Event):void} handler Listener function to remove
          * @return {void}
+         * @override
          */
 
       }, {
@@ -5260,6 +5396,7 @@
      * @implements {Polymer_PropertyAccessors}
      * @implements {Polymer_TemplateStamp}
      * @unrestricted
+     * @private
      */
     var propertyEffectsBase = TemplateStamp(PropertyAccessors(superClass));
 
@@ -5887,9 +6024,9 @@
          * a specific order (compute, propagate, reflect, observe, notify).
          *
          * @param {!Object} currentProps Bag of all current accessor values
-         * @param {!Object} changedProps Bag of properties changed since the last
+         * @param {?Object} changedProps Bag of properties changed since the last
          *   call to `_propertiesChanged`
-         * @param {!Object} oldProps Bag of previous values for each property
+         * @param {?Object} oldProps Bag of previous values for each property
          *   in `changedProps`
          * @return {void}
          */
@@ -7106,45 +7243,58 @@
    *
    * @private
    */
-  var hostStack = {
 
-    stack: [],
+  var HostStack = function () {
+    function HostStack() {
+      classCallCheck(this, HostStack);
+
+      this.stack = [];
+    }
 
     /**
      * @param {*} inst Instance to add to hostStack
      * @return {void}
-     * @this {hostStack}
      */
-    registerHost: function registerHost(inst) {
-      if (this.stack.length) {
-        var host = this.stack[this.stack.length - 1];
-        host._enqueueClient(inst);
+
+
+    createClass(HostStack, [{
+      key: 'registerHost',
+      value: function registerHost(inst) {
+        if (this.stack.length) {
+          var host = this.stack[this.stack.length - 1];
+          host._enqueueClient(inst);
+        }
       }
-    },
 
+      /**
+       * @param {*} inst Instance to begin hosting
+       * @return {void}
+       */
 
-    /**
-     * @param {*} inst Instance to begin hosting
-     * @return {void}
-     * @this {hostStack}
-     */
-    beginHosting: function beginHosting(inst) {
-      this.stack.push(inst);
-    },
-
-
-    /**
-     * @param {*} inst Instance to end hosting
-     * @return {void}
-     * @this {hostStack}
-     */
-    endHosting: function endHosting(inst) {
-      var stackLen = this.stack.length;
-      if (stackLen && this.stack[stackLen - 1] == inst) {
-        this.stack.pop();
+    }, {
+      key: 'beginHosting',
+      value: function beginHosting(inst) {
+        this.stack.push(inst);
       }
-    }
-  };
+
+      /**
+       * @param {*} inst Instance to end hosting
+       * @return {void}
+       */
+
+    }, {
+      key: 'endHosting',
+      value: function endHosting(inst) {
+        var stackLen = this.stack.length;
+        if (stackLen && this.stack[stackLen - 1] == inst) {
+          this.stack.pop();
+        }
+      }
+    }]);
+    return HostStack;
+  }();
+
+  var hostStack = new HostStack();
 
   /**
   @license
@@ -7195,8 +7345,8 @@
 
     /**
      * @constructor
-     * @extends {superClass}
      * @implements {Polymer_PropertiesChanged}
+     * @private
      */
     var base = PropertiesChanged(superClass);
 
@@ -7205,7 +7355,7 @@
      * instance of the PropertiesMixin.
      *
      * @param {!PropertiesMixinConstructor} constructor PropertiesMixin constructor
-     * @return {PropertiesMixinConstructor} Super class constructor
+     * @return {?PropertiesMixinConstructor} Super class constructor
      */
     function superPropertiesClass(constructor) {
       var superCtor = Object.getPrototypeOf(constructor);
@@ -7215,7 +7365,7 @@
       // because the mixin is deduped and guaranteed only to apply once, hence
       // all constructors in a proto chain will see the same `PropertiesMixin`
       return superCtor.prototype instanceof PropertiesMixin ?
-      /** @type {PropertiesMixinConstructor} */superCtor : null;
+      /** @type {!PropertiesMixinConstructor} */superCtor : null;
     }
 
     /**
@@ -7276,6 +7426,7 @@
          * `PropertiesChanged`.
          * @suppress {missingProperties} Super may or may not implement the callback
          * @return {void}
+         * @override
          */
 
       }, {
@@ -7291,6 +7442,7 @@
          * Called when the element is removed from a document
          * @suppress {missingProperties} Super may or may not implement the callback
          * @return {void}
+         * @override
          */
 
       }, {
@@ -7313,7 +7465,7 @@
          */
         value: function finalize() {
           if (!this.hasOwnProperty(JSCompiler_renameProperty('__finalized', this))) {
-            var superCtor = superPropertiesClass( /** @type {PropertiesMixinConstructor} */this);
+            var superCtor = superPropertiesClass( /** @type {!PropertiesMixinConstructor} */this);
             if (superCtor) {
               superCtor.finalize();
             }
@@ -7333,7 +7485,7 @@
       }, {
         key: '_finalizeClass',
         value: function _finalizeClass() {
-          var props = ownProperties( /** @type {PropertiesMixinConstructor} */this);
+          var props = ownProperties( /** @type {!PropertiesMixinConstructor} */this);
           if (props) {
             this.createProperties(props);
           }
@@ -7385,7 +7537,7 @@
         key: '_properties',
         get: function get$$1() {
           if (!this.hasOwnProperty(JSCompiler_renameProperty('__properties', this))) {
-            var superCtor = superPropertiesClass( /** @type {PropertiesMixinConstructor} */this);
+            var superCtor = superPropertiesClass( /** @type {!PropertiesMixinConstructor} */this);
             this.__properties = Object.assign({}, superCtor && superCtor._properties, ownProperties( /** @type {PropertiesMixinConstructor} */this));
           }
           return this.__properties;
@@ -7422,8 +7574,7 @@
    *
    * - `static get template()`: Users may provide the template directly (as
    *   opposed to via `dom-module`) by implementing a static `template` getter.
-   *   The getter may return an `HTMLTemplateElement` or a string, which will
-   *   automatically be parsed into a template.
+   *   The getter must return an `HTMLTemplateElement`.
    *
    * - `static get properties()`: Should return an object describing
    *   property-related metadata used by Polymer features (key: property name
@@ -7483,6 +7634,7 @@
      * @extends {base}
      * @implements {Polymer_PropertyEffects}
      * @implements {Polymer_PropertiesMixin}
+     * @private
      */
     var polymerElementBase = PropertiesMixin(PropertyEffects(base));
 
@@ -7747,8 +7899,7 @@
          *
          * Users may override this getter to return an arbitrary template
          * (in which case the `is` getter is unnecessary). The template returned
-         * may be either an `HTMLTemplateElement` or a string that will be
-         * automatically parsed into a template.
+         * must be an `HTMLTemplateElement`.
          *
          * Note that when subclassing, if the super class overrode the default
          * implementation and the subclass would like to provide an alternate
@@ -8106,22 +8257,12 @@
   });
 
   /**
-   * @param {!PolymerElementConstructor} prototype Element prototype to log
-   * @this {this}
-   * @private
-   */
-  function _regLog(prototype) {
-    console.log('[' + prototype.is + ']: registered');
-  }
-
-  /**
    * Registers a class prototype for telemetry purposes.
    * @param {HTMLElement} prototype Element prototype to register
    * @this {this}
    * @protected
    */
   function register(prototype) {
-    undefined && _regLog(prototype);
   }
 
   /**
@@ -8215,7 +8356,7 @@
        * called once. Add this method to a custom element:
        *
        * ```js
-       * import {microtask} from '@polymer/polymer/lib/utils/async.js';
+       * import {microTask} from '@polymer/polymer/lib/utils/async.js';
        * import {Debouncer} from '@polymer/polymer/lib/utils/debounce.js';
        * // ...
        *
@@ -8340,6 +8481,20 @@
     'textarea': true,
     'progress': true,
     'select': true
+  };
+
+  // Defined at https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#enabling-and-disabling-form-controls:-the-disabled-attribute
+  /** @type {!Object<boolean>} */
+  var canBeDisabled = {
+    'button': true,
+    'command': true,
+    'fieldset': true,
+    'input': true,
+    'keygen': true,
+    'optgroup': true,
+    'option': true,
+    'select': true,
+    'textarea': true
   };
 
   /**
@@ -8591,7 +8746,7 @@
    * a cheaper check than ev.composedPath()[0];
    *
    * @private
-   * @param {Event} ev Event.
+   * @param {Event|Touch} ev Event.
    * @return {EventTarget} Returns the event target.
    */
   function _findOriginalTarget(ev) {
@@ -8685,17 +8840,17 @@
       }
       POINTERSTATE.touch.scrollDecided = true;
       var ta = firstTouchAction(ev);
-      var _prevent = false;
+      var shouldPrevent = false;
       var dx = Math.abs(POINTERSTATE.touch.x - t.clientX);
       var dy = Math.abs(POINTERSTATE.touch.y - t.clientY);
       if (!ev.cancelable) ; else if (ta === 'none') {
-        _prevent = true;
+        shouldPrevent = true;
       } else if (ta === 'pan-x') {
-        _prevent = dy > dx;
+        shouldPrevent = dy > dx;
       } else if (ta === 'pan-y') {
-        _prevent = dx > dy;
+        shouldPrevent = dx > dy;
       }
-      if (_prevent) {
+      if (shouldPrevent) {
         ev.preventDefault();
       } else {
         _prevent('track');
@@ -8710,7 +8865,6 @@
    * @param {string} evType Gesture type: `down`, `up`, `track`, or `tap`
    * @param {!function(!Event):void} handler Event listener function to call
    * @return {boolean} Returns true if a gesture event listener was added.
-   * @this {Gestures}
    */
   function addListener(node, evType, handler) {
     if (gestures[evType]) {
@@ -8728,7 +8882,6 @@
    * @param {!function(!Event):void} handler Event listener function previously passed to
    *  `addListener`.
    * @return {boolean} Returns true if a gesture event listener was removed.
-   * @this {Gestures}
    */
   function removeListener(node, evType, handler) {
     if (gestures[evType]) {
@@ -8742,11 +8895,10 @@
    * automate the event listeners for the native events
    *
    * @private
-   * @param {!HTMLElement} node Node on which to add the event.
+   * @param {!Node} node Node on which to add the event.
    * @param {string} evType Event type to add.
    * @param {function(!Event)} handler Event handler function.
    * @return {void}
-   * @this {Gestures}
    */
   function _add(node, evType, handler) {
     var recognizer = gestures[evType];
@@ -8782,11 +8934,10 @@
    * automate event listener removal for native events
    *
    * @private
-   * @param {!HTMLElement} node Node on which to remove the event.
+   * @param {!Node} node Node on which to remove the event.
    * @param {string} evType Event type to remove.
-   * @param {function(Event?)} handler Event handler function.
+   * @param {function(!Event): void} handler Event handler function.
    * @return {void}
-   * @this {Gestures}
    */
   function _remove(node, evType, handler) {
     var recognizer = gestures[evType];
@@ -8815,7 +8966,6 @@
    *
    * @param {!GestureRecognizer} recog Gesture recognizer descriptor
    * @return {void}
-   * @this {Gestures}
    */
   function register$1(recog) {
     recognizers.push(recog);
@@ -8828,7 +8978,6 @@
    * @private
    * @param {string} evName Event name.
    * @return {Object} Returns the gesture for the given event name.
-   * @this {Gestures}
    */
   function _findRecognizerByEvent(evName) {
     for (var i = 0, r; i < recognizers.length; i++) {
@@ -8849,7 +8998,7 @@
    * This value is checked on first move, thus it should be called prior to
    * adding event listeners.
    *
-   * @param {!Element} node Node to set touch action setting on
+   * @param {!Node} node Node to set touch action setting on
    * @param {string} value Touch action value
    * @return {void}
    */
@@ -8875,7 +9024,7 @@
    * @param {!Object=} detail The detail object to populate on the event.
    * @return {void}
    */
-  function _fire2(target, type, detail) {
+  function _fire(target, type, detail) {
     var ev = new Event(type, { bubbles: true, cancelable: true, composed: true });
     ev.detail = detail;
     target.dispatchEvent(ev);
@@ -8893,9 +9042,8 @@
    *
    * @param {string} evName Event name.
    * @return {void}
-   * @this {Gestures}
    */
-  function _prevent2(evName) {
+  function _prevent(evName) {
     var recognizer = _findRecognizerByEvent(evName);
     if (recognizer.info) {
       recognizer.info.prevent = true;
@@ -8954,18 +9102,18 @@
       var self = this;
       var movefn = function movefn(e) {
         if (!hasLeftMouseButton(e)) {
-          self._fire('up', t, e);
+          downupFire('up', t, e);
           untrackDocument(self.info);
         }
       };
       var upfn = function upfn(e) {
         if (hasLeftMouseButton(e)) {
-          self._fire('up', t, e);
+          downupFire('up', t, e);
         }
         untrackDocument(self.info);
       };
       trackDocument(this.info, movefn, upfn);
-      this._fire('down', t, e);
+      downupFire('down', t, e);
     },
     /**
      * @this {GestureRecognizer}
@@ -8973,7 +9121,7 @@
      * @return {void}
      */
     touchstart: function touchstart(e) {
-      this._fire('down', _findOriginalTarget(e), e.changedTouches[0], e);
+      downupFire('down', _findOriginalTarget(e), e.changedTouches[0], e);
     },
     /**
      * @this {GestureRecognizer}
@@ -8981,27 +9129,31 @@
      * @return {void}
      */
     touchend: function touchend(e) {
-      this._fire('up', _findOriginalTarget(e), e.changedTouches[0], e);
-    },
-    /**
-     * @param {string} type
-     * @param {!EventTarget} target
-     * @param {Event} event
-     * @param {Function} preventer
-     * @return {void}
-     */
-    _fire: function _fire(type, target, event, preventer) {
-      _fire2(target, type, {
-        x: event.clientX,
-        y: event.clientY,
-        sourceEvent: event,
-        preventer: preventer,
-        prevent: function prevent(e) {
-          return _prevent2(e);
-        }
-      });
+      downupFire('up', _findOriginalTarget(e), e.changedTouches[0], e);
     }
   });
+
+  /**
+   * @param {string} type
+   * @param {EventTarget} target
+   * @param {Event|Touch} event
+   * @param {Event=} preventer
+   * @return {void}
+   */
+  function downupFire(type, target, event, preventer) {
+    if (!target) {
+      return;
+    }
+    _fire(target, type, {
+      x: event.clientX,
+      y: event.clientY,
+      sourceEvent: event,
+      preventer: preventer,
+      prevent: function prevent(e) {
+        return _prevent(e);
+      }
+    });
+  }
 
   register$1({
     name: 'track',
@@ -9019,7 +9171,7 @@
       state: 'start',
       started: false,
       moves: [],
-      /** @this {GestureRecognizer} */
+      /** @this {GestureInfo} */
       addMove: function addMove(move) {
         if (this.moves.length > TRACK_LENGTH) {
           this.moves.shift();
@@ -9047,23 +9199,6 @@
 
     /**
      * @this {GestureRecognizer}
-     * @param {number} x
-     * @param {number} y
-     * @return {boolean}
-     */
-    hasMovedEnough: function hasMovedEnough(x, y) {
-      if (this.info.prevent) {
-        return false;
-      }
-      if (this.info.started) {
-        return true;
-      }
-      var dx = Math.abs(this.info.x - x);
-      var dy = Math.abs(this.info.y - y);
-      return dx >= TRACK_DISTANCE || dy >= TRACK_DISTANCE;
-    },
-    /**
-     * @this {GestureRecognizer}
      * @param {MouseEvent} e
      * @return {void}
      */
@@ -9076,20 +9211,22 @@
       var movefn = function movefn(e) {
         var x = e.clientX,
             y = e.clientY;
-        if (self.hasMovedEnough(x, y)) {
+        if (trackHasMovedEnough(self.info, x, y)) {
           // first move is 'start', subsequent moves are 'move', mouseup is 'end'
           self.info.state = self.info.started ? e.type === 'mouseup' ? 'end' : 'track' : 'start';
           if (self.info.state === 'start') {
             // if and only if tracking, always prevent tap
-            _prevent2('tap');
+            _prevent('tap');
           }
           self.info.addMove({ x: x, y: y });
           if (!hasLeftMouseButton(e)) {
-            // always _fire "end"
+            // always fire "end"
             self.info.state = 'end';
             untrackDocument(self.info);
           }
-          self._fire(t, e);
+          if (t) {
+            trackFire(self.info, t, e);
+          }
           self.info.started = true;
         }
       };
@@ -9126,13 +9263,13 @@
       var ct = e.changedTouches[0];
       var x = ct.clientX,
           y = ct.clientY;
-      if (this.hasMovedEnough(x, y)) {
+      if (trackHasMovedEnough(this.info, x, y)) {
         if (this.info.state === 'start') {
           // if and only if tracking, always prevent tap
-          _prevent2('tap');
+          _prevent('tap');
         }
         this.info.addMove({ x: x, y: y });
-        this._fire(t, ct);
+        trackFire(this.info, t, ct);
         this.info.state = 'track';
         this.info.started = true;
       }
@@ -9150,43 +9287,63 @@
         // reset started state on up
         this.info.state = 'end';
         this.info.addMove({ x: ct.clientX, y: ct.clientY });
-        this._fire(t, ct, e);
+        trackFire(this.info, t, ct);
       }
-    },
-
-    /**
-     * @this {GestureRecognizer}
-     * @param {!EventTarget} target
-     * @param {Touch} touch
-     * @return {void}
-     */
-    _fire: function _fire(target, touch) {
-      var secondlast = this.info.moves[this.info.moves.length - 2];
-      var lastmove = this.info.moves[this.info.moves.length - 1];
-      var dx = lastmove.x - this.info.x;
-      var dy = lastmove.y - this.info.y;
-      var ddx = void 0,
-          ddy = 0;
-      if (secondlast) {
-        ddx = lastmove.x - secondlast.x;
-        ddy = lastmove.y - secondlast.y;
-      }
-      _fire2(target, 'track', {
-        state: this.info.state,
-        x: touch.clientX,
-        y: touch.clientY,
-        dx: dx,
-        dy: dy,
-        ddx: ddx,
-        ddy: ddy,
-        sourceEvent: touch,
-        hover: function hover() {
-          return deepTargetFind(touch.clientX, touch.clientY);
-        }
-      });
     }
-
   });
+
+  /**
+   * @param {!GestureInfo} info
+   * @param {number} x
+   * @param {number} y
+   * @return {boolean}
+   */
+  function trackHasMovedEnough(info, x, y) {
+    if (info.prevent) {
+      return false;
+    }
+    if (info.started) {
+      return true;
+    }
+    var dx = Math.abs(info.x - x);
+    var dy = Math.abs(info.y - y);
+    return dx >= TRACK_DISTANCE || dy >= TRACK_DISTANCE;
+  }
+
+  /**
+   * @param {!GestureInfo} info
+   * @param {?EventTarget} target
+   * @param {Touch} touch
+   * @return {void}
+   */
+  function trackFire(info, target, touch) {
+    if (!target) {
+      return;
+    }
+    var secondlast = info.moves[info.moves.length - 2];
+    var lastmove = info.moves[info.moves.length - 1];
+    var dx = lastmove.x - info.x;
+    var dy = lastmove.y - info.y;
+    var ddx = void 0,
+        ddy = 0;
+    if (secondlast) {
+      ddx = lastmove.x - secondlast.x;
+      ddy = lastmove.y - secondlast.y;
+    }
+    _fire(target, 'track', {
+      state: info.state,
+      x: touch.clientX,
+      y: touch.clientY,
+      dx: dx,
+      dy: dy,
+      ddx: ddx,
+      ddy: ddy,
+      sourceEvent: touch,
+      hover: function hover() {
+        return deepTargetFind(touch.clientX, touch.clientY);
+      }
+    });
+  }
 
   register$1({
     name: 'tap',
@@ -9215,18 +9372,10 @@
      * @param {MouseEvent} e
      * @return {void}
      */
-    save: function save(e) {
-      this.info.x = e.clientX;
-      this.info.y = e.clientY;
-    },
-    /**
-     * @this {GestureRecognizer}
-     * @param {MouseEvent} e
-     * @return {void}
-     */
     mousedown: function mousedown(e) {
       if (hasLeftMouseButton(e)) {
-        this.save(e);
+        this.info.x = e.clientX;
+        this.info.y = e.clientY;
       }
     },
     /**
@@ -9236,7 +9385,7 @@
      */
     click: function click(e) {
       if (hasLeftMouseButton(e)) {
-        this.forward(e);
+        trackForward(this.info, e);
       }
     },
     /**
@@ -9245,7 +9394,9 @@
      * @return {void}
      */
     touchstart: function touchstart(e) {
-      this.save(e.changedTouches[0], e);
+      var touch = e.changedTouches[0];
+      this.info.x = touch.clientX;
+      this.info.y = touch.clientY;
     },
     /**
      * @this {GestureRecognizer}
@@ -9253,36 +9404,37 @@
      * @return {void}
      */
     touchend: function touchend(e) {
-      this.forward(e.changedTouches[0], e);
-    },
-    /**
-     * @this {GestureRecognizer}
-     * @param {Event | Touch} e
-     * @param {Event=} preventer
-     * @return {void}
-     */
-    forward: function forward(e, preventer) {
-      var dx = Math.abs(e.clientX - this.info.x);
-      var dy = Math.abs(e.clientY - this.info.y);
-      // find original target from `preventer` for TouchEvents, or `e` for MouseEvents
-      var t = _findOriginalTarget(preventer || e);
-      if (!t || t.disabled) {
-        return;
-      }
-      // dx,dy can be NaN if `click` has been simulated and there was no `down` for `start`
-      if (isNaN(dx) || isNaN(dy) || dx <= TAP_DISTANCE && dy <= TAP_DISTANCE || isSyntheticClick(e)) {
-        // prevent taps from being generated if an event has canceled them
-        if (!this.info.prevent) {
-          _fire2(t, 'tap', {
-            x: e.clientX,
-            y: e.clientY,
-            sourceEvent: e,
-            preventer: preventer
-          });
-        }
-      }
+      trackForward(this.info, e.changedTouches[0], e);
     }
   });
+
+  /**
+   * @param {!GestureInfo} info
+   * @param {Event | Touch} e
+   * @param {Event=} preventer
+   * @return {void}
+   */
+  function trackForward(info, e, preventer) {
+    var dx = Math.abs(e.clientX - info.x);
+    var dy = Math.abs(e.clientY - info.y);
+    // find original target from `preventer` for TouchEvents, or `e` for MouseEvents
+    var t = _findOriginalTarget(preventer || e);
+    if (!t || canBeDisabled[/** @type {!HTMLElement} */t.localName] && t.hasAttribute('disabled')) {
+      return;
+    }
+    // dx,dy can be NaN if `click` has been simulated and there was no `down` for `start`
+    if (isNaN(dx) || isNaN(dy) || dx <= TAP_DISTANCE && dy <= TAP_DISTANCE || isSyntheticClick(e)) {
+      // prevent taps from being generated if an event has canceled them
+      if (!info.prevent) {
+        _fire(t, 'tap', {
+          x: e.clientX,
+          y: e.clientY,
+          sourceEvent: e,
+          preventer: preventer
+        });
+      }
+    }
+  }
 
   /* eslint-enable valid-jsdoc */
 
@@ -9296,7 +9448,7 @@
   var remove = removeListener;
 
   var gestures$0 = /*#__PURE__*/Object.freeze({
-    prevent: _prevent2,
+    prevent: _prevent,
     gestures: gestures,
     recognizers: recognizers,
     deepTargetFind: deepTargetFind,
@@ -9337,8 +9489,13 @@
    *   cross-platform
    * gesture events to nodes
    */
-  var GestureEventListeners = dedupingMixin(function (superClass) {
-
+  var GestureEventListeners = dedupingMixin(
+  /**
+   * @template T
+   * @param {function(new:T)} superClass Class to apply mixin to.
+   * @return {function(new:T)} superClass with mixin applied.
+   */
+  function (superClass) {
     /**
      * @polymer
      * @mixinClass
@@ -9355,7 +9512,6 @@
       createClass(GestureEventListeners, [{
         key: '_addEventListenerToNode',
 
-
         /**
          * Add the event listener to the node if it is a gestures event.
          *
@@ -9363,6 +9519,7 @@
          * @param {string} eventName Name of event
          * @param {function(!Event):void} handler Listener function to add
          * @return {void}
+         * @override
          */
         value: function _addEventListenerToNode(node, eventName, handler) {
           if (!gestures$1.addListener(node, eventName, handler)) {
@@ -9377,6 +9534,7 @@
          * @param {string} eventName Name of event
          * @param {function(!Event):void} handler Listener function to remove
          * @return {void}
+         * @override
          */
 
       }, {
@@ -9482,6 +9640,7 @@
      * @constructor
      * @extends {base}
      * @implements {Polymer_PropertyAccessors}
+     * @private
      */
     var elementBase = PropertyAccessors(base);
 
@@ -10350,7 +10509,7 @@
      *
      * @param {function(!Element, { target: !Element, addedNodes: !Array<!Element>, removedNodes: !Array<!Element> }):void} callback Called when direct or distributed children
      *   of this element changes
-     * @return {!Polymer.FlattenedNodesObserver} Observer instance
+     * @return {!FlattenedNodesObserver} Observer instance
      */
 
 
@@ -10363,7 +10522,7 @@
       /**
        * Disconnects an observer previously created via `observeNodes`
        *
-       * @param {!Polymer.FlattenedNodesObserver} observerHandle Observer instance
+       * @param {!FlattenedNodesObserver} observerHandle Observer instance
        *   to disconnect.
        * @return {void}
        */
@@ -10410,7 +10569,7 @@
       }
 
       /**
-       * Returns the root node of this node.  Equivalent to `getRoodNode()`.
+       * Returns the root node of this node.  Equivalent to `getRootNode()`.
        *
        * @return {Node} Top most element in the dom tree in which the node
        * exists. If the node is connected to a document this is either a
@@ -10572,12 +10731,6 @@
     }
   }
 
-  forwardMethods(DomApi.prototype, ['cloneNode', 'appendChild', 'insertBefore', 'removeChild', 'replaceChild', 'setAttribute', 'removeAttribute', 'querySelector', 'querySelectorAll']);
-
-  forwardReadOnlyProperties(DomApi.prototype, ['parentNode', 'firstChild', 'lastChild', 'nextSibling', 'previousSibling', 'firstElementChild', 'lastElementChild', 'nextElementSibling', 'previousElementSibling', 'childNodes', 'children', 'classList']);
-
-  forwardProperties(DomApi.prototype, ['textContent', 'innerHTML']);
-
   /**
    * Event API wrapper class returned from `Polymer.dom.(target)` when
    * `target` is an `Event`.
@@ -10630,6 +10783,102 @@
   }();
 
   /**
+   * @function
+   * @param {boolean=} deep
+   * @return {!Node}
+   */
+
+
+  DomApi.prototype.cloneNode;
+  /**
+   * @function
+   * @param {!Node} node
+   * @return {!Node}
+   */
+  DomApi.prototype.appendChild;
+  /**
+   * @function
+   * @param {!Node} newChild
+   * @param {Node} refChild
+   * @return {!Node}
+   */
+  DomApi.prototype.insertBefore;
+  /**
+   * @function
+   * @param {!Node} node
+   * @return {!Node}
+   */
+  DomApi.prototype.removeChild;
+  /**
+   * @function
+   * @param {!Node} oldChild
+   * @param {!Node} newChild
+   * @return {!Node}
+   */
+  DomApi.prototype.replaceChild;
+  /**
+   * @function
+   * @param {string} name
+   * @param {string} value
+   * @return {void}
+   */
+  DomApi.prototype.setAttribute;
+  /**
+   * @function
+   * @param {string} name
+   * @return {void}
+   */
+  DomApi.prototype.removeAttribute;
+  /**
+   * @function
+   * @param {string} selector
+   * @return {?Element}
+   */
+  DomApi.prototype.querySelector;
+  /**
+   * @function
+   * @param {string} selector
+   * @return {!NodeList<!Element>}
+   */
+  DomApi.prototype.querySelectorAll;
+
+  /** @type {?Node} */
+  DomApi.prototype.parentNode;
+  /** @type {?Node} */
+  DomApi.prototype.firstChild;
+  /** @type {?Node} */
+  DomApi.prototype.lastChild;
+  /** @type {?Node} */
+  DomApi.prototype.nextSibling;
+  /** @type {?Node} */
+  DomApi.prototype.previousSibling;
+  /** @type {?HTMLElement} */
+  DomApi.prototype.firstElementChild;
+  /** @type {?HTMLElement} */
+  DomApi.prototype.lastElementChild;
+  /** @type {?HTMLElement} */
+  DomApi.prototype.nextElementSibling;
+  /** @type {?HTMLElement} */
+  DomApi.prototype.previousElementSibling;
+  /** @type {!Array<!Node>} */
+  DomApi.prototype.childNodes;
+  /** @type {!Array<!HTMLElement>} */
+  DomApi.prototype.children;
+  /** @type {?DOMTokenList} */
+  DomApi.prototype.classList;
+
+  /** @type {string} */
+  DomApi.prototype.textContent;
+  /** @type {string} */
+  DomApi.prototype.innerHTML;
+
+  forwardMethods(DomApi.prototype, ['cloneNode', 'appendChild', 'insertBefore', 'removeChild', 'replaceChild', 'setAttribute', 'removeAttribute', 'querySelector', 'querySelectorAll']);
+
+  forwardReadOnlyProperties(DomApi.prototype, ['parentNode', 'firstChild', 'lastChild', 'nextSibling', 'previousSibling', 'firstElementChild', 'lastElementChild', 'nextElementSibling', 'previousElementSibling', 'childNodes', 'children', 'classList']);
+
+  forwardProperties(DomApi.prototype, ['textContent', 'innerHTML']);
+
+  /**
    * Legacy DOM and Event manipulation API wrapper factory used to abstract
    * differences between native Shadow DOM and "Shady DOM" when polyfilling on
    * older browsers.
@@ -10677,8 +10926,8 @@
    *
    * @mixinFunction
    * @polymer
-   * @appliesMixin Polymer.ElementMixin
-   * @appliesMixin Polymer.GestureEventListeners
+   * @appliesMixin ElementMixin
+   * @appliesMixin GestureEventListeners
    * @property isAttached {boolean} Set to `true` in this element's
    *   `connectedCallback` and `false` in `disconnectedCallback`
    * @summary Element class mixin that provides Polymer's "legacy" API
@@ -10691,6 +10940,7 @@
      * @implements {Polymer_ElementMixin}
      * @implements {Polymer_GestureEventListeners}
      * @implements {Polymer_DirMixin}
+     * @private
      */
     var legacyElementBase = DirMixin(GestureEventListeners(ElementMixin(base)));
 
@@ -11185,7 +11435,7 @@
       }, {
         key: 'setScrollDirection',
         value: function setScrollDirection(direction, node) {
-          setTouchAction(node || this, DIRECTION_MAP[direction] || 'auto');
+          setTouchAction( /** @type {Element} */node || this, DIRECTION_MAP[direction] || 'auto');
         }
         /* **** End Events **** */
 
@@ -11240,7 +11490,7 @@
         key: 'getEffectiveChildNodes',
         value: function getEffectiveChildNodes() {
           var thisEl = /** @type {Element} */this;
-          var domApi = /** @type {Polymer.DomApi} */dom(thisEl);
+          var domApi = /** @type {DomApi} */dom(thisEl);
           return domApi.getEffectiveChildNodes();
         }
 
@@ -11257,7 +11507,7 @@
         key: 'queryDistributedElements',
         value: function queryDistributedElements(selector) {
           var thisEl = /** @type {Element} */this;
-          var domApi = /** @type {Polymer.DomApi} */dom(thisEl);
+          var domApi = /** @type {DomApi} */dom(thisEl);
           return domApi.queryDistributedElements(selector);
         }
 
@@ -11344,7 +11594,7 @@
         key: 'getContentChildNodes',
         value: function getContentChildNodes(slctr) {
           var content = this.root.querySelector(slctr || 'slot');
-          return content ? /** @type {Polymer.DomApi} */dom(content).getDistributedNodes() : [];
+          return content ? /** @type {DomApi} */dom(content).getDistributedNodes() : [];
         }
 
         /**
@@ -12071,9 +12321,11 @@
   // class only because Babel (incorrectly) requires super() in the class
   // constructor even though no `this` is used and it returns an instance.
   var newInstance = null;
+
   /**
    * @constructor
    * @extends {HTMLTemplateElement}
+   * @private
    */
   function HTMLTemplateElementExtension() {
     return newInstance;
@@ -12084,16 +12336,20 @@
       writable: true
     }
   });
+
   /**
    * @constructor
    * @implements {Polymer_PropertyEffects}
    * @extends {HTMLTemplateElementExtension}
+   * @private
    */
   var DataTemplate = PropertyEffects(HTMLTemplateElementExtension);
+
   /**
    * @constructor
    * @implements {Polymer_MutableData}
    * @extends {DataTemplate}
+   * @private
    */
   var MutableDataTemplate = MutableData(DataTemplate);
 
@@ -12105,10 +12361,11 @@
     newInstance = null;
   }
 
-  // Base class for TemplateInstance's
   /**
+   * Base class for TemplateInstance.
    * @constructor
    * @implements {Polymer_PropertyEffects}
+   * @private
    */
   var base = PropertyEffects(function () {
     function _class() {
@@ -12341,10 +12598,24 @@
     return TemplateInstanceBase;
   }(base);
 
+  /** @type {!DataTemplate} */
+
+
+  TemplateInstanceBase.prototype.__dataHost;
+  /** @type {!TemplatizeOptions} */
+  TemplateInstanceBase.prototype.__templatizeOptions;
+  /** @type {!Polymer_PropertyEffects} */
+  TemplateInstanceBase.prototype._methodHost;
+  /** @type {!Object} */
+  TemplateInstanceBase.prototype.__templatizeOwner;
+  /** @type {!Object} */
+  TemplateInstanceBase.prototype.__hostProps;
+
   /**
    * @constructor
    * @extends {TemplateInstanceBase}
    * @implements {Polymer_MutableData}
+   * @private
    */
   var MutableTemplateInstanceBase = MutableData(TemplateInstanceBase);
 
@@ -12396,6 +12667,7 @@
       var klass = templateInfo.templatizeTemplateClass;
       if (!klass) {
         var _base3 = options.mutableData ? MutableDataTemplate : DataTemplate;
+        /** @private */
         klass = templateInfo.templatizeTemplateClass = function (_base4) {
           inherits(TemplatizedTemplate, _base4);
 
@@ -12649,6 +12921,7 @@
    * @implements {Polymer_PropertyEffects}
    * @implements {Polymer_OptionalMutableData}
    * @implements {Polymer_GestureEventListeners}
+   * @private
    */
   var domBindBase = GestureEventListeners(OptionalMutableData(PropertyEffects(HTMLElement)));
 
@@ -12805,6 +13078,7 @@
     }
     /**
      * @return {string} LiteralString string value
+     * @override
      */
 
 
@@ -12858,6 +13132,7 @@
    * @constructor
    * @implements {Polymer_OptionalMutableData}
    * @extends {PolymerElement}
+   * @private
    */
   var domRepeatBase = OptionalMutableData(PolymerElement);
 
@@ -13985,6 +14260,7 @@
      * @constructor
      * @extends {superClass}
      * @implements {Polymer_ElementMixin}
+     * @private
      */
     var elementBase = ElementMixin(superClass);
 
@@ -14331,6 +14607,7 @@
    * @constructor
    * @extends {PolymerElement}
    * @implements {Polymer_ArraySelectorMixin}
+   * @private
    */
   var baseArraySelector = ArraySelectorMixin(PolymerElement);
 
@@ -14446,11 +14723,26 @@
   if (!window.ShadyCSS) {
     window.ShadyCSS = {
       /**
-       * @param {HTMLTemplateElement} template
+       * @param {!HTMLTemplateElement} template
        * @param {string} elementName
        * @param {string=} elementExtends
        */
       prepareTemplate: function prepareTemplate(template, elementName, elementExtends) {},
+      // eslint-disable-line no-unused-vars
+
+      /**
+       * @param {!HTMLTemplateElement} template
+       * @param {string} elementName
+       */
+      prepareTemplateDom: function prepareTemplateDom(template, elementName) {},
+      // eslint-disable-line no-unused-vars
+
+      /**
+       * @param {!HTMLTemplateElement} template
+       * @param {string} elementName
+       * @param {string=} elementExtends
+       */
+      prepareTemplateStyles: function prepareTemplateStyles(template, elementName, elementExtends) {},
       // eslint-disable-line no-unused-vars
 
       /**
@@ -14623,6 +14915,12 @@
   Code distributed by Google as part of the polymer project is also
   subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
   */
+
+  var mutablePropertyChange$1 = void 0;
+  /** @suppress {missingProperties} */
+  (function () {
+    mutablePropertyChange$1 = MutableData._mutablePropertyChange;
+  })();
 
   /**
   @license
