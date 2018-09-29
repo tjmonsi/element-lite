@@ -37,7 +37,7 @@ export const TemplateLite = dedupingMixin(base => {
         window.ShadyCSS.prepareTemplate(template, name);
       }
 
-      this.requestRender();
+      this._flushProperties();
     }
 
     _render () {
