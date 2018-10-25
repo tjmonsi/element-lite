@@ -2,7 +2,7 @@
 'use strict';
 
 import { dedupingMixin } from './lib/deduping-mixin.js';
-import { root } from './lib/path.js';
+import { root, getProp } from './lib/path.js';
 import { ownProperties } from './lib/own-properties.js';
 import { PropertiesLite } from './properties-lite.js';
 
