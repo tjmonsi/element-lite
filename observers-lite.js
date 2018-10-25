@@ -167,6 +167,29 @@ export const ObserversLite = dedupingMixin(base => {
         fn(...args);
       }
     }
+
+    /**
+     * Convenience method for reading a value from a path.
+     *
+     * Note, if any part in the path is undefined, this method returns
+     * `undefined` (this method does not throw when dereferencing undefined
+     * paths).
+     *
+     * @param {(string|!Array<(string|number)>)} path Path to the value
+     *   to read.  The path may be specified as a string (e.g. `foo.bar.baz`)
+     *   or an array of path parts (e.g. `['foo.bar', 'baz']`).  Note that
+     *   bracketed expressions are not supported; string-based path parts
+     *   *must* be separated by dots.  Note that when dereferencing array
+     *   indices, the index may be used as a dotted part directly
+     *   (e.g. `users.12.name` or `['users', 12, 'name']`).
+     * @param {Object=} root Root object from which the path is evaluated.
+     * @return {*} Value at the path, or `undefined` if any part of the path
+     *   is undefined.
+     * @public
+     */
+    get (path, root) {
+      return getProp(root || this, path, null);
+    }
   }
 
   return ObserversLite;

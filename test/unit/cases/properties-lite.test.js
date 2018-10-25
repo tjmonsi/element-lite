@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 
 suite('Properties Mixin', () => {
-  test('should have not be a HTMLUnknownElement constructor', () => {
+  test('should not be a HTMLUnknownElement constructor', () => {
     const el = document.querySelector('#test');
     expect(el.constructor.is).to.equal('test-element');
   });
@@ -34,5 +34,34 @@ suite('Properties Mixin', () => {
     const el = document.querySelector('#test');
     el.setAttribute('prop1', 'd');
     expect(el.prop1).to.equal('d');
+  });
+
+  test('when property is read-only, should not be able to change value', () => {
+    const el = document.querySelector('#test');
+    try {
+      el.prop5 = false;
+    } catch (e) {
+      expect(e).to.exist; // eslint-disable-line no-unused-expressions
+      expect(el.prop5).to.equal(true);
+    }
+
+    try {
+      el.setAttribute('prop5', false);
+    } catch (e) {
+      expect(e).to.exist; // eslint-disable-line no-unused-expressions
+      expect(el.prop5).to.equal(true);
+    }
+  });
+
+  test('when property is notify, we will get the value on the event\'s detail', done => {
+    const el = document.querySelector('#test');
+    const fn = (event) => {
+      const { detail } = event;
+      expect(detail).to.equal('hey');
+      el.removeEventListener('prop6-change', fn);
+      done();
+    }
+    el.addEventListener('prop6-change', fn);
+    el.prop6 = 'hey';
   });
 });

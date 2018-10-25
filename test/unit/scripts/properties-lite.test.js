@@ -27,6 +27,15 @@ class TestElement extends PropertiesLite(window.HTMLElement) {
       prop4: {
         type: String,
         reflectToAttribute: true
+      },
+      prop5: {
+        type: Boolean,
+        value: true,
+        readOnly: true
+      },
+      prop6: {
+        type: String,
+        notify: true
       }
     };
   }

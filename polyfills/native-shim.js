@@ -4,35 +4,58 @@
   (factory());
 }(this, (function () { 'use strict';
 
-  var classCallCheck = function (instance, Constructor) {
+  function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
-  };
+  }
 
-  var inherits = function (subClass, superClass) {
+  function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+      throw new TypeError("Super expression must either be null or a function");
     }
 
     subClass.prototype = Object.create(superClass && superClass.prototype, {
       constructor: {
         value: subClass,
-        enumerable: false,
         writable: true,
         configurable: true
       }
     });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  };
+    if (superClass) _setPrototypeOf(subClass, superClass);
+  }
 
-  var possibleConstructorReturn = function (self, call) {
-    if (!self) {
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  };
+    return self;
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (typeof call === "object" || typeof call === "function")) {
+      return call;
+    }
+
+    return _assertThisInitialized(self);
+  }
 
   // @ts-nocheck
 
@@ -98,112 +121,127 @@
    */
   (function () {
 
-    // Do nothing if `customElements` does not exist.
-
     if (!window.customElements) return;
-
     var NativeHTMLElement = window.HTMLElement;
     var nativeDefine = window.customElements.define;
     var nativeGet = window.customElements.get;
-
     /**
      * Map of user-provided constructors to tag names.
      *
      * @type {Map<Function, string>}
      */
-    var tagnameByConstructor = new Map();
 
+    var tagnameByConstructor = new Map();
     /**
      * Map of tag names to user-provided constructors.
      *
      * @type {Map<string, Function>}
      */
-    var constructorByTagname = new Map();
 
+    var constructorByTagname = new Map();
     /**
      * Whether the constructors are being called by a browser process, ie parsing
      * or createElement.
      */
-    var browserConstruction = false;
 
+    var browserConstruction = false;
     /**
      * Whether the constructors are being called by a user-space process, ie
      * calling an element constructor.
      */
+
     var userConstruction = false;
 
     window.HTMLElement = function () {
       if (!browserConstruction) {
         var tagname = tagnameByConstructor.get(this.constructor);
-        var fakeClass = nativeGet.call(window.customElements, tagname);
+        var fakeClass = nativeGet.call(window.customElements, tagname); // Make sure that the fake constructor doesn't call back to this constructor
 
-        // Make sure that the fake constructor doesn't call back to this constructor
         userConstruction = true;
         var instance = new fakeClass(); // eslint-disable-line
+
         return instance;
-      }
-      // Else do nothing. This will be reached by ES5-style classes doing
+      } // Else do nothing. This will be reached by ES5-style classes doing
       // HTMLElement.call() during initialization
+
+
       browserConstruction = false;
-    };
-    // By setting the patched HTMLElement's prototype property to the native
+    }; // By setting the patched HTMLElement's prototype property to the native
     // HTMLElement's prototype we make sure that:
     //     document.createElement('a') instanceof HTMLElement
     // works because instanceof uses HTMLElement.prototype, which is on the
     // ptototype chain of built-in elements.
+
+
     window.HTMLElement.prototype = NativeHTMLElement.prototype;
 
     var define = function define(tagname, elementClass) {
       var elementProto = elementClass.prototype;
-      var StandInElement = function (_NativeHTMLElement) {
-        inherits(StandInElement, _NativeHTMLElement);
+
+      var StandInElement =
+      /*#__PURE__*/
+      function (_NativeHTMLElement) {
+        _inherits(StandInElement, _NativeHTMLElement);
 
         function StandInElement() {
-          classCallCheck(this, StandInElement);
+          var _this;
 
-          // The prototype will be wrong up because the browser used our fake
-          // class, so fix it:
-          var _this = possibleConstructorReturn(this, (StandInElement.__proto__ || Object.getPrototypeOf(StandInElement)).call(this));
+          _classCallCheck(this, StandInElement);
+
           // Call the native HTMLElement constructor, this gives us the
           // under-construction instance as `this`:
+          _this = _possibleConstructorReturn(this, _getPrototypeOf(StandInElement).call(this)); // The prototype will be wrong up because the browser used our fake
+          // class, so fix it:
 
-
-          Object.setPrototypeOf(_this, elementProto);
+          Object.setPrototypeOf(_assertThisInitialized(_assertThisInitialized(_this)), elementProto);
 
           if (!userConstruction) {
             // Make sure that user-defined constructor bottom's out to a do-nothing
             // HTMLElement() call
-            browserConstruction = true;
-            // Call the user-defined constructor on our instance:
-            elementClass.call(_this);
+            browserConstruction = true; // Call the user-defined constructor on our instance:
+
+            elementClass.call(_assertThisInitialized(_assertThisInitialized(_this)));
           }
+
           userConstruction = false;
           return _this;
         }
 
         return StandInElement;
       }(NativeHTMLElement);
+
       var standInProto = StandInElement.prototype;
       StandInElement.observedAttributes = elementClass.observedAttributes;
       standInProto.connectedCallback = elementProto.connectedCallback;
       standInProto.disconnectedCallback = elementProto.disconnectedCallback;
       standInProto.attributeChangedCallback = elementProto.attributeChangedCallback;
       standInProto.adoptedCallback = elementProto.adoptedCallback;
-
       tagnameByConstructor.set(elementClass, tagname);
       constructorByTagname.set(tagname, elementClass);
       nativeDefine.call(window.customElements, tagname, StandInElement);
     };
 
-    var get$$1 = function get$$1(tagname) {
+    var get = function get(tagname) {
       return constructorByTagname.get(tagname);
-    };
-
-    // Workaround for Safari bug where patching customElements can be lost, likely
+    }; // Workaround for Safari bug where patching customElements can be lost, likely
     // due to native wrapper garbage collection issue
-    Object.defineProperty(window, 'customElements', { value: window.customElements, configurable: true, writable: true });
-    Object.defineProperty(window.customElements, 'define', { value: define, configurable: true, writable: true });
-    Object.defineProperty(window.customElements, 'get', { value: get$$1, configurable: true, writable: true });
+
+
+    Object.defineProperty(window, 'customElements', {
+      value: window.customElements,
+      configurable: true,
+      writable: true
+    });
+    Object.defineProperty(window.customElements, 'define', {
+      value: define,
+      configurable: true,
+      writable: true
+    });
+    Object.defineProperty(window.customElements, 'get', {
+      value: get,
+      configurable: true,
+      writable: true
+    });
   })();
 
 })));

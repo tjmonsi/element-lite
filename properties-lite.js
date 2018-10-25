@@ -137,10 +137,11 @@ export const PropertiesLite = dedupingMixin(base => {
       for (let prop in props) {
         const { value } = props[prop];
         if (value !== undefined && value !== null) {
-          this[prop] = value;
+          this._setProperty(prop, value);
+          // this[prop] = value;
 
-          // if native property, force invalidate using _setProperty method
-          if (nativeProperties[prop]) this._setProperty(prop, value);
+          // // if native property, force invalidate using _setProperty method
+          // if (nativeProperties[prop])
         }
       }
     }

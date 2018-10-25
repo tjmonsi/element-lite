@@ -1,19 +1,18 @@
 {
   "presets": [
     [
-      "env",
+      "@babel/preset-env",
       {
         "modules": false
       }
     ]
   ],
   "plugins": [
-    "external-helpers",
-    ["transform-runtime", {
+    "@babel/plugin-external-helpers",
+    ["@babel/plugin-transform-runtime", {
       "helpers": false,
-      "polyfill": false,
       "regenerator": true
     }],
-    ["transform-object-rest-spread", {"useBuiltIns": true}]
+    ["@babel/plugin-proposal-object-rest-spread", {"useBuiltIns": true}]
   ]
 }

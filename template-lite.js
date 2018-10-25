@@ -4,6 +4,8 @@
 import { dedupingMixin } from './lib/deduping-mixin.js';
 import { InvalidatePropertiesMixin } from './lib/invalidate-properties-mixin.js';
 
+const shadyCSS = {};
+
 export const TemplateLite = dedupingMixin(base => {
   class TemplateLite extends /** @type {HTMLElement} */InvalidatePropertiesMixin(base) {
     static get renderer () {
@@ -34,7 +36,10 @@ export const TemplateLite = dedupingMixin(base => {
 
       if (window.ShadyCSS) {
         const name = this.constructor.is || this.tagName.toLowerCase();
-        window.ShadyCSS.prepareTemplate(template, name);
+        if (!shadyCSS[name]) {
+          window.ShadyCSS.prepareTemplate(template, name);
+          shadyCSS[name] = true;
+        }
       }
 
       this._flushProperties();
@@ -45,6 +50,9 @@ export const TemplateLite = dedupingMixin(base => {
       if (!this.constructor.renderer) {
         const template = document.createElement('template');
         template.innerHTML = result || '';
+        while (this._root.firstChild) { // reset innerHTML
+          this._root.removeChild(this._root.firstChild);
+        }
         this._root.appendChild(document.importNode(template.content, true));
       } else if (result) {
         this.constructor.renderer(result, this._root);
