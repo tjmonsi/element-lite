@@ -81,26 +81,25 @@ export const ObjectAccessorsLite = dedupingMixin(base => {
      * @protected
      */
     _setPendingProperty (property, value) {
-      let path = this.__dataHasPaths && isPath(property);
-      let prevProps = path ? this.__dataTemp : this.__data;
+      let path = this._dataHasPaths && isPath(property);
+      let prevProps = path ? this._dataTemp : this._dataProps;
       if (this._shouldPropertyChange(property, value, prevProps[property])) {
-        if (!this.__dataPending) {
-          this.__dataPending = {};
-          this.__dataOld = {};
+        if (!this._dataPending) {
+          this._dataPending = {};
         }
         // Ensure old is captured from the last turn
-        if (!(property in this.__dataOld)) {
-          this.__dataOld[property] = this.__data[property];
+        if (!(property in this._dataOldProps)) {
+          this._dataOldProps[property] = this._dataProps[property];
         }
 
         if (path) {
-          this.__dataTemp[property] = value;
+          this._dataTemp[property] = value;
         } else {
-          this.__data[property] = value;
+          this._dataProps[property] = value;
         }
 
         // All changes go into pending property bag, passed to _propertiesChanged
-        this.__dataPending[property] = value;
+        this._dataPending[property] = value;
         return true;
       }
       return false;
@@ -113,9 +112,9 @@ export const ObjectAccessorsLite = dedupingMixin(base => {
      * @protected
      */
     _flushProperties (forceFlush) {
-      this.__dataCounter++;
+      this._dataCounter++;
       super._flushProperties(forceFlush);
-      this.__dataCounter--;
+      this._dataCounter--;
     }
 
     _propertiesChanged (currentProps, changedProps, oldProps) {
