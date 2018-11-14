@@ -1,0 +1,33 @@
+# TODO
+- Test properties-lite
+  - basic
+    - that there is prop1
+    - when prop1 is set to 'x', prop1 is 'x'
+    - when prop1 is set to 'y' using setAttribute, prop1 is 'y'
+  - default value
+    - that there is prop2 and value 'z'
+  - readonly
+    - that there is prop3 and cannot be set to 'a' (will throw error)
+  - reflectToAttribute
+    - that there is prop4 and when prop4 is changed to 'b', getAttribute will show 'b'
+  - notify
+    - that there is prop5 and when prop5 is changed to 'c', event 'prop5-change' will have a detail of 'c'
+- Test observers-lite
+  - basic
+    - that there is prop1
+    - when prop1 is set to 'x', observer is called
+    - when setAttribute is called on prop1, observer is called
+  - default value
+    - that there is prop2
+    - when prop2 has default 'y', observer is already called immediately
+  - multiple values on observers
+    - that there are prop3 and prop4
+    - when prop3 and prop4 are set, observer function should be called once
+    - that there are prop5 with default and prop6 without
+    - observer function should be called once with prop5 having value and prop6 without
+    - when prop5 is set and prop6, observer function should be called again with both having values
+- Test object-properties-lite
+  - basic
+    - that there is prop1 as object with x attribute
+    - when set as object, prop1.x should have value
+    - when using "set" function, prop1.x should have same value

@@ -22,7 +22,7 @@ export const ArrayAccessorsLite = dedupingMixin(base => {
      * @public
      */
     push (path, ...items) {
-      let info = {path: ''};
+      let info = { path: '' };
       let array = getProp(this, path, info);
       // use immutability for now
       let ret = [ ...array, ...items ];
@@ -44,7 +44,7 @@ export const ArrayAccessorsLite = dedupingMixin(base => {
      * @public
      */
     pop (path) {
-      let info = {path: ''};
+      let info = { path: '' };
       let array = getProp(this, path, info);
       let hadLength = Boolean(array.length);
       // use immutability for now
@@ -73,7 +73,7 @@ export const ArrayAccessorsLite = dedupingMixin(base => {
      * @public
      */
     splice (path, start, deleteCount, ...items) {
-      let info = {path: ''};
+      let info = { path: '' };
       let array = getProp(this, path, info);
       // Normalize fancy native splice handling of crazy start values
       if (start < 0) start = array.length - Math.floor(-start);
@@ -122,7 +122,7 @@ export const ArrayAccessorsLite = dedupingMixin(base => {
      * @public
      */
     shift (path) {
-      let info = {path: ''};
+      let info = { path: '' };
       let array = getProp(this, path, info);
       let hadLength = Boolean(array.length);
       // use immutability for now
@@ -148,7 +148,7 @@ export const ArrayAccessorsLite = dedupingMixin(base => {
      * @public
      */
     unshift (path, ...items) {
-      let info = {path: ''};
+      let info = { path: '' };
       let array = getProp(this, path, info);
       // use immutability for now
       let ret = [ ...items, ...array ];
