@@ -24,7 +24,11 @@ export const TemplateLite = dedupingMixin(base => {
     }
 
     initialize () {
-      this.renderRoot = this.createRenderRoot();
+      try {
+        this.renderRoot = this.renderRoot || this.createRenderRoot();
+      } catch (error) {
+        console.log(error);
+      }
 
       const result = this.template();
       const template = document.createElement('template');
@@ -44,7 +48,7 @@ export const TemplateLite = dedupingMixin(base => {
           shadyCSS[name] = true;
         }
       }
-      super.initialize();
+      if (super.initialize) super.initialize();
     }
 
     connectedCallback () {
@@ -56,6 +60,7 @@ export const TemplateLite = dedupingMixin(base => {
       if (super.connectedCallback && typeof super.coonectedCallback === 'function') {
         super.connectedCallback();
       } else {
+        this.initialize();
         this._render();
       }
     }
