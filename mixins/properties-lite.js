@@ -125,7 +125,7 @@ export const PropertiesLite = dedupingMixin(base => {
         : (typeof attribute === 'string'
           ? attribute
           // CHANGED: changed from original lit-element procedure to get a dash-to-camel attribute to dashToCamel property
-          : (typeof name === 'string' ? dashToCamelCase(name)
+          : (typeof name === 'string' ? camelToDashCase(name)
             : undefined));
     }
 
@@ -306,8 +306,8 @@ export const PropertiesLite = dedupingMixin(base => {
 
     _setInitialValue () {
       for (const [prop, options] of this.constructor._classProperties) {
-        if (options && options.value) {
-          this[prop] = options.value;
+        if (options && options.value !== undefined && options.value !== null) {
+          this[prop] = this.getAttribute(camelToDashCase(prop)) || options.value;
         }
       }
     }
@@ -338,7 +338,7 @@ export const PropertiesLite = dedupingMixin(base => {
      */
     attributeChangedCallback (name, old, value) {
       if (old !== value) {
-        this._attributeToProperty(name, value);
+        this._attributeToProperty(dashToCamelCase(name), value);
       }
     }
 
@@ -477,7 +477,6 @@ export const PropertiesLite = dedupingMixin(base => {
       }
       if (this.shouldUpdate(this._changedProperties)) {
         const changedProperties = this._changedProperties;
-        // console.log(changedProperties)
         this.update(changedProperties);
         this._markUpdated();
         if (!(this._updateState & STATE_HAS_UPDATED)) {
@@ -539,10 +538,6 @@ export const PropertiesLite = dedupingMixin(base => {
           this._propertyNotify(prop, this[prop], value);
         }
         this._notifyProperties = undefined;
-      }
-
-      for (const [prop] of this._changedProperties) {
-        console.log(prop, this[root(prop)]);
       }
     }
     /**
