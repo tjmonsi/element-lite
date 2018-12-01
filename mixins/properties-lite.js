@@ -2,7 +2,7 @@
 'use strict';
 
 import { dedupingMixin } from '../lib/deduping-mixin.js';
-import { root } from '../lib/path.js';
+import { root, getProp } from '../lib/path.js';
 // import { ownProperties } from '../lib/own-properties.js';
 import { dashToCamelCase, camelToDashCase } from '../lib/case-map.js';
 
@@ -400,7 +400,7 @@ export const PropertiesLite = dedupingMixin(base => {
      */
     requestUpdate (name, oldValue) {
       if (name !== undefined) {
-        const options = this.constructor._classProperties.get(name) || defaultPropertyDeclaration;
+        const options = this.constructor._classProperties.get(root(name)) || defaultPropertyDeclaration;
         return this._requestPropertyUpdate(name, oldValue, options);
       }
       return this._invalidate();
@@ -413,7 +413,7 @@ export const PropertiesLite = dedupingMixin(base => {
      * @param options {PropertyDeclaration}
      */
     _requestPropertyUpdate (name, oldValue, options) {
-      if (!this.constructor._valueHasChanged(this[name], oldValue, options.hasChanged)) {
+      if (!this.constructor._valueHasChanged(getProp(this, name), oldValue, options.hasChanged)) {
         return this.updateComplete;
       }
       // track old value when changing.
@@ -432,7 +432,7 @@ export const PropertiesLite = dedupingMixin(base => {
         if (this._reflectingProperties === undefined) {
           this._reflectingProperties = new Map();
         }
-        this._reflectingProperties.set(name, options);
+        this._reflectingProperties.set(root(name), options);
       }
 
       // ADDED: to add notify
@@ -440,7 +440,7 @@ export const PropertiesLite = dedupingMixin(base => {
         if (this._notifyProperties === undefined) {
           this._notifyProperties = new Map();
         }
-        this._notifyProperties.set(name, options);
+        this._notifyProperties.set(root(name), options);
       }
     }
 
@@ -542,7 +542,7 @@ export const PropertiesLite = dedupingMixin(base => {
       }
 
       for (const [prop] of this._changedProperties) {
-        console.log(this[prop]);
+        console.log(prop, this[root(prop)]);
       }
     }
     /**

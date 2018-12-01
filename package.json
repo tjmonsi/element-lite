@@ -11,16 +11,6 @@
     "pretest": "npm run build",
     "prepublish": "npm run build"
   },
-  "files": [
-    "properties-lite.js",
-    "observers-lite.js",
-    "object-accessors-lite.js",
-    "array-accessors-lite.js",
-    "template-lite.js",
-    "element-lite.js",
-    "lib",
-    "dist"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tjmonsi/element-lite.git"
@@ -45,19 +35,19 @@
       "limit": "2.5KB"
     },
     {
-      "path": "properties-lite.js",
-      "limit": "2KB"
-    },
-    {
-      "path": "observers-lite.js",
-      "limit": "2.5KB"
-    },
-    {
-      "path": "object-accessors-lite.js",
+      "path": "mixins/object-accessors-lite.js",
       "limit": "1KB"
     },
     {
-      "path": "array-accessors-lite.js",
+      "path": "mixins/object-properties-lite.js",
+      "limit": "2.5KB"
+    },
+    {
+      "path": "mixins/object-observers-lite.js",
+      "limit": "2.5KB"
+    },
+    {
+      "path": "mixins/array-accessors-lite.js",
       "limit": "1KB"
     },
     {
@@ -111,7 +101,7 @@
     "eslint-plugin-promise": "4.0.0",
     "eslint-plugin-standard": "^4.0.0",
     "i": "^0.3.6",
-    "lit-html": "^0.11.0",
+    "lit-html": "^0.14.0",
     "lodash": "^4.17.10",
     "mocha": "5.2.0",
     "npm": "^6.4.1",

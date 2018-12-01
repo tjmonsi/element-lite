@@ -1,7 +1,7 @@
-/// <reference path="typings-project/global.d.ts"/>
+/// <reference path="../typings-project/global.d.ts"/>
 'use strict';
 
-import { dedupingMixin } from './lib/deduping-mixin.js';
+import { dedupingMixin } from '../lib/deduping-mixin.js';
 import { PropertiesLite } from './properties-lite.js';
 import { ObjectAccessorsLite } from './object-accessors-lite.js';
 

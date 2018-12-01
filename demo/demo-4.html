@@ -7,14 +7,15 @@
   </body>
   <script type="module">
     // import { ObserversLite } from '../observers-lite.js';
-    // import { ObjectAccessorsLite } from '../object-accessors-lite.js';
-    // import { TemplateLite } from '../template-lite.js';
+    // import { html, render } from '../node_modules/lit-html/lit-html.js'
+    import { ObjectAccessorsLite } from '../mixins/object-accessors-lite.js';
+    import { TemplateLite } from '../mixins/template-lite.js';
     import { ObserversLite } from '../mixins/observers-lite.js';
     import { render, html } from '../node_modules/lit-html/lit-html.js';
     const { customElements, HTMLElement } = window;
     const propertiesEelement = 'properties-element';
 
-    class PropertiesElement extends ObserversLite(HTMLElement) {
+    class PropertiesElement extends TemplateLite(ObjectAccessorsLite(ObserversLite(HTMLElement))) {
       static get properties () {
         return {
           prop1: {
@@ -39,6 +40,10 @@
         };
       }
 
+      static get renderer () {
+        return render;
+      }
+
       static get observers () {
         return [
           '_prop3Changed(prop3.x)'
@@ -50,7 +55,7 @@
       // }
 
       template () {
-        return `Hey ${this.prop1} ${this.prop2} ${this.prop3.x}`;
+        return html`Hey ${this.prop1} ${this.prop2} ${this.prop3 ? this.prop3.x : ''}`;
       }
 
       _prop3Changed(x) {
@@ -75,7 +80,7 @@
       setTimeout(() => {
         el.prop1 = 'TJ2';
         el.prop2 = '!!!';
-        // el.set('prop3.x', 2)
+        el.set('prop3.x', 2)
 
         setTimeout(() => {
           el.prop3 = {

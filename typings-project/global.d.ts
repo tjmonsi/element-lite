@@ -1,6 +1,7 @@
 interface Window {
   HTMLElement: typeof HTMLElement,
-  CustomEvent: typeof CustomEvent
+  CustomEvent: typeof CustomEvent,
+  ShadyCSS: typeof any
 }
 
 interface Function {
@@ -12,11 +13,16 @@ interface Function {
 }
 
 interface HTMLElement {
+  constructor ()
   attachShadow(mode)
   connectedCallback ()
   disconnectedCallback ()
   attributeChangedCallback (name, old, value)
   shadowRoot: typeof Element | Element | DocumentFragment | document
+}
+
+interface PropertiesLite extends HTMLElement {
+  requestRender (name?, oldValue?)
 }
 
 interface shadowRoot {
