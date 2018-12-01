@@ -53,7 +53,11 @@ export const TemplateLite = dedupingMixin(base => {
           window.ShadyCSS.styleElement(this);
         }
       }
-      if (super.connectedCallback && typeof super.coonectedCallback === 'function') super.connectedCallback();
+      if (super.connectedCallback && typeof super.coonectedCallback === 'function') {
+        super.connectedCallback();
+      } else {
+        this._render();
+      }
     }
 
     /**
@@ -74,7 +78,11 @@ export const TemplateLite = dedupingMixin(base => {
      * * @param _changedProperties Map of changed properties with old values
      */
     update (changedProperties) {
-      super.update(changedProperties);
+      if (super.update) super.update(changedProperties);
+      this._render();
+    }
+
+    _render () {
       const result = this.template();
 
       if (!this.constructor.renderer) {
