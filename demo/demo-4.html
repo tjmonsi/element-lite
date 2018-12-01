@@ -9,12 +9,12 @@
     // import { ObserversLite } from '../observers-lite.js';
     // import { ObjectAccessorsLite } from '../object-accessors-lite.js';
     // import { TemplateLite } from '../template-lite.js';
-    import { PropertiesLite } from '../mixins/properties-lite.js';
+    import { ObserversLite } from '../mixins/observers-lite.js';
     import { render, html } from '../node_modules/lit-html/lit-html.js';
     const { customElements, HTMLElement } = window;
     const propertiesEelement = 'properties-element';
 
-    class PropertiesElement extends PropertiesLite(HTMLElement) {
+    class PropertiesElement extends ObserversLite(HTMLElement) {
       static get properties () {
         return {
           prop1: {
@@ -23,13 +23,18 @@
           },
           prop2: {
             type: String,
-            value: 'Hey'
+            value: 'Hey',
+            observer: '_prop2Changed'
           },
           prop3: {
             type: Object,
             value: {
               x: 1
             }
+          },
+          title: {
+            type: String,
+            value: 'this is a title'
           }
         };
       }
@@ -49,6 +54,10 @@
       }
 
       _prop3Changed(x) {
+        console.log(x)
+      }
+
+      _prop2Changed(x) {
         console.log(x)
       }
     }

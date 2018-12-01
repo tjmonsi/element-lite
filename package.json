@@ -41,6 +41,10 @@
       "limit": "2KB"
     },
     {
+      "path": "mixins/observers-lite.js",
+      "limit": "2.5KB"
+    },
+    {
       "path": "properties-lite.js",
       "limit": "2KB"
     },

@@ -428,7 +428,7 @@ export const PropertiesLite = dedupingMixin(base => {
 
     _requestPropertyUpdateOptions (name, options) {
       // add to reflecting properties set
-      if (options.reflect === true) {
+      if (options && options.reflect === true) {
         if (this._reflectingProperties === undefined) {
           this._reflectingProperties = new Map();
         }
@@ -436,7 +436,7 @@ export const PropertiesLite = dedupingMixin(base => {
       }
 
       // ADDED: to add notify
-      if (options.notify === true) {
+      if (options && options.notify === true) {
         if (this._notifyProperties === undefined) {
           this._notifyProperties = new Map();
         }
