@@ -53,7 +53,7 @@ export const TemplateLite = dedupingMixin(base => {
           window.ShadyCSS.styleElement(this);
         }
       }
-      super.connectedCallback();
+      if (super.connectedCallback && typeof super.coonectedCallback === 'function') super.connectedCallback();
     }
 
     /**
