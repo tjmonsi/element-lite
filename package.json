@@ -1,6 +1,6 @@
 {
   "name": "@tjmonsi/element-lite",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A take on using lit-html and polymer's properties-mixin",
   "browser": "dist/element-lite.umd.js",
   "scripts": {
