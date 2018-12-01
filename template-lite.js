@@ -5,6 +5,9 @@ import { dedupingMixin } from './lib/deduping-mixin.js';
 import { InvalidatePropertiesMixin } from './lib/invalidate-properties-mixin.js';
 
 const shadyCSS = {};
+// const STATE_HAS_UPDATED = 1;
+const STATE_UPDATE_REQUESTED = 1 << 2;
+// const STATE_IS_REFLECTING = 1 << 3;
 
 export const TemplateLite = dedupingMixin(base => {
   class TemplateLite extends /** @type {HTMLElement} */InvalidatePropertiesMixin(base) {
@@ -23,6 +26,7 @@ export const TemplateLite = dedupingMixin(base => {
 
     constructor () {
       super();
+      this._updateState = 0;
       this._root = this.constructor.noShadow ? this : this.attachShadow({ mode: 'open' });
 
       const result = this.template();
@@ -108,9 +112,33 @@ export const TemplateLite = dedupingMixin(base => {
     /**
      * Override which provides tracking of invalidated state.
      */
-    _invalidateProperties () {
+    async _invalidateProperties () {
       this._isInvalid = true;
-      super._invalidateProperties();
+      // console.log(this._hasRequestedUpdate)
+
+      if (!this._hasRequestedUpdate) {
+        // mark state updating...
+        this._updateState = this._updateState | STATE_UPDATE_REQUESTED;
+        let resolver;
+        const previousValidatePromise = this._updatePromise;
+        this._updatePromise = new Promise(resolve => { resolver = resolve; });
+        await previousValidatePromise;
+        super._invalidateProperties();
+        // this._validate();
+        this._updateState = this._updateState & ~STATE_UPDATE_REQUESTED;
+        resolver(!this._hasRequestedUpdate);
+        // resolver!(!this._hasRequestedUpdate);
+      }
+
+      return this.updateComplete;
+    }
+
+    get _hasRequestedUpdate () {
+      return (this._updateState & STATE_UPDATE_REQUESTED);
+    }
+
+    get updateComplete () {
+      return this._updatePromise;
     }
   }
 

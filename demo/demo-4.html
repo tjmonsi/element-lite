@@ -6,14 +6,15 @@
     <properties-element prop1='hey'></properties-element>
   </body>
   <script type="module">
-    import { ObserversLite } from '../observers-lite.js';
-    import { ObjectAccessorsLite } from '../object-accessors-lite.js';
-    import { TemplateLite } from '../template-lite.js';
+    // import { ObserversLite } from '../observers-lite.js';
+    // import { ObjectAccessorsLite } from '../object-accessors-lite.js';
+    // import { TemplateLite } from '../template-lite.js';
+    import { PropertiesLite } from '../mixins/properties-lite.js';
     import { render, html } from '../node_modules/lit-html/lit-html.js';
     const { customElements, HTMLElement } = window;
     const propertiesEelement = 'properties-element';
 
-    class PropertiesElement extends TemplateLite(ObjectAccessorsLite(ObserversLite(HTMLElement))) {
+    class PropertiesElement extends PropertiesLite(HTMLElement) {
       static get properties () {
         return {
           prop1: {
@@ -56,14 +57,16 @@
 
     setTimeout(() => {
       const el = document.querySelector(propertiesEelement);
+      // console.log(el.prop1)
       el.addEventListener('prop1-change', e => {
-        console.log(e.detail);
+        console.log(e.detail, 'prop1-change');
       });
       el.prop1 = 'TJ';
+      // console.log(el.prop1)
       setTimeout(() => {
         el.prop1 = 'TJ2';
         el.prop2 = '!!!';
-        el.set('prop3.x', 2)
+        // el.set('prop3.x', 2)
 
         setTimeout(() => {
           el.prop3 = {

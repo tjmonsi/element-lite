@@ -143,6 +143,12 @@ export const PropertiesLite = dedupingMixin(base => {
           // // if native property, force invalidate using _setProperty method
           // if (nativeProperties[prop])
         }
+
+        // get attributes if there's any
+        const attrValue = this.getAttribute(camelToDashCase(prop));
+        if (attrValue !== undefined && attrValue !== null) {
+          this._setProperty(prop, this._deserializeValue(attrValue));
+        }
       }
     }
 
