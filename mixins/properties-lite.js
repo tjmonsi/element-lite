@@ -566,7 +566,7 @@ export const PropertiesLite = dedupingMixin(base => {
   //  * Maps attribute names to properties; for example `foobar` attribute
   //  * to `fooBar` property.
   //  */
-  // PropertiesLite._attributeToPropertyMap = new Map();
+  PropertiesLite._attributeToPropertyMap = new Map();
   // /**
   //  * Marks class as having finished creating properties.
   //  */
@@ -574,7 +574,7 @@ export const PropertiesLite = dedupingMixin(base => {
   // /**
   //  * Memoized list of all class properties, including any superclass properties.
   //  */
-  // PropertiesLite._classProperties = new Map(null);
+  PropertiesLite._classProperties = new Map(null);
   PropertiesLite.properties = {};
 
   return PropertiesLite;
