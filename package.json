@@ -28,7 +28,7 @@
   "size-limit": [
     {
       "path": "mixins/properties-lite.js",
-      "limit": "2KB"
+      "limit": "2.5KB"
     },
     {
       "path": "mixins/observers-lite.js",
@@ -48,10 +48,6 @@
     },
     {
       "path": "mixins/array-accessors-lite.js",
-      "limit": "1KB"
-    },
-    {
-      "path": "template-lite.js",
       "limit": "1KB"
     },
     {

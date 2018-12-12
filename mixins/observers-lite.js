@@ -46,7 +46,7 @@ export const ObserversLite = dedupingMixin(base => {
         for (const [prop, fn] of this._callObserverProperties) {
           this[fn](this[prop], _changedProperties.get(prop));
         }
-        this._notifyProperties = undefined;
+        this._callObserverProperties = undefined;
       }
 
       if (this._observersMap !== undefined && this._observersMap.size > 0) {
@@ -63,6 +63,8 @@ export const ObserversLite = dedupingMixin(base => {
             this[fn](...newArgs);
           }
         }
+
+        this._observersMap = undefined;
       }
     }
   }
