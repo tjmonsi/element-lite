@@ -104,7 +104,9 @@ export const PropertiesLite = dedupingMixin(base => {
 
       const key = typeof name === 'symbol' ? Symbol(name) : `__${name}`;
       Object.defineProperty(this.prototype, name, {
-        get () { return this[key]; },
+        get () {
+          return this[key];
+        },
         set (value) {
           const oldValue = this[name];
           this[key] = value;
@@ -380,7 +382,11 @@ export const PropertiesLite = dedupingMixin(base => {
         const propName = ctor._attributeToPropertyMap.get(name);
         if (propName !== undefined) {
           const options = ctor._classProperties.get(propName);
-          this[propName] = ctor._propertyValueFromAttribute(value, options);
+          const newValue = ctor._propertyValueFromAttribute(value, options);
+
+          if (this[propName] !== newValue) {
+            this[propName] = newValue;
+          }
         }
       }
     }
@@ -422,7 +428,6 @@ export const PropertiesLite = dedupingMixin(base => {
       }
 
       this._requestPropertyUpdateOptions(name, options);
-
       return this._invalidate();
     }
 

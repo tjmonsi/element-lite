@@ -44,7 +44,9 @@ export const ObserversLite = dedupingMixin(base => {
 
       if (this._callObserverProperties !== undefined && this._callObserverProperties.size > 0) {
         for (const [prop, fn] of this._callObserverProperties) {
-          this[fn](this[prop], _changedProperties.get(prop));
+          if (this[prop] !== _changedProperties.get(prop)) {
+            this[fn](this[prop], _changedProperties.get(prop));
+          }
         }
         this._callObserverProperties = undefined;
       }

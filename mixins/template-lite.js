@@ -27,7 +27,7 @@ export const TemplateLite = dedupingMixin(base => {
       try {
         this.renderRoot = this.renderRoot || this.createRenderRoot();
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
 
       const result = this.template();
@@ -57,7 +57,7 @@ export const TemplateLite = dedupingMixin(base => {
           window.ShadyCSS.styleElement(this);
         }
       }
-      if (super.connectedCallback && typeof super.coonectedCallback === 'function') {
+      if (super.connectedCallback && typeof super.connectedCallback === 'function') {
         super.connectedCallback();
       } else {
         this.initialize();
