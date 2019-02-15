@@ -65,8 +65,6 @@ export const ObserversLite = dedupingMixin(base => {
             this[fn](...newArgs);
           }
         }
-
-        this._observersMap = undefined;
       }
     }
   }
