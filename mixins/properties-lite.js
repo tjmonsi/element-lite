@@ -4,7 +4,7 @@
 import { dedupingMixin } from '../lib/deduping-mixin.js';
 import { root, getProp } from '../lib/path.js';
 // import { ownProperties } from '../lib/own-properties.js';
-import { dashToCamelCase, camelToDashCase } from '../lib/case-map.js';
+import { camelToDashCase } from '../lib/case-map.js';
 
 const microtaskPromise = new Promise(resolve => resolve(true));
 
@@ -308,7 +308,7 @@ export const PropertiesLite = dedupingMixin(base => {
 
     _setInitialValue () {
       for (const [prop, options] of this.constructor._classProperties) {
-        if (options && options.value !== undefined && options.value !== null) {
+        if (options && options.value !== undefined && options.value !== null && this[prop] === undefined) {
           this[prop] = this.getAttribute(camelToDashCase(prop)) || options.value;
         }
       }
@@ -340,7 +340,7 @@ export const PropertiesLite = dedupingMixin(base => {
      */
     attributeChangedCallback (name, old, value) {
       if (old !== value) {
-        this._attributeToProperty(dashToCamelCase(name), value);
+        this._attributeToProperty(name, value);
       }
     }
 
