@@ -74,7 +74,7 @@
   "dependencies": {
     "@babel/runtime": "7.6.3",
     "@webcomponents/shadycss": "1.9.2",
-    "@webcomponents/webcomponentsjs": "2.4.0",
+    "@webcomponents/webcomponentsjs": "2.4.2",
     "es6-symbol": "3.1.2"
   },
   "devDependencies": {
