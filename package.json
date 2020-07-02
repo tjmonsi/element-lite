@@ -72,20 +72,20 @@
     ]
   },
   "dependencies": {
-    "@babel/runtime": "7.6.3",
+    "@babel/runtime": "7.10.4",
     "@webcomponents/shadycss": "1.9.2",
     "@webcomponents/webcomponentsjs": "2.4.0",
     "es6-symbol": "3.1.2"
   },
   "devDependencies": {
-    "@babel/core": "7.6.4",
-    "@babel/plugin-external-helpers": "7.2.0",
-    "@babel/plugin-proposal-object-rest-spread": "7.6.2",
-    "@babel/plugin-transform-runtime": "7.6.2",
-    "@babel/preset-env": "7.6.3",
+    "@babel/core": "7.10.4",
+    "@babel/plugin-external-helpers": "7.10.4",
+    "@babel/plugin-proposal-object-rest-spread": "7.10.4",
+    "@babel/plugin-transform-runtime": "7.10.4",
+    "@babel/preset-env": "7.10.4",
     "@polymer/iron-test-helpers": "3.0.1",
     "@polymer/lit-element": "0.7.1",
-    "babel-eslint": "10.0.3",
+    "babel-eslint": "10.1.0",
     "eslint": "6.6.0",
     "eslint-config-semistandard": "15.0.0",
     "eslint-config-standard": "14.1.0",
